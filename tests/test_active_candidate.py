@@ -21,9 +21,9 @@ def _write_config(tmp_path: Path, body: str) -> Path:
 
 
 def test_active_candidate_v1_loads():
-    """The default repo config resolves final_candidate_v1's four files."""
+    """The default repo config resolves final_candidate_v2_auto_science's four files."""
     candidate = load_active_candidate()
-    assert candidate.name == "final_candidate_v1"
+    assert candidate.name == "final_candidate_v2_auto_science"
     assert candidate.score_predictions_path.exists()
     assert candidate.standing_predictions_path.exists()
     assert candidate.last8_predictions_path.exists()

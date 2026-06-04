@@ -44,14 +44,18 @@ def test_render_html_produces_self_contained_page():
     assert "function render" in html
     # All required functionality markers are present.
     for marker in [
-        "Active",  # 🧭 Active
+        "Overview",
+        "Submit Scores",
+        "Scores to fill in",
+        "Group Standings",
+        "Last-8",
+        "Live Results",
+        "Prediction vs Actual",
         "Score input instructions",  # 📱 Score input instructions
         "Played",  # 📋 Played
         "Points",  # 🏅 Points
-        "Prediction",  # 🎯 Prediction
         "Live group tables",  # 📊 Live group tables
         "Remaining",  # ⏭️ Remaining
-        "Last-8",  # 🏁 Last-8
     ]:
         assert marker in html, f"missing marker: {marker}"
 
@@ -60,16 +64,23 @@ def test_dashboard_includes_prediction_vs_actual_section():
     payload = build_mobile_dashboard.build_payload()
     assert "prediction_vs_actual" in payload
     assert "scoring_summary" in payload
+    assert "submission_score_predictions" in payload
+    assert "submission_summary" in payload
+    assert payload["submission_summary"]["manual_review_rows_auto_resolved"] == 21
+    assert payload["submission_summary"]["ev_overrides_accepted"] == 0
+    assert payload["submission_summary"]["ev_overrides_rejected"] == 27
+    assert payload["submission_summary"]["safe_scores_kept"] == 72
+    assert len(payload["submission_score_predictions"]) == 72
     html = build_mobile_dashboard.render_html(payload)
-    assert "Prediction vs actual" in html
+    assert "Prediction vs Actual" in html
 
 
 def test_dashboard_displays_active_candidate_name():
     payload = build_mobile_dashboard.build_payload()
-    assert payload["active_candidate"]["name"] == "final_candidate_v1"
+    assert payload["active_candidate"]["name"] == "final_candidate_v2_auto_science"
     html = build_mobile_dashboard.render_html(payload)
     # The candidate name is embedded (in the payload JSON and rendered into the header).
-    assert "final_candidate_v1" in html
+    assert "final_candidate_v2_auto_science" in html
     assert "Active candidate" in html
 
 
@@ -91,9 +102,14 @@ def test_build_main_creates_html_and_json():
     assert "scoring_summary" in data
     assert json.loads(docs_json.read_text()) == data
     html = live_html.read_text()
+    assert "Scores to fill in" in html
+    assert "Group standings to fill in" in html
+    assert "Last-8 / progression picks to fill in" in html
     assert "No matches played yet" in html
     assert "No scoring summary yet" in html
     assert "Loaded keys" in html
+    assert "manual decision required" not in html.lower()
+    assert "manual review required" not in html.lower()
     assert "try {" in html
 
 
