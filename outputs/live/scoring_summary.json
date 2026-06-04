@@ -1,0 +1,22 @@
+{
+  "generated_at": "2026-06-04T20:10:22Z",
+  "active_candidate": {
+    "name": "final_candidate_v1",
+    "active_candidate_dir": "outputs/final_candidate_v1",
+    "score_predictions_file": "final_group_score_predictions.csv",
+    "standing_predictions_file": "final_group_standing_predictions.csv",
+    "last8_predictions_file": "final_last8_predictions.csv",
+    "submission_pack_file": "final_submission_pack.csv",
+    "config_path": "data/live/active_candidate.yml",
+    "config_existed": true
+  },
+  "played_matches": 0,
+  "exact_scores_correct": 0,
+  "goal_differences_correct": 0,
+  "outcomes_correct": 0,
+  "total_points": 0.0,
+  "possible_points_for_played_matches": 0.0,
+  "points_missed": 0.0,
+  "average_points_per_played_match": 0.0,
+  "total_by_group": {}
+}

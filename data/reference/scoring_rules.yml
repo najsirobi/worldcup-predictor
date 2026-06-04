@@ -1,0 +1,50 @@
+# FIF8A World Cup 2026 — scoring/objective specification
+# Source of truth: "Rules of the game/RULES_AND_SCORING.md"
+# (itself extracted from the FIF8A player guide PDF + player template XLSX).
+#
+# This file is the structured, machine-readable scoring spec. The model's
+# ultimate objective is to MAXIMISE EXPECTED POINTS under these rules, not merely
+# to predict football outcomes. No model has been trained at the time of writing.
+
+version: "1.0"
+source_spec: "Rules of the game/RULES_AND_SCORING.md"
+
+# --- Group-stage, per-match scoring (predict an exact score per match) ---
+# Correct outcome (home win / draw / away win) pays base * template_odd_for_outcome.
+# Goal-difference and exact-score bonuses are FLAT and only stack on a correct outcome.
+group_match_correct_outcome_base_points: 6      # multiplied by the template odd of the predicted outcome
+group_match_exact_goal_difference_bonus: 2      # flat, only if outcome correct
+group_match_exact_score_bonus: 3                # flat, only if outcome correct
+
+# --- Group-standing scoring (per group, flat / not odd-weighted) ---
+group_top2_any_order_points: 30                 # correct 2 qualifiers, any order
+group_exact_standing_bonus: 60                  # exact 1-2-3-4 order (stacks -> 90 max per group)
+
+# --- Last-8 progression block (flat; predicted up front with group stage) ---
+qf_team_points: 20                              # per correct quarter-finalist (8 slots -> 160 max)
+sf_team_points: 40                              # per correct semi-finalist (4 slots -> 160 max)
+finalist_points: 60                             # per correct finalist (2 slots -> 120 max)
+winner_points: 100                              # correct champion (1 slot -> 100 max)
+
+# --- Knockout-stage per-match scoring (used later, not in this phase) ---
+knockout_correct_qualified_team_base_points: 6  # multiplied by the template odd
+knockout_exact_score_bonus: 2                   # flat, end of extra time if applicable
+knockout_penalty_shootout_bonus: 2              # flat, correct "goes to shoot-out" call
+
+# --- Template odds metadata ---
+# The per-match Rate A / Rate Draw / Rate B are derived from FIFA-ranking-point
+# Poisson probabilities (odd = 1 / probability). They are NOT bookmaker odds.
+odds_are_template_derived: true
+odds_source: "FIF8A template / FIFA-ranking-point Poisson method"
+
+# --- Derived maxima (documented for reference; validated by the loader) ---
+maxima:
+  group_per_group_max: 90      # 30 + 60
+  last8_block_max: 540         # 160 + 160 + 120 + 100
+
+# --- Modelling implications (captured from RULES_AND_SCORING.md §5) ---
+modelling_notes:
+  - "Later models must output scoreline probability distributions, not only W/D/L."
+  - "Prediction selection must maximise expected points under this scoring system."
+  - "Group-standing and progression bonuses are flat and reward the most probable qualifiers / deep-run teams."
+  - "Odd-chasing is not default behaviour; deviate only where the model materially disagrees with template-implied probabilities."

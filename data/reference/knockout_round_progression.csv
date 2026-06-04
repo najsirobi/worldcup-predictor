@@ -1,0 +1,17 @@
+round,match_number,team_a_source,team_b_source,winner_to_match,loser_to_match_if_applicable,source,notes
+R16,89,W74,W77,W89,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,90,W73,W75,W90,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,91,W76,W78,W91,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,92,W79,W80,W92,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,93,W83,W84,W93,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,94,W81,W82,W94,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,95,W86,W88,W95,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+R16,96,W85,W87,W96,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+QF,97,W89,W90,W97,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+QF,98,W93,W94,W98,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+QF,99,W91,W92,W99,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+QF,100,W95,W96,W100,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+SF,101,W97,W98,W101,L103,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+SF,102,W99,W100,W102,L103,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+Third-place,103,L101,L102,,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.
+Final,104,W101,W102,Winner,,"FIFA World Cup 26 Regulations, Articles 12.6-12.11 and Annexe C",Extracted from Articles 12.7-12.11.

@@ -1,0 +1,118 @@
+name: Travel Mode update
+
+# Manually triggered from a phone via the GitHub Actions UI. Optionally enters a
+# single match score, then recomputes the live tables, simulations and mobile
+# dashboard and commits the regenerated outputs back to the branch.
+#
+# Guardrails: this workflow NEVER trains models, fetches APIs, or touches raw
+# data. It only runs the four lightweight Travel Mode scripts. It is cheap and
+# free (a couple of minutes on a standard runner).
+
+on:
+  workflow_dispatch:
+    inputs:
+      match_number:
+        description: "Match number (1-72). Leave blank to just refresh outputs."
+        required: false
+        type: string
+      team_a_goals:
+        description: "Team A goals (non-negative integer)"
+        required: false
+        type: string
+      team_b_goals:
+        description: "Team B goals (non-negative integer)"
+        required: false
+        type: string
+      status:
+        description: "Match status"
+        required: false
+        default: played
+        type: choice
+        options:
+          - played
+          - scheduled
+          - postponed
+          - void
+      notes:
+        description: "Optional notes for this match"
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: travel-mode-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    env:
+      TRAVEL_MODE_REPO: ${{ github.repository }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install project
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+
+      - name: Ensure score override exists
+        run: |
+          if [ ! -f data/live/scores_override.csv ]; then
+            python scripts/init_scores_override.py
+          fi
+
+      - name: Apply manual score (if provided)
+        if: ${{ inputs.match_number != '' }}
+        run: |
+          ARGS="--match-number ${{ inputs.match_number }} --status ${{ inputs.status }}"
+          if [ -n "${{ inputs.team_a_goals }}" ]; then ARGS="$ARGS --team-a-goals ${{ inputs.team_a_goals }}"; fi
+          if [ -n "${{ inputs.team_b_goals }}" ]; then ARGS="$ARGS --team-b-goals ${{ inputs.team_b_goals }}"; fi
+          if [ -n "${{ inputs.notes }}" ]; then ARGS="$ARGS --notes \"${{ inputs.notes }}\" --source github_actions"; fi
+          eval python scripts/update_score_override.py $ARGS
+
+      - name: Recompute live tournament state
+        run: python scripts/update_live_tournament_state.py
+
+      - name: Recalculate live simulations
+        run: python scripts/recalculate_live_simulations.py --sims 20000
+
+      - name: Score predictions vs actuals
+        run: python scripts/score_predictions_vs_actuals.py
+
+      - name: Build mobile dashboard
+        run: python scripts/build_mobile_dashboard.py
+
+      - name: Publish to docs/ (GitHub Pages)
+        run: |
+          mkdir -p docs
+          cp outputs/live/mobile_dashboard.html docs/index.html
+          cp outputs/live/mobile_dashboard_data.json docs/mobile_dashboard_data.json
+          cp outputs/live/live_group_tables.csv docs/live_group_tables.csv
+          cp outputs/live/live_group_stage_simulation_summary.csv docs/live_group_stage_simulation_summary.csv
+          cp outputs/live/prediction_vs_actual.csv docs/prediction_vs_actual.csv
+          cp outputs/live/scoring_summary.csv docs/scoring_summary.csv
+          cp outputs/live/played_matches.csv docs/played_matches.csv
+          cp outputs/live/remaining_matches.csv docs/remaining_matches.csv
+
+      - name: Commit generated live outputs
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/live/scores_override.csv outputs/live docs outputs/reports/live_tournament_state_report.md outputs/reports/live_group_stage_simulation_report.md outputs/reports/prediction_vs_actual_report.md
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            MSG="Travel Mode update"
+            if [ -n "${{ inputs.match_number }}" ]; then MSG="$MSG: match ${{ inputs.match_number }} ${{ inputs.team_a_goals }}-${{ inputs.team_b_goals }} (${{ inputs.status }})"; fi
+            git commit -m "$MSG"
+            git push
+          fi

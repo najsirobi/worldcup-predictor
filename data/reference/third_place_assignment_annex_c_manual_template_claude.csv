@@ -1,0 +1,2 @@
+option_number,qualified_third_groups,slot_1A,slot_1B,slot_1D,slot_1E,slot_1G,slot_1I,slot_1K,slot_1L,source_page,source,confidence,needs_review,notes
+TEMPLATE_PLACEHOLDER,,,,,,,,,,FIFA WC 2026 Regulations Annexe C,none,true,"DO NOT USE: this is an empty template only. Populate from official FIFA Regulations PDF Annexe C. See outputs/reports/phase7b_parallel_qa_recommendation_claude.md for instructions."

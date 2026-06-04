@@ -1,0 +1,21 @@
+source,raw_country_name,canonical_country_name,fifa_code,iso2,iso3,world_bank_code,notes
+world_bank,United Kingdom,England,ENG,GB,GBR,GBR,England is part of UK
+world_bank,France,France,FRA,FR,FRA,FRA,
+world_bank,Germany,Germany,GER,DE,DEU,DEU,
+world_bank,Spain,Spain,ESP,ES,ESP,ESP,
+world_bank,Netherlands,Netherlands,NED,NL,NLD,NLD,
+world_bank,Italy,Italy,ITA,IT,ITA,ITA,
+world_bank,Brazil,Brazil,BRA,BR,BRA,BRA,
+world_bank,Argentina,Argentina,ARG,AR,ARG,ARG,
+world_bank,United States,USA,USA,US,USA,USA,
+world_bank,Mexico,Mexico,MEX,MX,MEX,MEX,
+world_bank,Canada,Canada,CAN,CA,CAN,CAN,
+world_bank,Belgium,Belgium,BEL,BE,BEL,BEL,
+world_bank,Portugal,Portugal,POR,PT,PRT,PRT,
+world_bank,Sweden,Sweden,SWE,SE,SWE,SWE,
+world_bank,Norway,Norway,NOR,NO,NOR,NOR,
+world_bank,Uruguay,Uruguay,URU,UY,URY,URY,
+world_bank,Japan,Japan,JPN,JP,JPN,JPN,
+world_bank,Korea,South Korea,KOR,KR,KOR,KOR,officially Democratic People's Republic of Korea (North) or Republic of Korea (South)
+world_bank,Australia,Australia,AUS,AU,AUS,AUS,
+world_bank,Morocco,Morocco,MAR,MA,MAR,MAR,

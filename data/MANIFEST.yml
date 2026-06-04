@@ -1,0 +1,178 @@
+version: "1.0"
+description: "Dataset manifest for FIFA World Cup 2026 prediction project"
+
+kaggle_datasets:
+  international_results:
+    slug: "martj42/international-football-results-from-1872-to-2017"
+    source_url: "https://www.kaggle.com/datasets/martj42/international-football-results-from-1872-to-2017"
+    role: "primary historical international match results"
+    expected_use:
+      - "match backbone"
+      - "target variable"
+      - "rolling historical form features later"
+    target_raw_dir: "data/raw/kaggle/international_results"
+
+  international_elo:
+    slug: "saifalnimri/international-football-elo-ratings"
+    source_url: "https://www.kaggle.com/datasets/saifalnimri/international-football-elo-ratings"
+    role: "historical national-team Elo ratings"
+    expected_use:
+      - "team strength"
+      - "pre-match rating joins later"
+    join_rule: "latest available rating strictly before match date"
+    target_raw_dir: "data/raw/kaggle/international_elo"
+
+  fifa_world_ranking:
+    slug: "cashncarry/fifaworldranking"
+    source_url: "https://www.kaggle.com/datasets/cashncarry/fifaworldranking"
+    role: "historical FIFA ranking/rating points"
+    expected_use:
+      - "official team strength proxy"
+    join_rule: "latest available ranking strictly before match date"
+    target_raw_dir: "data/raw/kaggle/fifa_world_ranking"
+
+  world_cup_history:
+    slug: "piterfm/fifa-football-world-cup"
+    source_url: "https://www.kaggle.com/datasets/piterfm/fifa-football-world-cup"
+    role: "historical World Cup data"
+    expected_use:
+      - "World Cup-specific validation"
+      - "tournament-context analysis"
+    target_raw_dir: "data/raw/kaggle/world_cup_history"
+
+  world_cup_database:
+    slug: "joshfjelstul/world-cup-database"
+    source_url: "https://www.kaggle.com/datasets/joshfjelstul/world-cup-database"
+    role: "rich World Cup entities"
+    expected_use:
+      - "managers"
+      - "players"
+      - "cards"
+      - "substitutions"
+      - "goals"
+      - "referees where available"
+    target_raw_dir: "data/raw/kaggle/world_cup_database"
+
+  transfermarkt_player_scores:
+    slug: "davidcariboo/player-scores"
+    source_url: "https://www.kaggle.com/datasets/davidcariboo/player-scores"
+    role: "player/club/market-value proxy data"
+    expected_use:
+      - "player quality proxies"
+      - "squad value proxies"
+      - "club-level player context"
+    caution:
+      - "validate schema, license, player-country mapping and date availability before using in modelling"
+    target_raw_dir: "data/raw/kaggle/transfermarkt_player_scores"
+
+  fifa23_players_clean:
+    slug: "kevwesophia/fifa23-official-datasetclean-data"
+    source_url: "https://www.kaggle.com/datasets/kevwesophia/fifa23-official-datasetclean-data"
+    role: "player quality proxy"
+    current_only: true  # per-edition snapshots; do not use a single edition for historical backtesting
+    caution:
+      - "video-game/player-rating proxy"
+      - "not official match performance data"
+    target_raw_dir: "data/raw/kaggle/fifa23_players_clean"
+
+  world_cup_2022_player_data:
+    slug: "swaptr/fifa-world-cup-2022-player-data"
+    source_url: "https://www.kaggle.com/datasets/swaptr/fifa-world-cup-2022-player-data"
+    role: "2022 squad/player benchmark"
+    current_only: true  # 2022-tournament snapshot only; not a historical time series
+    target_raw_dir: "data/raw/kaggle/world_cup_2022_player_data"
+
+official_fifa:
+  worldcup_2026_fixtures:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums"
+    role: "official 2026 schedule/fixtures"
+    target_raw_dir: "data/raw/fifa_official/fixtures"
+    expected_use:
+      - "prediction fixtures"
+      - "tournament simulation input later"
+
+  worldcup_2026_scores_fixtures:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/scores-fixtures"
+    role: "official 2026 scores/fixtures page"
+    target_raw_dir: "data/raw/fifa_official/fixtures"
+
+  worldcup_2026_squads_announcement:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/all-world-cup-squad-announcements"
+    role: "official 2026 squad announcement hub"
+    target_raw_dir: "data/raw/fifa_official/squads"
+
+  worldcup_2026_squads_confirmed:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/fifa-world-cup-2026-squads-confirmed"
+    role: "official confirmation that final squads have been submitted"
+    target_raw_dir: "data/raw/fifa_official/squads"
+
+  worldcup_2026_squad_lists_pdf:
+    source_type: "official_fifa_fdp_asset"
+    source_url: "https://fdp.fifa.org/assetspublic/ce281/pdf/SquadLists-English.pdf"
+    role: "official FIFA World Cup 2026 squad list PDF"
+    target_raw_dir: "data/raw/fifa_official/squads"
+    current_only: true
+    expected_use:
+      - "current WC2026 squad membership"
+      - "current-only squad composition features"
+      - "prediction sanity overlay"
+    caution:
+      - "current-only snapshot; do not use for historical WC2018/WC2022 backtests without comparable historical squad data"
+      - "PDF does not contain market values"
+
+  worldcup_2026_teams:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/teams"
+    role: "official competing teams page"
+    target_raw_dir: "data/raw/fifa_official/teams"
+
+world_bank:
+  world_bank_country_context:
+    source_type: "world_bank_api"
+    source_url: "https://datahelpdesk.worldbank.org/knowledgebase/articles/889392-about-the-indicators-api-documentation"
+    role: "macro country support-capacity data"
+    target_raw_dir: "data/raw/world_bank"
+    expected_indicators:
+      - "SP.POP.TOTL: population"
+      - "NY.GDP.PCAP.PP.CD: GDP per capita PPP current international dollars"
+      - "NY.GDP.MKTP.PP.CD: total GDP PPP current international dollars, if available"
+      - "NY.GDP.MKTP.CD: GDP current USD fallback"
+      - "SP.URB.TOTL.IN.ZS: urban population share"
+      - "SE.XPD.TOTL.GD.ZS: government education expenditure % GDP"
+      - "GB.XPD.RSDV.GD.ZS: R&D expenditure % GDP"
+    caution:
+      - "macro support proxy, not direct football-spending data"
+
+manual_import:
+  google_trends_football_interest:
+    source_type: "google_trends_or_manual"
+    source_url: "https://trends.google.com/trends/"
+    role: "football culture / public interest proxy"
+    target_raw_dir: "data/raw/manual"
+    current_only: true  # snapshot template has no per-year history; do not backtest historically unless a year column is added
+    caution:
+      - "if official API access is unavailable, create a manual import template instead of faking data"
+
+  fifa_professional_football_landscape:
+    source_type: "fifa_manual_import"
+    source_url: "https://inside.fifa.com/legal/news/fifa-publishes-professional-football-report-2023"
+    role: "professional football ecosystem proxy"
+    target_raw_dir: "data/raw/manual"
+    current_only: true  # 2023 report snapshot; treat as current-only support proxy
+    expected_use:
+      - "professional players per million population"
+      - "professional clubs per million population"
+      - "club licensing maturity proxy"
+
+  fifa_forward_funding:
+    source_type: "fifa_manual_import"
+    source_url: "https://inside.fifa.com/en/advancing-football/fifa-forward"
+    role: "football development funding / support-capacity proxy"
+    target_raw_dir: "data/raw/manual"
+    current_only: true  # cycle-level funding snapshot, not a per-match time series
+    caution:
+      - "funding availability is not the same as actual spending on the national team"

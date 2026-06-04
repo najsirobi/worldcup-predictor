@@ -1,0 +1,49 @@
+group,rank,team,played,won,drawn,lost,goals_for,goals_against,goal_difference,points
+A,1,Czechia,0,0,0,0,0,0,0,0
+A,2,Korea Republic,0,0,0,0,0,0,0,0
+A,3,Mexico,0,0,0,0,0,0,0,0
+A,4,South Africa,0,0,0,0,0,0,0,0
+B,1,Bosnia and Herzegovina,0,0,0,0,0,0,0,0
+B,2,Canada,0,0,0,0,0,0,0,0
+B,3,Qatar,0,0,0,0,0,0,0,0
+B,4,Switzerland,0,0,0,0,0,0,0,0
+C,1,Brazil,0,0,0,0,0,0,0,0
+C,2,Haiti,0,0,0,0,0,0,0,0
+C,3,Morocco,0,0,0,0,0,0,0,0
+C,4,Scotland,0,0,0,0,0,0,0,0
+D,1,Australia,0,0,0,0,0,0,0,0
+D,2,Paraguay,0,0,0,0,0,0,0,0
+D,3,Türkiye,0,0,0,0,0,0,0,0
+D,4,USA,0,0,0,0,0,0,0,0
+E,1,Curaçao,0,0,0,0,0,0,0,0
+E,2,Côte d'Ivoire,0,0,0,0,0,0,0,0
+E,3,Ecuador,0,0,0,0,0,0,0,0
+E,4,Germany,0,0,0,0,0,0,0,0
+F,1,Japan,0,0,0,0,0,0,0,0
+F,2,Netherlands,0,0,0,0,0,0,0,0
+F,3,Sweden,0,0,0,0,0,0,0,0
+F,4,Tunisia,0,0,0,0,0,0,0,0
+G,1,Belgium,0,0,0,0,0,0,0,0
+G,2,Egypt,0,0,0,0,0,0,0,0
+G,3,IR Iran,0,0,0,0,0,0,0,0
+G,4,New Zealand,0,0,0,0,0,0,0,0
+H,1,Cabo Verde,0,0,0,0,0,0,0,0
+H,2,Saudi Arabia,0,0,0,0,0,0,0,0
+H,3,Spain,0,0,0,0,0,0,0,0
+H,4,Uruguay,0,0,0,0,0,0,0,0
+I,1,France,0,0,0,0,0,0,0,0
+I,2,Iraq,0,0,0,0,0,0,0,0
+I,3,Norway,0,0,0,0,0,0,0,0
+I,4,Senegal,0,0,0,0,0,0,0,0
+J,1,Algeria,0,0,0,0,0,0,0,0
+J,2,Argentina,0,0,0,0,0,0,0,0
+J,3,Austria,0,0,0,0,0,0,0,0
+J,4,Jordan,0,0,0,0,0,0,0,0
+K,1,Colombia,0,0,0,0,0,0,0,0
+K,2,Congo DR,0,0,0,0,0,0,0,0
+K,3,Portugal,0,0,0,0,0,0,0,0
+K,4,Uzbekistan,0,0,0,0,0,0,0,0
+L,1,Croatia,0,0,0,0,0,0,0,0
+L,2,England,0,0,0,0,0,0,0,0
+L,3,Ghana,0,0,0,0,0,0,0,0
+L,4,Panama,0,0,0,0,0,0,0,0

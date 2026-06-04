@@ -1,0 +1,24 @@
+# Travel Mode — active final-candidate pointer (Task A).
+#
+# Every Travel Mode script (live tables, simulations, prediction-vs-actual
+# scoring, mobile dashboard) reads the prediction files through THIS pointer
+# instead of hard-coding a candidate folder. Switch candidates by editing the
+# values below and re-running the Travel Mode pipeline — no model retraining.
+#
+# The frozen candidate folders themselves are never modified by Travel Mode.
+#
+# Currently active: final_candidate_v1 (the current submission candidate).
+active_candidate_dir: outputs/final_candidate_v1
+score_predictions_file: final_group_score_predictions.csv
+standing_predictions_file: final_group_standing_predictions.csv
+last8_predictions_file: final_last8_predictions.csv
+submission_pack_file: final_submission_pack.csv
+
+# To switch to the auto-science candidate (final_candidate_v2_auto_science),
+# replace the five lines above with:
+#
+# active_candidate_dir: outputs/final_candidate_v2_auto_science
+# score_predictions_file: final_group_score_predictions_auto.csv
+# standing_predictions_file: final_group_standing_predictions_auto.csv
+# last8_predictions_file: final_last8_predictions_auto.csv
+# submission_pack_file: final_submission_pack_auto.csv

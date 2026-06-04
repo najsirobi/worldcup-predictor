@@ -1,0 +1,3 @@
+template_team_name,fifa_pdf_team_name,template_group,fifa_code,match_method,confidence,needs_review,evidence,notes
+Bosnia and Herzegovina,Bosnia And Herzegovina,B,BIH,casefold_exact_connector_capitalization,1.0,False,Only capitalization differs between official PDF team name and FIF8A template team name.,Safe explicit mapping for production join; no fuzzy matching used.
+Côte d'Ivoire,Côte D'Ivoire,E,CIV,casefold_exact_connector_capitalization,1.0,False,Only capitalization differs between official PDF team name and FIF8A template team name.,Safe explicit mapping for production join; no fuzzy matching used.

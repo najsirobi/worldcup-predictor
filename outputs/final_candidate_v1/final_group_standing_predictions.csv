@@ -1,0 +1,13 @@
+group,rank_1,rank_2,rank_3,rank_4,confidence,notes
+A,Mexico,Korea Republic,Czechia,South Africa,medium,high_exact_standing_uncertainty
+B,Switzerland,Canada,Bosnia and Herzegovina,Qatar,high,none
+C,Brazil,Morocco,Scotland,Haiti,high,none
+D,Türkiye,Paraguay,Australia,USA,low,"close_2nd_3rd_race, high_exact_standing_uncertainty"
+E,Germany,Ecuador,Côte d'Ivoire,Curaçao,medium,high_exact_standing_uncertainty
+F,Netherlands,Japan,Tunisia,Sweden,high,none
+G,Belgium,IR Iran,Egypt,New Zealand,high,none
+H,Spain,Uruguay,Saudi Arabia,Cabo Verde,high,none
+I,France,Norway,Senegal,Iraq,high,none
+J,Argentina,Austria,Algeria,Jordan,high,none
+K,Portugal,Colombia,Congo DR,Uzbekistan,medium,high_exact_standing_uncertainty
+L,England,Croatia,Panama,Ghana,high,none

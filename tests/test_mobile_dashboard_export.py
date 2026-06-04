@@ -1,0 +1,112 @@
+"""Tests for the mobile dashboard export and workflow guardrails (Tasks H/E/K)."""
+
+import json
+from pathlib import Path
+
+from scripts import build_mobile_dashboard
+
+SCRIPT_DIR = Path("scripts")
+LIVE_DIR = Path("outputs/live")
+
+# Travel Mode scripts that the GitHub Actions workflows run.
+WORKFLOW_SCRIPTS = [
+    "init_scores_override.py",
+    "update_score_override.py",
+    "apply_scores_batch_update.py",
+    "apply_score_comment.py",
+    "update_live_tournament_state.py",
+    "recalculate_live_simulations.py",
+    "score_predictions_vs_actuals.py",
+    "build_mobile_dashboard.py",
+]
+
+# Tokens that would indicate (re)training or network/API access sneaking in.
+FORBIDDEN_TOKENS = [
+    "train_",
+    ".fit(",
+    "requests.get",
+    "requests.post",
+    "urllib",
+    "kagglehub",
+    "BeautifulSoup",
+]
+
+
+def test_render_html_produces_self_contained_page():
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+    assert html.lstrip().startswith("<!DOCTYPE html>")
+    assert "</html>" in html
+    # Data embedded inline (works offline, no server fetch needed).
+    assert "application/json" in html
+    assert "JSON.parse" in html
+    # All required sections are present.
+    for label in [
+        "Active candidate",
+        "How to enter scores",
+        "Matches played",
+        "Points earned",
+        "Prediction vs actual",
+        "Live group tables",
+        "Advancement probabilities",
+        "Remaining matches",
+        "Final candidate group picks",
+        "Last-8 picks",
+        "Manual review",
+    ]:
+        assert label in html, f"missing section: {label}"
+
+
+def test_dashboard_includes_prediction_vs_actual_section():
+    payload = build_mobile_dashboard.build_payload()
+    assert "prediction_vs_actual" in payload
+    assert "scoring_summary" in payload
+    html = build_mobile_dashboard.render_html(payload)
+    assert "Prediction vs actual" in html
+
+
+def test_dashboard_displays_active_candidate_name():
+    payload = build_mobile_dashboard.build_payload()
+    assert payload["active_candidate"]["name"] == "final_candidate_v1"
+    html = build_mobile_dashboard.render_html(payload)
+    # The candidate name is embedded (in the payload JSON and rendered into the header).
+    assert "final_candidate_v1" in html
+    assert "Active candidate" in html
+
+
+def test_build_main_creates_html_and_json():
+    build_mobile_dashboard.main()
+    assert (LIVE_DIR / "mobile_dashboard.html").exists()
+    data_path = LIVE_DIR / "mobile_dashboard_data.json"
+    assert data_path.exists()
+    data = json.loads(data_path.read_text())
+    assert "generated_at" in data
+    assert "advancement" in data
+    assert "final_group_standings" in data
+    assert "active_candidate" in data
+    assert "scoring_summary" in data
+
+
+def test_workflow_scripts_do_not_call_training_or_apis():
+    for name in WORKFLOW_SCRIPTS:
+        source = (SCRIPT_DIR / name).read_text()
+        for token in FORBIDDEN_TOKENS:
+            assert token not in source, f"{name} contains forbidden token {token!r}"
+
+
+def test_live_modules_do_not_call_training_or_apis():
+    for path in Path("src/live").glob("*.py"):
+        source = path.read_text()
+        for token in FORBIDDEN_TOKENS:
+            assert token not in source, f"{path} contains forbidden token {token!r}"
+
+
+def test_workflow_yaml_has_no_training_steps():
+    for wf_name in ("travel_mode_update.yml", "score_comment_update.yml"):
+        text = (Path(".github/workflows") / wf_name).read_text()
+        assert "train_" not in text, f"{wf_name} references training"
+        assert "fetch_" not in text, f"{wf_name} references a fetch script"
+    # The single-match workflow is still dispatch-triggered.
+    assert "workflow_dispatch" in (Path(".github/workflows/travel_mode_update.yml")).read_text()
+    # The comment workflow triggers on issue comments.
+    assert "issue_comment" in (Path(".github/workflows/score_comment_update.yml")).read_text()

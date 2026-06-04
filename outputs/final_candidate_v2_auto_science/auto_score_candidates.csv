@@ -1,0 +1,361 @@
+match_number,group,team_a,team_b,candidate_source,candidate_score,expected_points,model_confidence,is_ev,is_safe,is_contrarian,notes
+1,A,Mexico,South Africa,safe_score,1-0,8.037,0.632,False,True,False,Primary deterministic safe recommendation.
+1,A,Mexico,South Africa,ev_score,1-0,8.037,0.632,True,False,False,nan
+1,A,Mexico,South Africa,most_probable_score,1-0,8.037,0.632,False,False,False,Primary most probable scoreline.
+1,A,Mexico,South Africa,expected_points_max_score,1-0,8.037,0.632,True,False,False,Primary expected-points-max scoreline.
+1,A,Mexico,South Africa,ensemble_score,1-0,8.037,0.6801,False,False,False,Equal-weight ensemble safe recommendation.
+2,A,Korea Republic,Czechia,safe_score,1-0,7.179,0.4531,False,True,False,Primary deterministic safe recommendation.
+2,A,Korea Republic,Czechia,ev_score,1-1,7.249,0.2643,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+2,A,Korea Republic,Czechia,most_probable_score,1-1,7.249,0.2643,False,False,False,Primary most probable scoreline.
+2,A,Korea Republic,Czechia,expected_points_max_score,1-1,7.249,0.2643,True,False,True,Primary expected-points-max scoreline.
+2,A,Korea Republic,Czechia,ensemble_score,1-0,7.179,0.4009,False,False,False,Equal-weight ensemble safe recommendation.
+3,B,Canada,Bosnia and Herzegovina,safe_score,1-0,8.02,0.5675,False,True,False,Primary deterministic safe recommendation.
+3,B,Canada,Bosnia and Herzegovina,ev_score,1-0,8.02,0.5675,True,False,False,nan
+3,B,Canada,Bosnia and Herzegovina,most_probable_score,1-0,8.02,0.5675,False,False,False,Primary most probable scoreline.
+3,B,Canada,Bosnia and Herzegovina,expected_points_max_score,1-0,8.02,0.5675,True,False,False,Primary expected-points-max scoreline.
+3,B,Canada,Bosnia and Herzegovina,ensemble_score,1-0,8.02,0.5668,False,False,False,Equal-weight ensemble safe recommendation.
+4,D,USA,Paraguay,safe_score,0-1,10.527,0.4458,False,True,False,Primary deterministic safe recommendation.
+4,D,USA,Paraguay,ev_score,0-1,10.527,0.4458,True,False,False,VALUE_EDGE>0.10 vs template; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+4,D,USA,Paraguay,most_probable_score,1-1,,0.2666,False,False,False,Primary most probable scoreline.
+4,D,USA,Paraguay,expected_points_max_score,0-1,10.527,0.4458,True,False,False,Primary expected-points-max scoreline.
+4,D,USA,Paraguay,ensemble_score,0-1,10.527,0.4579,False,False,False,Equal-weight ensemble safe recommendation.
+5,C,Brazil,Morocco,safe_score,1-0,8.169,0.4598,False,True,False,Primary deterministic safe recommendation.
+5,C,Brazil,Morocco,ev_score,1-0,8.169,0.4598,True,False,False,VALUE_EDGE>0.10 vs template; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+5,C,Brazil,Morocco,most_probable_score,1-1,,0.27,False,False,False,Primary most probable scoreline.
+5,C,Brazil,Morocco,expected_points_max_score,1-0,8.169,0.4598,True,False,False,Primary expected-points-max scoreline.
+5,C,Brazil,Morocco,ensemble_score,1-0,8.169,0.4792,False,False,False,Equal-weight ensemble safe recommendation.
+6,D,Australia,Türkiye,safe_score,0-1,8.024,0.4621,False,True,False,Primary deterministic safe recommendation.
+6,D,Australia,Türkiye,ev_score,0-1,8.024,0.4621,True,False,False,SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+6,D,Australia,Türkiye,most_probable_score,1-1,,0.2614,False,False,False,Primary most probable scoreline.
+6,D,Australia,Türkiye,expected_points_max_score,0-1,8.024,0.4621,True,False,False,Primary expected-points-max scoreline.
+6,D,Australia,Türkiye,ensemble_score,0-1,8.024,0.4462,False,False,False,Equal-weight ensemble safe recommendation.
+7,C,Haiti,Scotland,safe_score,0-1,7.91,0.5896,False,True,False,Primary deterministic safe recommendation.
+7,C,Haiti,Scotland,ev_score,0-1,7.91,0.5896,True,False,False,nan
+7,C,Haiti,Scotland,most_probable_score,0-1,7.91,0.5896,False,False,False,Primary most probable scoreline.
+7,C,Haiti,Scotland,expected_points_max_score,0-1,7.91,0.5896,True,False,False,Primary expected-points-max scoreline.
+7,C,Haiti,Scotland,ensemble_score,0-1,7.91,0.595,False,False,False,Equal-weight ensemble safe recommendation.
+8,B,Qatar,Switzerland,safe_score,0-2,11.115,0.8538,False,True,False,Primary deterministic safe recommendation.
+8,B,Qatar,Switzerland,ev_score,0-2,11.115,0.8538,True,False,False,VALUE_EDGE>0.10 vs template
+8,B,Qatar,Switzerland,most_probable_score,0-2,11.115,0.8538,False,False,False,Primary most probable scoreline.
+8,B,Qatar,Switzerland,expected_points_max_score,0-2,11.115,0.8538,True,False,False,Primary expected-points-max scoreline.
+8,B,Qatar,Switzerland,ensemble_score,0-2,11.115,0.8202,False,False,False,Equal-weight ensemble safe recommendation.
+9,E,Germany,Curaçao,safe_score,2-0,8.096,0.7841,False,True,False,Primary deterministic safe recommendation.
+9,E,Germany,Curaçao,ev_score,2-0,8.096,0.7841,True,False,False,VALUE_EDGE>0.10 vs template
+9,E,Germany,Curaçao,most_probable_score,2-0,8.096,0.7841,False,False,False,Primary most probable scoreline.
+9,E,Germany,Curaçao,expected_points_max_score,2-0,8.096,0.7841,True,False,False,Primary expected-points-max scoreline.
+9,E,Germany,Curaçao,ensemble_score,2-0,8.096,0.7835,False,False,False,Equal-weight ensemble safe recommendation.
+10,E,Côte d'Ivoire,Ecuador,safe_score,0-1,9.373,0.5765,False,True,False,Primary deterministic safe recommendation.
+10,E,Côte d'Ivoire,Ecuador,ev_score,0-1,9.373,0.5765,True,False,False,VALUE_EDGE>0.10 vs template
+10,E,Côte d'Ivoire,Ecuador,most_probable_score,0-1,9.373,0.5765,False,False,False,Primary most probable scoreline.
+10,E,Côte d'Ivoire,Ecuador,expected_points_max_score,0-1,9.373,0.5765,True,False,False,Primary expected-points-max scoreline.
+10,E,Côte d'Ivoire,Ecuador,ensemble_score,0-1,9.373,0.5833,False,False,False,Equal-weight ensemble safe recommendation.
+11,F,Netherlands,Japan,safe_score,1-0,7.304,0.4706,False,True,False,Primary deterministic safe recommendation.
+11,F,Netherlands,Japan,ev_score,1-0,7.304,0.4706,True,False,False,SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+11,F,Netherlands,Japan,most_probable_score,1-1,,0.2578,False,False,False,Primary most probable scoreline.
+11,F,Netherlands,Japan,expected_points_max_score,1-0,7.304,0.4706,True,False,False,Primary expected-points-max scoreline.
+11,F,Netherlands,Japan,ensemble_score,1-0,7.304,0.4658,False,False,False,Equal-weight ensemble safe recommendation.
+12,F,Sweden,Tunisia,safe_score,0-1,7.02,0.3721,False,True,False,Primary deterministic safe recommendation.
+12,F,Sweden,Tunisia,ev_score,1-1,7.302,0.2686,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+12,F,Sweden,Tunisia,most_probable_score,1-1,7.302,0.2686,False,False,False,Primary most probable scoreline.
+12,F,Sweden,Tunisia,expected_points_max_score,1-1,7.302,0.2686,True,False,True,Primary expected-points-max scoreline.
+12,F,Sweden,Tunisia,ensemble_score,0-1,7.02,0.3682,False,False,False,Equal-weight ensemble safe recommendation.
+13,H,Spain,Cabo Verde,safe_score,3-0,8.547,0.8982,False,True,False,Primary deterministic safe recommendation.
+13,H,Spain,Cabo Verde,ev_score,3-0,8.547,0.8982,True,False,False,VALUE_EDGE>0.10 vs template
+13,H,Spain,Cabo Verde,most_probable_score,3-0,8.547,0.8982,False,False,False,Primary most probable scoreline.
+13,H,Spain,Cabo Verde,expected_points_max_score,3-0,8.547,0.8982,True,False,False,Primary expected-points-max scoreline.
+13,H,Spain,Cabo Verde,ensemble_score,3-0,8.547,0.8991,False,False,False,Equal-weight ensemble safe recommendation.
+14,H,Saudi Arabia,Uruguay,safe_score,0-1,7.783,0.6084,False,True,False,Primary deterministic safe recommendation.
+14,H,Saudi Arabia,Uruguay,ev_score,0-1,7.783,0.6084,True,False,False,nan
+14,H,Saudi Arabia,Uruguay,most_probable_score,0-1,7.783,0.6084,False,False,False,Primary most probable scoreline.
+14,H,Saudi Arabia,Uruguay,expected_points_max_score,0-1,7.783,0.6084,True,False,False,Primary expected-points-max scoreline.
+14,H,Saudi Arabia,Uruguay,ensemble_score,0-1,7.783,0.6014,False,False,False,Equal-weight ensemble safe recommendation.
+15,G,Belgium,Egypt,safe_score,2-0,9.011,0.6633,False,True,False,Primary deterministic safe recommendation.
+15,G,Belgium,Egypt,ev_score,1-0,9.092,0.6633,True,False,False,VALUE_EDGE>0.10 vs template
+15,G,Belgium,Egypt,most_probable_score,2-0,9.011,0.6633,False,False,False,Primary most probable scoreline.
+15,G,Belgium,Egypt,expected_points_max_score,1-0,9.092,0.6633,True,False,False,Primary expected-points-max scoreline.
+15,G,Belgium,Egypt,ensemble_score,2-0,9.011,0.6646,False,False,False,Equal-weight ensemble safe recommendation.
+16,G,IR Iran,New Zealand,safe_score,1-0,6.756,0.5698,False,True,False,Primary deterministic safe recommendation.
+16,G,IR Iran,New Zealand,ev_score,1-1,7.59,0.2458,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable
+16,G,IR Iran,New Zealand,most_probable_score,1-0,6.756,0.5698,False,False,False,Primary most probable scoreline.
+16,G,IR Iran,New Zealand,expected_points_max_score,1-1,7.59,0.2458,True,False,True,Primary expected-points-max scoreline.
+16,G,IR Iran,New Zealand,ensemble_score,1-0,6.756,0.5369,False,False,False,Equal-weight ensemble safe recommendation.
+17,I,France,Senegal,safe_score,1-0,7.895,0.5795,False,True,False,Primary deterministic safe recommendation.
+17,I,France,Senegal,ev_score,1-0,7.895,0.5795,True,False,False,HIGH_VARIANCE: flat scoreline distribution
+17,I,France,Senegal,most_probable_score,1-0,7.895,0.5795,False,False,False,Primary most probable scoreline.
+17,I,France,Senegal,expected_points_max_score,1-0,7.895,0.5795,True,False,False,Primary expected-points-max scoreline.
+17,I,France,Senegal,ensemble_score,1-0,7.895,0.6214,False,False,False,Equal-weight ensemble safe recommendation.
+18,I,Iraq,Norway,safe_score,0-2,10.755,0.7244,False,True,False,Primary deterministic safe recommendation.
+18,I,Iraq,Norway,ev_score,0-1,10.763,0.7244,True,False,False,VALUE_EDGE>0.10 vs template
+18,I,Iraq,Norway,most_probable_score,0-2,10.755,0.7244,False,False,False,Primary most probable scoreline.
+18,I,Iraq,Norway,expected_points_max_score,0-1,10.763,0.7244,True,False,False,Primary expected-points-max scoreline.
+18,I,Iraq,Norway,ensemble_score,0-2,10.755,0.7064,False,False,False,Equal-weight ensemble safe recommendation.
+19,J,Argentina,Algeria,safe_score,2-0,8.121,0.6944,False,True,False,Primary deterministic safe recommendation.
+19,J,Argentina,Algeria,ev_score,1-0,8.182,0.6944,True,False,False,VALUE_EDGE>0.10 vs template
+19,J,Argentina,Algeria,most_probable_score,2-0,8.121,0.6944,False,False,False,Primary most probable scoreline.
+19,J,Argentina,Algeria,expected_points_max_score,1-0,8.182,0.6944,True,False,False,Primary expected-points-max scoreline.
+19,J,Argentina,Algeria,ensemble_score,2-0,8.121,0.7367,False,False,False,Equal-weight ensemble safe recommendation.
+20,J,Austria,Jordan,safe_score,1-0,7.464,0.5542,False,True,False,Primary deterministic safe recommendation.
+20,J,Austria,Jordan,ev_score,1-0,7.464,0.5542,True,False,False,HIGH_VARIANCE: flat scoreline distribution
+20,J,Austria,Jordan,most_probable_score,1-0,7.464,0.5542,False,False,False,Primary most probable scoreline.
+20,J,Austria,Jordan,expected_points_max_score,1-0,7.464,0.5542,True,False,False,Primary expected-points-max scoreline.
+20,J,Austria,Jordan,ensemble_score,1-0,7.464,0.5467,False,False,False,Equal-weight ensemble safe recommendation.
+21,L,England,Croatia,safe_score,1-0,6.965,0.4554,False,True,False,Primary deterministic safe recommendation.
+21,L,England,Croatia,ev_score,1-1,7.127,0.2587,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+21,L,England,Croatia,most_probable_score,1-1,7.127,0.2587,False,False,False,Primary most probable scoreline.
+21,L,England,Croatia,expected_points_max_score,1-1,7.127,0.2587,True,False,True,Primary expected-points-max scoreline.
+21,L,England,Croatia,ensemble_score,1-0,6.965,0.4627,False,False,False,Equal-weight ensemble safe recommendation.
+22,L,Ghana,Panama,safe_score,0-1,7.788,0.5692,False,True,False,Primary deterministic safe recommendation.
+22,L,Ghana,Panama,ev_score,0-1,7.788,0.5692,True,False,False,nan
+22,L,Ghana,Panama,most_probable_score,0-1,7.788,0.5692,False,False,False,Primary most probable scoreline.
+22,L,Ghana,Panama,expected_points_max_score,0-1,7.788,0.5692,True,False,False,Primary expected-points-max scoreline.
+22,L,Ghana,Panama,ensemble_score,0-1,7.788,0.5633,False,False,False,Equal-weight ensemble safe recommendation.
+23,K,Portugal,Congo DR,safe_score,1-0,6.714,0.5414,False,True,False,Primary deterministic safe recommendation.
+23,K,Portugal,Congo DR,ev_score,1-1,7.3,0.2448,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable
+23,K,Portugal,Congo DR,most_probable_score,1-0,6.714,0.5414,False,False,False,Primary most probable scoreline.
+23,K,Portugal,Congo DR,expected_points_max_score,1-1,7.3,0.2448,True,False,True,Primary expected-points-max scoreline.
+23,K,Portugal,Congo DR,ensemble_score,1-0,6.714,0.4545,False,False,False,Equal-weight ensemble safe recommendation.
+24,K,Uzbekistan,Colombia,safe_score,0-1,7.888,0.6026,False,True,False,Primary deterministic safe recommendation.
+24,K,Uzbekistan,Colombia,ev_score,0-1,7.888,0.6026,True,False,False,nan
+24,K,Uzbekistan,Colombia,most_probable_score,0-1,7.888,0.6026,False,False,False,Primary most probable scoreline.
+24,K,Uzbekistan,Colombia,expected_points_max_score,0-1,7.888,0.6026,True,False,False,Primary expected-points-max scoreline.
+24,K,Uzbekistan,Colombia,ensemble_score,0-1,7.888,0.6,False,False,False,Equal-weight ensemble safe recommendation.
+25,A,Mexico,Korea Republic,safe_score,1-0,6.507,0.4085,False,True,False,Primary deterministic safe recommendation.
+25,A,Mexico,Korea Republic,ev_score,1-1,7.655,0.2793,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+25,A,Mexico,Korea Republic,most_probable_score,1-1,7.655,0.2793,False,False,False,Primary most probable scoreline.
+25,A,Mexico,Korea Republic,expected_points_max_score,1-1,7.655,0.2793,True,False,True,Primary expected-points-max scoreline.
+25,A,Mexico,Korea Republic,ensemble_score,1-0,6.507,0.4334,False,False,False,Equal-weight ensemble safe recommendation.
+26,B,Canada,Qatar,safe_score,2-0,11.219,0.7505,False,True,False,Primary deterministic safe recommendation.
+26,B,Canada,Qatar,ev_score,2-0,11.219,0.7505,True,False,False,VALUE_EDGE>0.10 vs template
+26,B,Canada,Qatar,most_probable_score,2-0,11.219,0.7505,False,False,False,Primary most probable scoreline.
+26,B,Canada,Qatar,expected_points_max_score,2-0,11.219,0.7505,True,False,False,Primary expected-points-max scoreline.
+26,B,Canada,Qatar,ensemble_score,2-0,11.219,0.7662,False,False,False,Equal-weight ensemble safe recommendation.
+27,B,Switzerland,Bosnia and Herzegovina,safe_score,2-0,8.411,0.6864,False,True,False,Primary deterministic safe recommendation.
+27,B,Switzerland,Bosnia and Herzegovina,ev_score,1-0,8.46,0.6864,True,False,False,VALUE_EDGE>0.10 vs template
+27,B,Switzerland,Bosnia and Herzegovina,most_probable_score,2-0,8.411,0.6864,False,False,False,Primary most probable scoreline.
+27,B,Switzerland,Bosnia and Herzegovina,expected_points_max_score,1-0,8.46,0.6864,True,False,False,Primary expected-points-max scoreline.
+27,B,Switzerland,Bosnia and Herzegovina,ensemble_score,2-0,8.411,0.6909,False,False,False,Equal-weight ensemble safe recommendation.
+28,A,Czechia,South Africa,safe_score,1-0,6.503,0.3993,False,True,False,Primary deterministic safe recommendation.
+28,A,Czechia,South Africa,ev_score,1-1,7.441,0.2726,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+28,A,Czechia,South Africa,most_probable_score,1-1,7.441,0.2726,False,False,False,Primary most probable scoreline.
+28,A,Czechia,South Africa,expected_points_max_score,1-1,7.441,0.2726,True,False,True,Primary expected-points-max scoreline.
+28,A,Czechia,South Africa,ensemble_score,1-0,6.503,0.4085,False,False,False,Equal-weight ensemble safe recommendation.
+29,C,Brazil,Haiti,safe_score,2-0,7.735,0.7655,False,True,False,Primary deterministic safe recommendation.
+29,C,Brazil,Haiti,ev_score,2-0,7.735,0.7655,True,False,False,nan
+29,C,Brazil,Haiti,most_probable_score,2-0,7.735,0.7655,False,False,False,Primary most probable scoreline.
+29,C,Brazil,Haiti,expected_points_max_score,2-0,7.735,0.7655,True,False,False,Primary expected-points-max scoreline.
+29,C,Brazil,Haiti,ensemble_score,2-0,7.735,0.7951,False,False,False,Equal-weight ensemble safe recommendation.
+30,C,Scotland,Morocco,safe_score,0-1,5.743,0.4411,False,True,False,Primary deterministic safe recommendation.
+30,C,Scotland,Morocco,ev_score,1-0,8.206,0.2901,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+30,C,Scotland,Morocco,most_probable_score,1-1,,0.2688,False,False,False,Primary most probable scoreline.
+30,C,Scotland,Morocco,expected_points_max_score,1-0,8.206,0.2901,True,False,True,Primary expected-points-max scoreline.
+30,C,Scotland,Morocco,ensemble_score,0-1,5.743,0.4242,False,False,False,Equal-weight ensemble safe recommendation.
+31,D,USA,Australia,safe_score,0-1,8.561,0.4134,False,True,False,Primary deterministic safe recommendation.
+31,D,USA,Australia,ev_score,0-1,8.561,0.4134,True,False,False,VALUE_EDGE>0.10 vs template; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+31,D,USA,Australia,most_probable_score,1-1,,0.2674,False,False,False,Primary most probable scoreline.
+31,D,USA,Australia,expected_points_max_score,0-1,8.561,0.4134,True,False,False,Primary expected-points-max scoreline.
+31,D,USA,Australia,ensemble_score,0-1,8.561,0.3737,False,False,False,Equal-weight ensemble safe recommendation.
+32,D,Türkiye,Paraguay,safe_score,1-0,6.541,0.4154,False,True,False,Primary deterministic safe recommendation.
+32,D,Türkiye,Paraguay,ev_score,1-1,7.386,0.2693,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+32,D,Türkiye,Paraguay,most_probable_score,1-1,7.386,0.2693,False,False,False,Primary most probable scoreline.
+32,D,Türkiye,Paraguay,expected_points_max_score,1-1,7.386,0.2693,True,False,True,Primary expected-points-max scoreline.
+32,D,Türkiye,Paraguay,ensemble_score,1-0,6.541,0.4032,False,False,False,Equal-weight ensemble safe recommendation.
+33,E,Germany,Côte d'Ivoire,safe_score,1-0,8.231,0.616,False,True,False,Primary deterministic safe recommendation.
+33,E,Germany,Côte d'Ivoire,ev_score,1-0,8.231,0.616,True,False,False,HIGH_VARIANCE: flat scoreline distribution; VALUE_EDGE>0.10 vs template
+33,E,Germany,Côte d'Ivoire,most_probable_score,1-0,8.231,0.616,False,False,False,Primary most probable scoreline.
+33,E,Germany,Côte d'Ivoire,expected_points_max_score,1-0,8.231,0.616,True,False,False,Primary expected-points-max scoreline.
+33,E,Germany,Côte d'Ivoire,ensemble_score,1-0,8.231,0.6366,False,False,False,Equal-weight ensemble safe recommendation.
+34,E,Ecuador,Curaçao,safe_score,2-0,9.017,0.7627,False,True,False,Primary deterministic safe recommendation.
+34,E,Ecuador,Curaçao,ev_score,2-0,9.017,0.7627,True,False,False,VALUE_EDGE>0.10 vs template
+34,E,Ecuador,Curaçao,most_probable_score,2-0,9.017,0.7627,False,False,False,Primary most probable scoreline.
+34,E,Ecuador,Curaçao,expected_points_max_score,2-0,9.017,0.7627,True,False,False,Primary expected-points-max scoreline.
+34,E,Ecuador,Curaçao,ensemble_score,2-0,9.017,0.7895,False,False,False,Equal-weight ensemble safe recommendation.
+35,F,Netherlands,Sweden,safe_score,2-0,9.062,0.7286,False,True,False,Primary deterministic safe recommendation.
+35,F,Netherlands,Sweden,ev_score,2-0,9.062,0.7286,True,False,False,VALUE_EDGE>0.10 vs template
+35,F,Netherlands,Sweden,most_probable_score,2-0,9.062,0.7286,False,False,False,Primary most probable scoreline.
+35,F,Netherlands,Sweden,expected_points_max_score,2-0,9.062,0.7286,True,False,False,Primary expected-points-max scoreline.
+35,F,Netherlands,Sweden,ensemble_score,2-0,9.062,0.7215,False,False,False,Equal-weight ensemble safe recommendation.
+36,F,Tunisia,Japan,safe_score,0-1,8.195,0.5883,False,True,False,Primary deterministic safe recommendation.
+36,F,Tunisia,Japan,ev_score,0-1,8.195,0.5883,True,False,False,VALUE_EDGE>0.10 vs template
+36,F,Tunisia,Japan,most_probable_score,0-1,8.195,0.5883,False,False,False,Primary most probable scoreline.
+36,F,Tunisia,Japan,expected_points_max_score,0-1,8.195,0.5883,True,False,False,Primary expected-points-max scoreline.
+36,F,Tunisia,Japan,ensemble_score,0-1,8.195,0.5989,False,False,False,Equal-weight ensemble safe recommendation.
+37,H,Spain,Saudi Arabia,safe_score,3-0,8.85,0.8889,False,True,False,Primary deterministic safe recommendation.
+37,H,Spain,Saudi Arabia,ev_score,3-0,8.85,0.8889,True,False,False,VALUE_EDGE>0.10 vs template
+37,H,Spain,Saudi Arabia,most_probable_score,3-0,8.85,0.8889,False,False,False,Primary most probable scoreline.
+37,H,Spain,Saudi Arabia,expected_points_max_score,3-0,8.85,0.8889,True,False,False,Primary expected-points-max scoreline.
+37,H,Spain,Saudi Arabia,ensemble_score,3-0,8.85,0.8838,False,False,False,Equal-weight ensemble safe recommendation.
+38,H,Uruguay,Cabo Verde,safe_score,1-0,7.614,0.6361,False,True,False,Primary deterministic safe recommendation.
+38,H,Uruguay,Cabo Verde,ev_score,1-0,7.614,0.6361,True,False,False,nan
+38,H,Uruguay,Cabo Verde,most_probable_score,1-0,7.614,0.6361,False,False,False,Primary most probable scoreline.
+38,H,Uruguay,Cabo Verde,expected_points_max_score,1-0,7.614,0.6361,True,False,False,Primary expected-points-max scoreline.
+38,H,Uruguay,Cabo Verde,ensemble_score,1-0,7.614,0.6513,False,False,False,Equal-weight ensemble safe recommendation.
+39,G,Belgium,IR Iran,safe_score,1-0,7.492,0.4987,False,True,False,Primary deterministic safe recommendation.
+39,G,Belgium,IR Iran,ev_score,1-0,7.492,0.4987,True,False,False,HIGH_VARIANCE: flat scoreline distribution; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+39,G,Belgium,IR Iran,most_probable_score,1-1,,0.2508,False,False,False,Primary most probable scoreline.
+39,G,Belgium,IR Iran,expected_points_max_score,1-0,7.492,0.4987,True,False,False,Primary expected-points-max scoreline.
+39,G,Belgium,IR Iran,ensemble_score,1-0,7.492,0.5166,False,False,False,Equal-weight ensemble safe recommendation.
+40,G,New Zealand,Egypt,safe_score,0-1,5.042,0.3909,False,True,False,Primary deterministic safe recommendation.
+40,G,New Zealand,Egypt,ev_score,1-0,9.78,0.3292,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; VALUE_EDGE>0.10 vs template; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+40,G,New Zealand,Egypt,most_probable_score,1-1,,0.2799,False,False,False,Primary most probable scoreline.
+40,G,New Zealand,Egypt,expected_points_max_score,1-0,9.78,0.3292,True,False,True,Primary expected-points-max scoreline.
+40,G,New Zealand,Egypt,ensemble_score,0-1,5.042,0.4162,False,False,False,Equal-weight ensemble safe recommendation.
+41,I,France,Iraq,safe_score,2-0,8.328,0.8005,False,True,False,Primary deterministic safe recommendation.
+41,I,France,Iraq,ev_score,2-0,8.328,0.8005,True,False,False,VALUE_EDGE>0.10 vs template
+41,I,France,Iraq,most_probable_score,2-0,8.328,0.8005,False,False,False,Primary most probable scoreline.
+41,I,France,Iraq,expected_points_max_score,2-0,8.328,0.8005,True,False,False,Primary expected-points-max scoreline.
+41,I,France,Iraq,ensemble_score,2-0,8.328,0.8278,False,False,False,Equal-weight ensemble safe recommendation.
+42,I,Norway,Senegal,safe_score,1-0,10.805,0.4871,False,True,False,Primary deterministic safe recommendation.
+42,I,Norway,Senegal,ev_score,1-0,10.805,0.4871,True,False,False,VALUE_EDGE>0.10 vs template; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+42,I,Norway,Senegal,most_probable_score,1-1,,0.2528,False,False,False,Primary most probable scoreline.
+42,I,Norway,Senegal,expected_points_max_score,1-0,10.805,0.4871,True,False,False,Primary expected-points-max scoreline.
+42,I,Norway,Senegal,ensemble_score,1-0,10.805,0.4903,False,False,False,Equal-weight ensemble safe recommendation.
+43,J,Argentina,Austria,safe_score,1-0,7.419,0.6015,False,True,False,Primary deterministic safe recommendation.
+43,J,Argentina,Austria,ev_score,1-0,7.419,0.6015,True,False,False,nan
+43,J,Argentina,Austria,most_probable_score,1-0,7.419,0.6015,False,False,False,Primary most probable scoreline.
+43,J,Argentina,Austria,expected_points_max_score,1-0,7.419,0.6015,True,False,False,Primary expected-points-max scoreline.
+43,J,Argentina,Austria,ensemble_score,1-0,7.419,0.6525,False,False,False,Equal-weight ensemble safe recommendation.
+44,J,Jordan,Algeria,safe_score,0-1,6.444,0.4553,False,True,False,Primary deterministic safe recommendation.
+44,J,Jordan,Algeria,ev_score,1-1,7.256,0.2583,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+44,J,Jordan,Algeria,most_probable_score,1-1,7.256,0.2583,False,False,False,Primary most probable scoreline.
+44,J,Jordan,Algeria,expected_points_max_score,1-1,7.256,0.2583,True,False,True,Primary expected-points-max scoreline.
+44,J,Jordan,Algeria,ensemble_score,0-1,6.444,0.4253,False,False,False,Equal-weight ensemble safe recommendation.
+45,L,England,Ghana,safe_score,2-0,8.506,0.8607,False,True,False,Primary deterministic safe recommendation.
+45,L,England,Ghana,ev_score,2-0,8.506,0.8607,True,False,False,VALUE_EDGE>0.10 vs template
+45,L,England,Ghana,most_probable_score,2-0,8.506,0.8607,False,False,False,Primary most probable scoreline.
+45,L,England,Ghana,expected_points_max_score,2-0,8.506,0.8607,True,False,False,Primary expected-points-max scoreline.
+45,L,England,Ghana,ensemble_score,2-0,8.506,0.8711,False,False,False,Equal-weight ensemble safe recommendation.
+46,L,Panama,Croatia,safe_score,0-1,8.205,0.5928,False,True,False,Primary deterministic safe recommendation.
+46,L,Panama,Croatia,ev_score,0-1,8.205,0.5928,True,False,False,VALUE_EDGE>0.10 vs template
+46,L,Panama,Croatia,most_probable_score,0-1,8.205,0.5928,False,False,False,Primary most probable scoreline.
+46,L,Panama,Croatia,expected_points_max_score,0-1,8.205,0.5928,True,False,False,Primary expected-points-max scoreline.
+46,L,Panama,Croatia,ensemble_score,0-1,8.205,0.5867,False,False,False,Equal-weight ensemble safe recommendation.
+47,K,Portugal,Uzbekistan,safe_score,1-0,7.266,0.6029,False,True,False,Primary deterministic safe recommendation.
+47,K,Portugal,Uzbekistan,ev_score,1-0,7.266,0.6029,True,False,False,nan
+47,K,Portugal,Uzbekistan,most_probable_score,1-0,7.266,0.6029,False,False,False,Primary most probable scoreline.
+47,K,Portugal,Uzbekistan,expected_points_max_score,1-0,7.266,0.6029,True,False,False,Primary expected-points-max scoreline.
+47,K,Portugal,Uzbekistan,ensemble_score,1-0,7.266,0.6197,False,False,False,Equal-weight ensemble safe recommendation.
+48,K,Colombia,Congo DR,safe_score,1-0,7.084,0.5256,False,True,False,Primary deterministic safe recommendation.
+48,K,Colombia,Congo DR,ev_score,1-1,7.313,0.2556,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable
+48,K,Colombia,Congo DR,most_probable_score,1-0,7.084,0.5256,False,False,False,Primary most probable scoreline.
+48,K,Colombia,Congo DR,expected_points_max_score,1-1,7.313,0.2556,True,False,True,Primary expected-points-max scoreline.
+48,K,Colombia,Congo DR,ensemble_score,1-0,7.084,0.456,False,False,False,Equal-weight ensemble safe recommendation.
+49,C,Scotland,Brazil,safe_score,0-1,7.044,0.5554,False,True,False,Primary deterministic safe recommendation.
+49,C,Scotland,Brazil,ev_score,1-1,7.108,0.2418,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable
+49,C,Scotland,Brazil,most_probable_score,0-1,7.044,0.5554,False,False,False,Primary most probable scoreline.
+49,C,Scotland,Brazil,expected_points_max_score,1-1,7.108,0.2418,True,False,True,Primary expected-points-max scoreline.
+49,C,Scotland,Brazil,ensemble_score,0-1,7.044,0.5486,False,False,False,Equal-weight ensemble safe recommendation.
+50,C,Morocco,Haiti,safe_score,1-0,7.011,0.6735,False,True,False,Primary deterministic safe recommendation.
+50,C,Morocco,Haiti,ev_score,1-1,7.224,0.2063,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable
+50,C,Morocco,Haiti,most_probable_score,1-0,7.011,0.6735,False,False,False,Primary most probable scoreline.
+50,C,Morocco,Haiti,expected_points_max_score,1-1,7.224,0.2063,True,False,True,Primary expected-points-max scoreline.
+50,C,Morocco,Haiti,ensemble_score,1-0,7.011,0.7079,False,False,False,Equal-weight ensemble safe recommendation.
+51,B,Switzerland,Canada,safe_score,1-0,7.424,0.4699,False,True,False,Primary deterministic safe recommendation.
+51,B,Switzerland,Canada,ev_score,1-1,7.429,0.2711,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable
+51,B,Switzerland,Canada,most_probable_score,1-0,7.424,0.4699,False,False,False,Primary most probable scoreline.
+51,B,Switzerland,Canada,expected_points_max_score,1-1,7.429,0.2711,True,False,True,Primary expected-points-max scoreline.
+51,B,Switzerland,Canada,ensemble_score,1-0,7.424,0.4967,False,False,False,Equal-weight ensemble safe recommendation.
+52,B,Bosnia and Herzegovina,Qatar,safe_score,1-0,11.351,0.5795,False,True,False,Primary deterministic safe recommendation.
+52,B,Bosnia and Herzegovina,Qatar,ev_score,1-0,11.351,0.5795,True,False,False,VALUE_EDGE>0.10 vs template
+52,B,Bosnia and Herzegovina,Qatar,most_probable_score,1-0,11.351,0.5795,False,False,False,Primary most probable scoreline.
+52,B,Bosnia and Herzegovina,Qatar,expected_points_max_score,1-0,11.351,0.5795,True,False,False,Primary expected-points-max scoreline.
+52,B,Bosnia and Herzegovina,Qatar,ensemble_score,1-0,11.351,0.5702,False,False,False,Equal-weight ensemble safe recommendation.
+53,A,Czechia,Mexico,safe_score,0-1,5.874,0.4113,False,True,False,Primary deterministic safe recommendation.
+53,A,Czechia,Mexico,ev_score,1-1,7.814,0.2772,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+53,A,Czechia,Mexico,most_probable_score,1-1,7.814,0.2772,False,False,False,Primary most probable scoreline.
+53,A,Czechia,Mexico,expected_points_max_score,1-1,7.814,0.2772,True,False,True,Primary expected-points-max scoreline.
+53,A,Czechia,Mexico,ensemble_score,1-0,7.619,0.3735,False,False,False,Equal-weight ensemble safe recommendation.
+54,A,South Africa,Korea Republic,safe_score,0-1,8.171,0.5739,False,True,False,Primary deterministic safe recommendation.
+54,A,South Africa,Korea Republic,ev_score,0-1,8.171,0.5739,True,False,False,nan
+54,A,South Africa,Korea Republic,most_probable_score,0-1,8.171,0.5739,False,False,False,Primary most probable scoreline.
+54,A,South Africa,Korea Republic,expected_points_max_score,0-1,8.171,0.5739,True,False,False,Primary expected-points-max scoreline.
+54,A,South Africa,Korea Republic,ensemble_score,0-1,8.171,0.5684,False,False,False,Equal-weight ensemble safe recommendation.
+55,E,Ecuador,Germany,safe_score,0-1,5.496,0.3616,False,True,False,Primary deterministic safe recommendation.
+55,E,Ecuador,Germany,ev_score,1-0,8.02,0.3559,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+55,E,Ecuador,Germany,most_probable_score,1-1,,0.2825,False,False,False,Primary most probable scoreline.
+55,E,Ecuador,Germany,expected_points_max_score,1-0,8.02,0.3559,True,False,True,Primary expected-points-max scoreline.
+55,E,Ecuador,Germany,ensemble_score,1-0,8.02,0.3765,False,False,False,Equal-weight ensemble safe recommendation.
+56,E,Curaçao,Côte d'Ivoire,safe_score,0-1,7.029,0.5421,False,True,False,Primary deterministic safe recommendation.
+56,E,Curaçao,Côte d'Ivoire,ev_score,0-1,7.029,0.5421,True,False,False,HIGH_VARIANCE: flat scoreline distribution
+56,E,Curaçao,Côte d'Ivoire,most_probable_score,0-1,7.029,0.5421,False,False,False,Primary most probable scoreline.
+56,E,Curaçao,Côte d'Ivoire,expected_points_max_score,0-1,7.029,0.5421,True,False,False,Primary expected-points-max scoreline.
+56,E,Curaçao,Côte d'Ivoire,ensemble_score,0-1,7.029,0.5279,False,False,False,Equal-weight ensemble safe recommendation.
+57,F,Tunisia,Netherlands,safe_score,0-2,8.741,0.7259,False,True,False,Primary deterministic safe recommendation.
+57,F,Tunisia,Netherlands,ev_score,0-2,8.741,0.7259,True,False,False,VALUE_EDGE>0.10 vs template
+57,F,Tunisia,Netherlands,most_probable_score,0-2,8.741,0.7259,False,False,False,Primary most probable scoreline.
+57,F,Tunisia,Netherlands,expected_points_max_score,0-2,8.741,0.7259,True,False,False,Primary expected-points-max scoreline.
+57,F,Tunisia,Netherlands,ensemble_score,0-2,8.741,0.6956,False,False,False,Equal-weight ensemble safe recommendation.
+58,F,Japan,Sweden,safe_score,1-0,8.786,0.6124,False,True,False,Primary deterministic safe recommendation.
+58,F,Japan,Sweden,ev_score,1-0,8.786,0.6124,True,False,False,VALUE_EDGE>0.10 vs template
+58,F,Japan,Sweden,most_probable_score,1-0,8.786,0.6124,False,False,False,Primary most probable scoreline.
+58,F,Japan,Sweden,expected_points_max_score,1-0,8.786,0.6124,True,False,False,Primary expected-points-max scoreline.
+58,F,Japan,Sweden,ensemble_score,1-0,8.786,0.6309,False,False,False,Equal-weight ensemble safe recommendation.
+59,D,Türkiye,USA,safe_score,1-0,9.992,0.504,False,True,False,Primary deterministic safe recommendation.
+59,D,Türkiye,USA,ev_score,1-0,9.992,0.504,True,False,False,HIGH_VARIANCE: flat scoreline distribution; VALUE_EDGE>0.10 vs template; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+59,D,Türkiye,USA,most_probable_score,1-1,,0.2462,False,False,False,Primary most probable scoreline.
+59,D,Türkiye,USA,expected_points_max_score,1-0,9.992,0.504,True,False,False,Primary expected-points-max scoreline.
+59,D,Türkiye,USA,ensemble_score,1-0,9.992,0.4826,False,False,False,Equal-weight ensemble safe recommendation.
+60,D,Paraguay,Australia,safe_score,1-0,8.064,0.3953,False,True,False,Primary deterministic safe recommendation.
+60,D,Paraguay,Australia,ev_score,1-0,8.064,0.3953,True,False,False,SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+60,D,Paraguay,Australia,most_probable_score,1-1,,0.2804,False,False,False,Primary most probable scoreline.
+60,D,Paraguay,Australia,expected_points_max_score,1-0,8.064,0.3953,True,False,False,Primary expected-points-max scoreline.
+60,D,Paraguay,Australia,ensemble_score,1-0,8.064,0.4159,False,False,False,Equal-weight ensemble safe recommendation.
+61,I,Norway,France,safe_score,0-1,5.769,0.4831,False,True,False,Primary deterministic safe recommendation.
+61,I,Norway,France,ev_score,1-0,8.687,0.2675,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; HIGH_VARIANCE: flat scoreline distribution; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+61,I,Norway,France,most_probable_score,1-1,,0.2495,False,False,False,Primary most probable scoreline.
+61,I,Norway,France,expected_points_max_score,1-0,8.687,0.2675,True,False,True,Primary expected-points-max scoreline.
+61,I,Norway,France,ensemble_score,0-1,5.769,0.4733,False,False,False,Equal-weight ensemble safe recommendation.
+62,I,Senegal,Iraq,safe_score,1-0,7.851,0.609,False,True,False,Primary deterministic safe recommendation.
+62,I,Senegal,Iraq,ev_score,1-0,7.851,0.609,True,False,False,nan
+62,I,Senegal,Iraq,most_probable_score,1-0,7.851,0.609,False,False,False,Primary most probable scoreline.
+62,I,Senegal,Iraq,expected_points_max_score,1-0,7.851,0.609,True,False,False,Primary expected-points-max scoreline.
+62,I,Senegal,Iraq,ensemble_score,1-0,7.851,0.6241,False,False,False,Equal-weight ensemble safe recommendation.
+63,G,New Zealand,Belgium,safe_score,0-2,7.373,0.7265,False,True,False,Primary deterministic safe recommendation.
+63,G,New Zealand,Belgium,ev_score,0-2,7.373,0.7265,True,False,False,nan
+63,G,New Zealand,Belgium,most_probable_score,0-2,7.373,0.7265,False,False,False,Primary most probable scoreline.
+63,G,New Zealand,Belgium,expected_points_max_score,0-2,7.373,0.7265,True,False,False,Primary expected-points-max scoreline.
+63,G,New Zealand,Belgium,ensemble_score,0-2,7.373,0.7,False,False,False,Equal-weight ensemble safe recommendation.
+64,G,Egypt,IR Iran,safe_score,0-1,8.231,0.4957,False,True,False,Primary deterministic safe recommendation.
+64,G,Egypt,IR Iran,ev_score,0-1,8.231,0.4957,True,False,False,VALUE_EDGE>0.10 vs template
+64,G,Egypt,IR Iran,most_probable_score,0-1,8.231,0.4957,False,False,False,Primary most probable scoreline.
+64,G,Egypt,IR Iran,expected_points_max_score,0-1,8.231,0.4957,True,False,False,Primary expected-points-max scoreline.
+64,G,Egypt,IR Iran,ensemble_score,0-1,8.231,0.4758,False,False,False,Equal-weight ensemble safe recommendation.
+65,H,Uruguay,Spain,safe_score,0-2,9.308,0.7125,False,True,False,Primary deterministic safe recommendation.
+65,H,Uruguay,Spain,ev_score,0-1,9.313,0.7125,True,False,False,VALUE_EDGE>0.10 vs template
+65,H,Uruguay,Spain,most_probable_score,0-2,9.308,0.7125,False,False,False,Primary most probable scoreline.
+65,H,Uruguay,Spain,expected_points_max_score,0-1,9.313,0.7125,True,False,False,Primary expected-points-max scoreline.
+65,H,Uruguay,Spain,ensemble_score,0-2,9.308,0.665,False,False,False,Equal-weight ensemble safe recommendation.
+66,H,Cabo Verde,Saudi Arabia,safe_score,1-0,7.222,0.3659,False,True,False,Primary deterministic safe recommendation.
+66,H,Cabo Verde,Saudi Arabia,ev_score,1-1,7.652,0.281,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+66,H,Cabo Verde,Saudi Arabia,most_probable_score,1-1,7.652,0.281,False,False,False,Primary most probable scoreline.
+66,H,Cabo Verde,Saudi Arabia,expected_points_max_score,1-1,7.652,0.281,True,False,True,Primary expected-points-max scoreline.
+66,H,Cabo Verde,Saudi Arabia,ensemble_score,1-0,7.222,0.382,False,False,False,Equal-weight ensemble safe recommendation.
+67,L,Panama,England,safe_score,0-2,8.164,0.6802,False,True,False,Primary deterministic safe recommendation.
+67,L,Panama,England,ev_score,0-1,8.247,0.6802,True,False,False,VALUE_EDGE>0.10 vs template
+67,L,Panama,England,most_probable_score,0-2,8.164,0.6802,False,False,False,Primary most probable scoreline.
+67,L,Panama,England,expected_points_max_score,0-1,8.247,0.6802,True,False,False,Primary expected-points-max scoreline.
+67,L,Panama,England,ensemble_score,0-2,8.164,0.6789,False,False,False,Equal-weight ensemble safe recommendation.
+68,L,Croatia,Ghana,safe_score,2-0,8.72,0.7991,False,True,False,Primary deterministic safe recommendation.
+68,L,Croatia,Ghana,ev_score,2-0,8.72,0.7991,True,False,False,VALUE_EDGE>0.10 vs template
+68,L,Croatia,Ghana,most_probable_score,2-0,8.72,0.7991,False,False,False,Primary most probable scoreline.
+68,L,Croatia,Ghana,expected_points_max_score,2-0,8.72,0.7991,True,False,False,Primary expected-points-max scoreline.
+68,L,Croatia,Ghana,ensemble_score,2-0,8.72,0.8012,False,False,False,Equal-weight ensemble safe recommendation.
+69,J,Jordan,Argentina,safe_score,0-2,7.85,0.7936,False,True,False,Primary deterministic safe recommendation.
+69,J,Jordan,Argentina,ev_score,0-2,7.85,0.7936,True,False,False,VALUE_EDGE>0.10 vs template
+69,J,Jordan,Argentina,most_probable_score,0-2,7.85,0.7936,False,False,False,Primary most probable scoreline.
+69,J,Jordan,Argentina,expected_points_max_score,0-2,7.85,0.7936,True,False,False,Primary expected-points-max scoreline.
+69,J,Jordan,Argentina,ensemble_score,0-2,7.85,0.7791,False,False,False,Equal-weight ensemble safe recommendation.
+70,J,Algeria,Austria,safe_score,0-1,7.866,0.4606,False,True,False,Primary deterministic safe recommendation.
+70,J,Algeria,Austria,ev_score,0-1,7.866,0.4606,True,False,False,SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+70,J,Algeria,Austria,most_probable_score,1-1,,0.2625,False,False,False,Primary most probable scoreline.
+70,J,Algeria,Austria,expected_points_max_score,0-1,7.866,0.4606,True,False,False,Primary expected-points-max scoreline.
+70,J,Algeria,Austria,ensemble_score,0-1,7.866,0.4672,False,False,False,Equal-weight ensemble safe recommendation.
+71,K,Colombia,Portugal,safe_score,0-1,6.269,0.3888,False,True,False,Primary deterministic safe recommendation.
+71,K,Colombia,Portugal,ev_score,1-0,7.068,0.3538,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+71,K,Colombia,Portugal,most_probable_score,1-1,,0.2574,False,False,False,Primary most probable scoreline.
+71,K,Colombia,Portugal,expected_points_max_score,1-0,7.068,0.3538,True,False,True,Primary expected-points-max scoreline.
+71,K,Colombia,Portugal,ensemble_score,0-1,6.269,0.3794,False,False,False,Equal-weight ensemble safe recommendation.
+72,K,Congo DR,Uzbekistan,safe_score,0-1,7.015,0.3773,False,True,False,Primary deterministic safe recommendation.
+72,K,Congo DR,Uzbekistan,ev_score,1-1,7.829,0.2884,True,False,True,CONTRARIAN: EV backs higher-odds outcome vs most-probable; SAFE_SCORE_ALIGNED_TO_MODEL_OUTCOME
+72,K,Congo DR,Uzbekistan,most_probable_score,1-1,7.829,0.2884,False,False,False,Primary most probable scoreline.
+72,K,Congo DR,Uzbekistan,expected_points_max_score,1-1,7.829,0.2884,True,False,True,Primary expected-points-max scoreline.
+72,K,Congo DR,Uzbekistan,ensemble_score,1-0,6.007,0.3769,False,False,False,Equal-weight ensemble safe recommendation.

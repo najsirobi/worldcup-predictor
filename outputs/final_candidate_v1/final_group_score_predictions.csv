@@ -1,0 +1,73 @@
+match_number,group,team_a,team_b,final_recommended_score,safe_score,ev_score,manual_review_flag,reason
+1,A,Mexico,South Africa,1-0,1-0,1-0,False,keep_safe_default
+2,A,Korea Republic,Czechia,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+3,B,Canada,Bosnia and Herzegovina,1-0,1-0,1-0,False,keep_safe_default
+4,D,USA,Paraguay,0-1,0-1,0-1,False,keep_safe_default
+5,C,Brazil,Morocco,1-0,1-0,1-0,False,keep_safe_default
+6,D,Australia,Türkiye,0-1,0-1,0-1,False,keep_safe_default
+7,C,Haiti,Scotland,0-1,0-1,0-1,False,keep_safe_default
+8,B,Qatar,Switzerland,0-2,0-2,0-2,False,keep_safe_default
+9,E,Germany,Curaçao,2-0,2-0,2-0,False,keep_safe_default
+10,E,Côte d'Ivoire,Ecuador,0-1,0-1,0-1,False,keep_safe_default
+11,F,Netherlands,Japan,1-0,1-0,1-0,False,keep_safe_default
+12,F,Sweden,Tunisia,0-1,0-1,1-1,True,safe_ev_disagreement_requires_manual_review
+13,H,Spain,Cabo Verde,3-0,3-0,3-0,False,keep_safe_default
+14,H,Saudi Arabia,Uruguay,0-1,0-1,0-1,False,keep_safe_default
+15,G,Belgium,Egypt,2-0,2-0,1-0,False,keep_safe_ev_is_contrarian_or_low_uplift
+16,G,IR Iran,New Zealand,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+17,I,France,Senegal,1-0,1-0,1-0,False,keep_safe_default
+18,I,Iraq,Norway,0-2,0-2,0-1,False,keep_safe_ev_is_contrarian_or_low_uplift
+19,J,Argentina,Algeria,2-0,2-0,1-0,False,keep_safe_ev_is_contrarian_or_low_uplift
+20,J,Austria,Jordan,1-0,1-0,1-0,False,keep_safe_default
+21,L,England,Croatia,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+22,L,Ghana,Panama,0-1,0-1,0-1,False,keep_safe_default
+23,K,Portugal,Congo DR,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+24,K,Uzbekistan,Colombia,0-1,0-1,0-1,False,keep_safe_default
+25,A,Mexico,Korea Republic,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+26,B,Canada,Qatar,2-0,2-0,2-0,False,keep_safe_default
+27,B,Switzerland,Bosnia and Herzegovina,2-0,2-0,1-0,False,keep_safe_ev_is_contrarian_or_low_uplift
+28,A,Czechia,South Africa,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+29,C,Brazil,Haiti,2-0,2-0,2-0,False,keep_safe_default
+30,C,Scotland,Morocco,0-1,0-1,1-0,True,safe_ev_disagreement_requires_manual_review
+31,D,USA,Australia,0-1,0-1,0-1,False,keep_safe_default
+32,D,Türkiye,Paraguay,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+33,E,Germany,Côte d'Ivoire,1-0,1-0,1-0,False,keep_safe_default
+34,E,Ecuador,Curaçao,2-0,2-0,2-0,False,keep_safe_default
+35,F,Netherlands,Sweden,2-0,2-0,2-0,False,keep_safe_default
+36,F,Tunisia,Japan,0-1,0-1,0-1,False,keep_safe_default
+37,H,Spain,Saudi Arabia,3-0,3-0,3-0,False,keep_safe_default
+38,H,Uruguay,Cabo Verde,1-0,1-0,1-0,False,keep_safe_default
+39,G,Belgium,IR Iran,1-0,1-0,1-0,False,keep_safe_default
+40,G,New Zealand,Egypt,0-1,0-1,1-0,True,safe_ev_disagreement_requires_manual_review
+41,I,France,Iraq,2-0,2-0,2-0,False,keep_safe_default
+42,I,Norway,Senegal,1-0,1-0,1-0,False,keep_safe_default
+43,J,Argentina,Austria,1-0,1-0,1-0,False,keep_safe_default
+44,J,Jordan,Algeria,0-1,0-1,1-1,True,safe_ev_disagreement_requires_manual_review
+45,L,England,Ghana,2-0,2-0,2-0,False,keep_safe_default
+46,L,Panama,Croatia,0-1,0-1,0-1,False,keep_safe_default
+47,K,Portugal,Uzbekistan,1-0,1-0,1-0,False,keep_safe_default
+48,K,Colombia,Congo DR,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+49,C,Scotland,Brazil,0-1,0-1,1-1,True,safe_ev_disagreement_requires_manual_review
+50,C,Morocco,Haiti,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+51,B,Switzerland,Canada,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+52,B,Bosnia and Herzegovina,Qatar,1-0,1-0,1-0,False,keep_safe_default
+53,A,Czechia,Mexico,0-1,0-1,1-1,True,safe_ev_disagreement_requires_manual_review
+54,A,South Africa,Korea Republic,0-1,0-1,0-1,False,keep_safe_default
+55,E,Ecuador,Germany,0-1,0-1,1-0,True,safe_ev_disagreement_requires_manual_review
+56,E,Curaçao,Côte d'Ivoire,0-1,0-1,0-1,False,keep_safe_default
+57,F,Tunisia,Netherlands,0-2,0-2,0-2,False,keep_safe_default
+58,F,Japan,Sweden,1-0,1-0,1-0,False,keep_safe_default
+59,D,Türkiye,USA,1-0,1-0,1-0,False,keep_safe_default
+60,D,Paraguay,Australia,1-0,1-0,1-0,False,keep_safe_default
+61,I,Norway,France,0-1,0-1,1-0,True,safe_ev_disagreement_requires_manual_review
+62,I,Senegal,Iraq,1-0,1-0,1-0,False,keep_safe_default
+63,G,New Zealand,Belgium,0-2,0-2,0-2,False,keep_safe_default
+64,G,Egypt,IR Iran,0-1,0-1,0-1,False,keep_safe_default
+65,H,Uruguay,Spain,0-2,0-2,0-1,False,keep_safe_ev_is_contrarian_or_low_uplift
+66,H,Cabo Verde,Saudi Arabia,1-0,1-0,1-1,True,safe_ev_disagreement_requires_manual_review
+67,L,Panama,England,0-2,0-2,0-1,False,keep_safe_ev_is_contrarian_or_low_uplift
+68,L,Croatia,Ghana,2-0,2-0,2-0,False,keep_safe_default
+69,J,Jordan,Argentina,0-2,0-2,0-2,False,keep_safe_default
+70,J,Algeria,Austria,0-1,0-1,0-1,False,keep_safe_default
+71,K,Colombia,Portugal,0-1,0-1,1-0,True,safe_ev_disagreement_requires_manual_review
+72,K,Congo DR,Uzbekistan,0-1,0-1,1-1,True,safe_ev_disagreement_requires_manual_review
