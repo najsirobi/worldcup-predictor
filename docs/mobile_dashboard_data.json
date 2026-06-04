@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-04T20:10:23Z",
+  "generated_at": "2026-06-04T20:31:41Z",
   "repo_slug": "",
   "active_candidate": {
     "name": "final_candidate_v1",
@@ -27,7 +27,7 @@
       "team_a": "Mexico",
       "team_b": "South Africa",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 2,
@@ -36,7 +36,7 @@
       "team_a": "Korea Republic",
       "team_b": "Czechia",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 3,
@@ -45,7 +45,7 @@
       "team_a": "Canada",
       "team_b": "Bosnia and Herzegovina",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 4,
@@ -54,7 +54,7 @@
       "team_a": "USA",
       "team_b": "Paraguay",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 5,
@@ -63,16 +63,16 @@
       "team_a": "Brazil",
       "team_b": "Morocco",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 6,
       "group": "D",
       "date": "2026-06-14",
       "team_a": "Australia",
-      "team_b": "T\u00fcrkiye",
+      "team_b": "Türkiye",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 7,
@@ -81,7 +81,7 @@
       "team_a": "Haiti",
       "team_b": "Scotland",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 8,
@@ -90,25 +90,25 @@
       "team_a": "Qatar",
       "team_b": "Switzerland",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 9,
       "group": "E",
       "date": "2026-06-14",
       "team_a": "Germany",
-      "team_b": "Cura\u00e7ao",
+      "team_b": "Curaçao",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 10,
       "group": "E",
       "date": "2026-06-15",
-      "team_a": "C\u00f4te d'Ivoire",
+      "team_a": "Côte d'Ivoire",
       "team_b": "Ecuador",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 11,
@@ -117,7 +117,7 @@
       "team_a": "Netherlands",
       "team_b": "Japan",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 12,
@@ -126,7 +126,7 @@
       "team_a": "Sweden",
       "team_b": "Tunisia",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 13,
@@ -135,7 +135,7 @@
       "team_a": "Spain",
       "team_b": "Cabo Verde",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 14,
@@ -144,7 +144,7 @@
       "team_a": "Saudi Arabia",
       "team_b": "Uruguay",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 15,
@@ -153,7 +153,7 @@
       "team_a": "Belgium",
       "team_b": "Egypt",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 16,
@@ -162,7 +162,7 @@
       "team_a": "IR Iran",
       "team_b": "New Zealand",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 17,
@@ -171,7 +171,7 @@
       "team_a": "France",
       "team_b": "Senegal",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 18,
@@ -180,7 +180,7 @@
       "team_a": "Iraq",
       "team_b": "Norway",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 19,
@@ -189,7 +189,7 @@
       "team_a": "Argentina",
       "team_b": "Algeria",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 20,
@@ -198,7 +198,7 @@
       "team_a": "Austria",
       "team_b": "Jordan",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 21,
@@ -207,7 +207,7 @@
       "team_a": "England",
       "team_b": "Croatia",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 22,
@@ -216,7 +216,7 @@
       "team_a": "Ghana",
       "team_b": "Panama",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 23,
@@ -225,7 +225,7 @@
       "team_a": "Portugal",
       "team_b": "Congo DR",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     },
     {
       "match_number": 24,
@@ -234,7 +234,7 @@
       "team_a": "Uzbekistan",
       "team_b": "Colombia",
       "status": "scheduled",
-      "notes": NaN
+      "notes": null
     }
   ],
   "remaining_matches_total": 72,
@@ -416,7 +416,7 @@
       },
       {
         "rank": 3,
-        "team": "T\u00fcrkiye",
+        "team": "Türkiye",
         "played": 0,
         "won": 0,
         "drawn": 0,
@@ -442,7 +442,7 @@
     "E": [
       {
         "rank": 1,
-        "team": "Cura\u00e7ao",
+        "team": "Curaçao",
         "played": 0,
         "won": 0,
         "drawn": 0,
@@ -454,7 +454,7 @@
       },
       {
         "rank": 2,
-        "team": "C\u00f4te d'Ivoire",
+        "team": "Côte d'Ivoire",
         "played": 0,
         "won": 0,
         "drawn": 0,
@@ -1023,7 +1023,7 @@
     },
     {
       "group": "D",
-      "team": "T\u00fcrkiye",
+      "team": "Türkiye",
       "matches_played": 0,
       "current_points": 0,
       "p_rank1": 0.6062,
@@ -1113,7 +1113,7 @@
     },
     {
       "group": "E",
-      "team": "C\u00f4te d'Ivoire",
+      "team": "Côte d'Ivoire",
       "matches_played": 0,
       "current_points": 0,
       "p_rank1": 0.0615,
@@ -1128,7 +1128,7 @@
     },
     {
       "group": "E",
-      "team": "Cura\u00e7ao",
+      "team": "Curaçao",
       "matches_played": 0,
       "current_points": 0,
       "p_rank1": 0.0069,
@@ -1604,7 +1604,7 @@
     },
     {
       "group": "D",
-      "rank_1": "T\u00fcrkiye",
+      "rank_1": "Türkiye",
       "rank_2": "Paraguay",
       "rank_3": "Australia",
       "rank_4": "USA",
@@ -1615,8 +1615,8 @@
       "group": "E",
       "rank_1": "Germany",
       "rank_2": "Ecuador",
-      "rank_3": "C\u00f4te d'Ivoire",
-      "rank_4": "Cura\u00e7ao",
+      "rank_3": "Côte d'Ivoire",
+      "rank_4": "Curaçao",
       "confidence": "medium",
       "notes": "high_exact_standing_uncertainty"
     },
@@ -1694,7 +1694,7 @@
       "expected_points": 13.048,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1705,7 +1705,7 @@
       "expected_points": 10.06,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1716,7 +1716,7 @@
       "expected_points": 9.488,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1727,7 +1727,7 @@
       "expected_points": 9.108,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1738,7 +1738,7 @@
       "expected_points": 8.84,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1749,7 +1749,7 @@
       "expected_points": 8.144,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1760,7 +1760,7 @@
       "expected_points": 8.048,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "quarter_finalist",
@@ -1771,7 +1771,7 @@
       "expected_points": 7.18,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "semi_finalist",
@@ -1782,7 +1782,7 @@
       "expected_points": 20.656,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "semi_finalist",
@@ -1793,7 +1793,7 @@
       "expected_points": 12.336,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "semi_finalist",
@@ -1804,7 +1804,7 @@
       "expected_points": 12.0,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "semi_finalist",
@@ -1815,7 +1815,7 @@
       "expected_points": 11.056,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "finalist",
@@ -1826,7 +1826,7 @@
       "expected_points": 23.328,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "finalist",
@@ -1837,7 +1837,7 @@
       "expected_points": 11.424,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     },
     {
       "stage": "winner",
@@ -1848,7 +1848,7 @@
       "expected_points": 28.04,
       "selection_type": "safe_highest_probability",
       "alternatives": "See last8_recommendation_report.md",
-      "expected_points_estimate": NaN
+      "expected_points_estimate": null
     }
   ],
   "manual_review": [
@@ -1919,7 +1919,7 @@
     {
       "match_number": 32,
       "group": "D",
-      "team_a": "T\u00fcrkiye",
+      "team_a": "Türkiye",
       "team_b": "Paraguay",
       "final_recommended_score": "1-0",
       "reason": "safe_ev_disagreement_requires_manual_review"

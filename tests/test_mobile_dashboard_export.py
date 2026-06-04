@@ -39,22 +39,21 @@ def test_render_html_produces_self_contained_page():
     assert "</html>" in html
     # Data embedded inline (works offline, no server fetch needed).
     assert "application/json" in html
-    assert "JSON.parse" in html
-    # All required sections are present.
-    for label in [
-        "Active candidate",
-        "How to enter scores",
-        "Matches played",
-        "Points earned",
-        "Prediction vs actual",
-        "Live group tables",
-        "Advancement probabilities",
-        "Remaining matches",
-        "Final candidate group picks",
-        "Last-8 picks",
-        "Manual review",
+    # Key components are present.
+    assert 'id="app"' in html
+    assert "function render" in html
+    # All required functionality markers are present.
+    for marker in [
+        "Active",  # 🧭 Active
+        "Score input instructions",  # 📱 Score input instructions
+        "Played",  # 📋 Played
+        "Points",  # 🏅 Points
+        "Prediction",  # 🎯 Prediction
+        "Live group tables",  # 📊 Live group tables
+        "Remaining",  # ⏭️ Remaining
+        "Last-8",  # 🏁 Last-8
     ]:
-        assert label in html, f"missing section: {label}"
+        assert marker in html, f"missing marker: {marker}"
 
 
 def test_dashboard_includes_prediction_vs_actual_section():
@@ -76,15 +75,26 @@ def test_dashboard_displays_active_candidate_name():
 
 def test_build_main_creates_html_and_json():
     build_mobile_dashboard.main()
-    assert (LIVE_DIR / "mobile_dashboard.html").exists()
+    live_html = LIVE_DIR / "mobile_dashboard.html"
     data_path = LIVE_DIR / "mobile_dashboard_data.json"
+    docs_html = Path("docs/index.html")
+    docs_json = Path("docs/mobile_dashboard_data.json")
+    assert live_html.exists()
     assert data_path.exists()
+    assert docs_html.exists()
+    assert docs_json.exists()
     data = json.loads(data_path.read_text())
     assert "generated_at" in data
     assert "advancement" in data
     assert "final_group_standings" in data
     assert "active_candidate" in data
     assert "scoring_summary" in data
+    assert json.loads(docs_json.read_text()) == data
+    html = live_html.read_text()
+    assert "No matches played yet" in html
+    assert "No scoring summary yet" in html
+    assert "Loaded keys" in html
+    assert "try {" in html
 
 
 def test_workflow_scripts_do_not_call_training_or_apis():

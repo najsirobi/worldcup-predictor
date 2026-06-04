@@ -7,21 +7,15 @@
 <style>
   :root { color-scheme: light dark; }
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif;
-         margin: 0; padding: 0 0 3rem; background: #0f1116; color: #e7e9ee;
-         line-height: 1.4; font-size: 16px; }
-  header { position: sticky; top: 0; background: #161a23; padding: .8rem 1rem;
-           border-bottom: 1px solid #2a2f3a; z-index: 5; }
+  body { font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0 0 3rem; background: #0f1116; color: #e7e9ee; line-height: 1.4; font-size: 16px; }
+  header { position: sticky; top: 0; background: #161a23; padding: .8rem 1rem; border-bottom: 1px solid #2a2f3a; z-index: 5; }
   header h1 { margin: 0; font-size: 1.15rem; }
   header .meta { font-size: .78rem; color: #9aa3b2; margin-top: .15rem; }
   header .cand { font-size: .78rem; color: #7dd3fc; margin-top: .15rem; }
   main { padding: 0 .8rem; max-width: 720px; margin: 0 auto; }
-  section { margin-top: 1.1rem; background: #161a23; border: 1px solid #2a2f3a;
-            border-radius: 12px; padding: .85rem; }
-  section > h2 { margin: 0 0 .55rem; font-size: 1rem; color: #cfd6e4;
-                 display: flex; align-items: center; gap: .4rem; }
-  .pill { display:inline-block; font-size:.7rem; padding:.1rem .45rem;
-          border-radius:999px; background:#222836; color:#9aa3b2; }
+  section { margin-top: 1.1rem; background: #161a23; border: 1px solid #2a2f3a; border-radius: 12px; padding: .85rem; }
+  section > h2 { margin: 0 0 .55rem; font-size: 1rem; color: #cfd6e4; display: flex; align-items: center; gap: .4rem; }
+  .pill { display:inline-block; font-size:.7rem; padding:.1rem .45rem; border-radius:999px; background:#222836; color:#9aa3b2; }
   table { width: 100%; border-collapse: collapse; font-size: .82rem; }
   th, td { text-align: right; padding: .28rem .3rem; border-bottom: 1px solid #232836; }
   th:first-child, td:first-child { text-align: left; }
@@ -29,11 +23,13 @@
   .grp { font-weight: 700; color: #aab3c5; margin: .6rem 0 .2rem; font-size: .9rem; }
   .adv { color: #4ade80; }
   .out { color: #f87171; }
-  .bar { height: 6px; border-radius: 4px; background:#2a3142; overflow:hidden; margin-top:2px;}
+  .bar { height: 6px; border-radius: 4px; background:#2a3142; overflow:hidden; margin-top:2px; }
   .bar > i { display:block; height:100%; background:#4ade80; }
-  .match { display:flex; justify-content:space-between; padding:.3rem 0;
-           border-bottom:1px solid #232836; font-size:.85rem; }
+  .match { display:flex; justify-content:space-between; padding:.3rem 0; border-bottom:1px solid #232836; font-size:.85rem; }
   .match .sc { font-weight:700; }
+  .error { background:#5a1f1f; border: 1px solid #8b3f3f; color:#ff9999; padding:1rem; border-radius:8px; margin:1rem 0; }
+  .error h3 { color:#ffb3b3; margin-top:0; }
+  .error pre { background:#3a1515; color:#ffcccc; max-height:300px; overflow-y:auto; font-size:.7rem; }
   .warn { background:#3a2a13; border-color:#5a431f; }
   .warn h2 { color:#fbbf24; }
   .muted { color:#9aa3b2; font-size:.8rem; }
@@ -54,161 +50,415 @@
 <body>
 <header>
   <h1>🏆 WC2026 Travel Mode</h1>
-  <div class="meta" id="meta"></div>
+  <div class="meta" id="meta">Loading…</div>
   <div class="cand" id="cand"></div>
 </header>
 <main id="app"></main>
-<script id="payload" type="application/json">{"generated_at": "2026-06-04T20:10:23Z", "repo_slug": "", "active_candidate": {"name": "final_candidate_v1", "active_candidate_dir": "outputs/final_candidate_v1", "score_predictions_file": "final_group_score_predictions.csv", "standing_predictions_file": "final_group_standing_predictions.csv", "last8_predictions_file": "final_last8_predictions.csv", "submission_pack_file": "final_submission_pack.csv", "config_path": "data/live/active_candidate.yml", "config_existed": true}, "summary": {"matches_played": 0, "matches_remaining": 72, "n_sims": 20000}, "tie_break_note": "Tie-break limitation: live tables are ordered by points, then goal difference, then goals for, then team name (alphabetical) as a deterministic fallback. The full FIFA/FIF8A tie-breakers (head-to-head record, head-to-head goal difference/goals, disciplinary/fair-play points, drawing of lots) are NOT applied here. Final standings may differ when teams are level on points and goal difference.", "sim_tie_break_note": "Ranking within a group uses points -> goal difference -> goals for -> uniform random draw. The 8 best third-placed teams are chosen by the same ladder. Head-to-head and fair-play tie-breakers are not modelled.", "played_matches": [], "remaining_matches": [{"match_number": 1, "group": "A", "date": "2026-06-11", "team_a": "Mexico", "team_b": "South Africa", "status": "scheduled", "notes": NaN}, {"match_number": 2, "group": "A", "date": "2026-06-12", "team_a": "Korea Republic", "team_b": "Czechia", "status": "scheduled", "notes": NaN}, {"match_number": 3, "group": "B", "date": "2026-06-12", "team_a": "Canada", "team_b": "Bosnia and Herzegovina", "status": "scheduled", "notes": NaN}, {"match_number": 4, "group": "D", "date": "2026-06-13", "team_a": "USA", "team_b": "Paraguay", "status": "scheduled", "notes": NaN}, {"match_number": 5, "group": "C", "date": "2026-06-14", "team_a": "Brazil", "team_b": "Morocco", "status": "scheduled", "notes": NaN}, {"match_number": 6, "group": "D", "date": "2026-06-14", "team_a": "Australia", "team_b": "T\u00fcrkiye", "status": "scheduled", "notes": NaN}, {"match_number": 7, "group": "C", "date": "2026-06-14", "team_a": "Haiti", "team_b": "Scotland", "status": "scheduled", "notes": NaN}, {"match_number": 8, "group": "B", "date": "2026-06-13", "team_a": "Qatar", "team_b": "Switzerland", "status": "scheduled", "notes": NaN}, {"match_number": 9, "group": "E", "date": "2026-06-14", "team_a": "Germany", "team_b": "Cura\u00e7ao", "status": "scheduled", "notes": NaN}, {"match_number": 10, "group": "E", "date": "2026-06-15", "team_a": "C\u00f4te d'Ivoire", "team_b": "Ecuador", "status": "scheduled", "notes": NaN}, {"match_number": 11, "group": "F", "date": "2026-06-14", "team_a": "Netherlands", "team_b": "Japan", "status": "scheduled", "notes": NaN}, {"match_number": 12, "group": "F", "date": "2026-06-15", "team_a": "Sweden", "team_b": "Tunisia", "status": "scheduled", "notes": NaN}, {"match_number": 13, "group": "H", "date": "2026-06-15", "team_a": "Spain", "team_b": "Cabo Verde", "status": "scheduled", "notes": NaN}, {"match_number": 14, "group": "H", "date": "2026-06-16", "team_a": "Saudi Arabia", "team_b": "Uruguay", "status": "scheduled", "notes": NaN}, {"match_number": 15, "group": "G", "date": "2026-06-15", "team_a": "Belgium", "team_b": "Egypt", "status": "scheduled", "notes": NaN}, {"match_number": 16, "group": "G", "date": "2026-06-16", "team_a": "IR Iran", "team_b": "New Zealand", "status": "scheduled", "notes": NaN}, {"match_number": 17, "group": "I", "date": "2026-06-16", "team_a": "France", "team_b": "Senegal", "status": "scheduled", "notes": NaN}, {"match_number": 18, "group": "I", "date": "2026-06-17", "team_a": "Iraq", "team_b": "Norway", "status": "scheduled", "notes": NaN}, {"match_number": 19, "group": "J", "date": "2026-06-17", "team_a": "Argentina", "team_b": "Algeria", "status": "scheduled", "notes": NaN}, {"match_number": 20, "group": "J", "date": "2026-06-17", "team_a": "Austria", "team_b": "Jordan", "status": "scheduled", "notes": NaN}, {"match_number": 21, "group": "L", "date": "2026-06-17", "team_a": "England", "team_b": "Croatia", "status": "scheduled", "notes": NaN}, {"match_number": 22, "group": "L", "date": "2026-06-18", "team_a": "Ghana", "team_b": "Panama", "status": "scheduled", "notes": NaN}, {"match_number": 23, "group": "K", "date": "2026-06-17", "team_a": "Portugal", "team_b": "Congo DR", "status": "scheduled", "notes": NaN}, {"match_number": 24, "group": "K", "date": "2026-06-18", "team_a": "Uzbekistan", "team_b": "Colombia", "status": "scheduled", "notes": NaN}], "remaining_matches_total": 72, "groups": {"A": [{"rank": 1, "team": "Czechia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Korea Republic", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Mexico", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "South Africa", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "B": [{"rank": 1, "team": "Bosnia and Herzegovina", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Canada", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Qatar", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Switzerland", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "C": [{"rank": 1, "team": "Brazil", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Haiti", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Morocco", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Scotland", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "D": [{"rank": 1, "team": "Australia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Paraguay", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "T\u00fcrkiye", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "USA", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "E": [{"rank": 1, "team": "Cura\u00e7ao", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "C\u00f4te d'Ivoire", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Ecuador", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Germany", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "F": [{"rank": 1, "team": "Japan", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Netherlands", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Sweden", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Tunisia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "G": [{"rank": 1, "team": "Belgium", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Egypt", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "IR Iran", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "New Zealand", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "H": [{"rank": 1, "team": "Cabo Verde", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Saudi Arabia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Spain", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Uruguay", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "I": [{"rank": 1, "team": "France", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Iraq", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Norway", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Senegal", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "J": [{"rank": 1, "team": "Algeria", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Argentina", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Austria", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Jordan", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "K": [{"rank": 1, "team": "Colombia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Congo DR", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Portugal", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Uzbekistan", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "L": [{"rank": 1, "team": "Croatia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "England", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Ghana", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Panama", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}]}, "advancement": [{"group": "A", "team": "Mexico", "matches_played": 0, "current_points": 0, "p_rank1": 0.6139, "p_rank2": 0.2511, "p_rank3": 0.1022, "p_rank4": 0.0328, "p_top2": 0.865, "p_advance": 0.9513, "expected_points": 6.015, "expected_goal_difference": 2.267, "status": "active"}, {"group": "A", "team": "Korea Republic", "matches_played": 0, "current_points": 0, "p_rank1": 0.2591, "p_rank2": 0.4132, "p_rank3": 0.2324, "p_rank4": 0.0953, "p_top2": 0.6723, "p_advance": 0.856, "expected_points": 4.623, "expected_goal_difference": 0.745, "status": "active"}, {"group": "A", "team": "Czechia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0954, "p_rank2": 0.2397, "p_rank3": 0.4138, "p_rank4": 0.251, "p_top2": 0.3351, "p_advance": 0.6463, "expected_points": 3.27, "expected_goal_difference": -0.752, "status": "active"}, {"group": "A", "team": "South Africa", "matches_played": 0, "current_points": 0, "p_rank1": 0.0316, "p_rank2": 0.096, "p_rank3": 0.2515, "p_rank4": 0.6209, "p_top2": 0.1276, "p_advance": 0.275, "expected_points": 1.915, "expected_goal_difference": -2.26, "status": "active"}, {"group": "B", "team": "Switzerland", "matches_played": 0, "current_points": 0, "p_rank1": 0.7482, "p_rank2": 0.2084, "p_rank3": 0.0377, "p_rank4": 0.0056, "p_top2": 0.9567, "p_advance": 0.9909, "expected_points": 7.112, "expected_goal_difference": 4.262, "status": "active"}, {"group": "B", "team": "Canada", "matches_played": 0, "current_points": 0, "p_rank1": 0.2175, "p_rank2": 0.5938, "p_rank3": 0.1592, "p_rank4": 0.0295, "p_top2": 0.8113, "p_advance": 0.9396, "expected_points": 5.197, "expected_goal_difference": 1.745, "status": "active"}, {"group": "B", "team": "Bosnia and Herzegovina", "matches_played": 0, "current_points": 0, "p_rank1": 0.0301, "p_rank2": 0.1611, "p_rank3": 0.5995, "p_rank4": 0.2092, "p_top2": 0.1912, "p_advance": 0.5772, "expected_points": 2.937, "expected_goal_difference": -1.737, "status": "active"}, {"group": "B", "team": "Qatar", "matches_played": 0, "current_points": 0, "p_rank1": 0.0043, "p_rank2": 0.0366, "p_rank3": 0.2036, "p_rank4": 0.7556, "p_top2": 0.0408, "p_advance": 0.1323, "expected_points": 1.171, "expected_goal_difference": -4.27, "status": "active"}, {"group": "C", "team": "Brazil", "matches_played": 0, "current_points": 0, "p_rank1": 0.7076, "p_rank2": 0.2108, "p_rank3": 0.067, "p_rank4": 0.0146, "p_top2": 0.9184, "p_advance": 0.9781, "expected_points": 6.549, "expected_goal_difference": 3.248, "status": "active"}, {"group": "C", "team": "Morocco", "matches_played": 0, "current_points": 0, "p_rank1": 0.2035, "p_rank2": 0.4785, "p_rank3": 0.2405, "p_rank4": 0.0775, "p_top2": 0.682, "p_advance": 0.8605, "expected_points": 4.631, "expected_goal_difference": 0.744, "status": "active"}, {"group": "C", "team": "Scotland", "matches_played": 0, "current_points": 0, "p_rank1": 0.0752, "p_rank2": 0.243, "p_rank3": 0.4751, "p_rank4": 0.2067, "p_top2": 0.3182, "p_advance": 0.6558, "expected_points": 3.284, "expected_goal_difference": -0.742, "status": "active"}, {"group": "C", "team": "Haiti", "matches_played": 0, "current_points": 0, "p_rank1": 0.0137, "p_rank2": 0.0677, "p_rank3": 0.2173, "p_rank4": 0.7013, "p_top2": 0.0814, "p_advance": 0.1945, "expected_points": 1.556, "expected_goal_difference": -3.251, "status": "active"}, {"group": "D", "team": "T\u00fcrkiye", "matches_played": 0, "current_points": 0, "p_rank1": 0.6062, "p_rank2": 0.2555, "p_rank3": 0.1051, "p_rank4": 0.0333, "p_top2": 0.8617, "p_advance": 0.9516, "expected_points": 5.99, "expected_goal_difference": 2.24, "status": "active"}, {"group": "D", "team": "Paraguay", "matches_played": 0, "current_points": 0, "p_rank1": 0.266, "p_rank2": 0.4124, "p_rank3": 0.2298, "p_rank4": 0.0918, "p_top2": 0.6784, "p_advance": 0.8551, "expected_points": 4.629, "expected_goal_difference": 0.754, "status": "active"}, {"group": "D", "team": "Australia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0968, "p_rank2": 0.2357, "p_rank3": 0.4145, "p_rank4": 0.253, "p_top2": 0.3325, "p_advance": 0.6418, "expected_points": 3.266, "expected_goal_difference": -0.758, "status": "active"}, {"group": "D", "team": "USA", "matches_played": 0, "current_points": 0, "p_rank1": 0.0311, "p_rank2": 0.0964, "p_rank3": 0.2506, "p_rank4": 0.622, "p_top2": 0.1274, "p_advance": 0.2788, "expected_points": 1.923, "expected_goal_difference": -2.236, "status": "active"}, {"group": "E", "team": "Germany", "matches_played": 0, "current_points": 0, "p_rank1": 0.6532, "p_rank2": 0.2611, "p_rank3": 0.0742, "p_rank4": 0.0115, "p_top2": 0.9143, "p_advance": 0.9819, "expected_points": 6.583, "expected_goal_difference": 3.254, "status": "active"}, {"group": "E", "team": "Ecuador", "matches_played": 0, "current_points": 0, "p_rank1": 0.2784, "p_rank2": 0.4985, "p_rank3": 0.1892, "p_rank4": 0.034, "p_top2": 0.7769, "p_advance": 0.9377, "expected_points": 5.198, "expected_goal_difference": 1.748, "status": "active"}, {"group": "E", "team": "C\u00f4te d'Ivoire", "matches_played": 0, "current_points": 0, "p_rank1": 0.0615, "p_rank2": 0.2043, "p_rank3": 0.5671, "p_rank4": 0.1671, "p_top2": 0.2658, "p_advance": 0.6592, "expected_points": 3.269, "expected_goal_difference": -0.762, "status": "active"}, {"group": "E", "team": "Cura\u00e7ao", "matches_played": 0, "current_points": 0, "p_rank1": 0.0069, "p_rank2": 0.0362, "p_rank3": 0.1695, "p_rank4": 0.7875, "p_top2": 0.043, "p_advance": 0.1331, "expected_points": 1.188, "expected_goal_difference": -4.24, "status": "active"}, {"group": "F", "team": "Netherlands", "matches_played": 0, "current_points": 0, "p_rank1": 0.7956, "p_rank2": 0.1658, "p_rank3": 0.0321, "p_rank4": 0.0065, "p_top2": 0.9614, "p_advance": 0.9909, "expected_points": 7.082, "expected_goal_difference": 4.209, "status": "active"}, {"group": "F", "team": "Japan", "matches_played": 0, "current_points": 0, "p_rank1": 0.1598, "p_rank2": 0.5541, "p_rank3": 0.2152, "p_rank4": 0.0709, "p_top2": 0.7139, "p_advance": 0.8646, "expected_points": 4.648, "expected_goal_difference": 0.766, "status": "active"}, {"group": "F", "team": "Tunisia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0357, "p_rank2": 0.2041, "p_rank3": 0.494, "p_rank4": 0.2662, "p_top2": 0.2399, "p_advance": 0.5675, "expected_points": 2.908, "expected_goal_difference": -1.75, "status": "active"}, {"group": "F", "team": "Sweden", "matches_played": 0, "current_points": 0, "p_rank1": 0.0089, "p_rank2": 0.076, "p_rank3": 0.2587, "p_rank4": 0.6563, "p_top2": 0.0849, "p_advance": 0.2054, "expected_points": 1.565, "expected_goal_difference": -3.226, "status": "active"}, {"group": "G", "team": "Belgium", "matches_played": 0, "current_points": 0, "p_rank1": 0.7972, "p_rank2": 0.1635, "p_rank3": 0.0328, "p_rank4": 0.0066, "p_top2": 0.9607, "p_advance": 0.9907, "expected_points": 7.115, "expected_goal_difference": 4.237, "status": "active"}, {"group": "G", "team": "IR Iran", "matches_played": 0, "current_points": 0, "p_rank1": 0.159, "p_rank2": 0.5532, "p_rank3": 0.2185, "p_rank4": 0.0693, "p_top2": 0.7122, "p_advance": 0.8677, "expected_points": 4.641, "expected_goal_difference": 0.751, "status": "active"}, {"group": "G", "team": "Egypt", "matches_played": 0, "current_points": 0, "p_rank1": 0.0343, "p_rank2": 0.2062, "p_rank3": 0.499, "p_rank4": 0.2606, "p_top2": 0.2404, "p_advance": 0.5747, "expected_points": 2.927, "expected_goal_difference": -1.736, "status": "active"}, {"group": "G", "team": "New Zealand", "matches_played": 0, "current_points": 0, "p_rank1": 0.0095, "p_rank2": 0.0772, "p_rank3": 0.2497, "p_rank4": 0.6635, "p_top2": 0.0867, "p_advance": 0.2026, "expected_points": 1.543, "expected_goal_difference": -3.251, "status": "active"}, {"group": "H", "team": "Spain", "matches_played": 0, "current_points": 0, "p_rank1": 0.9402, "p_rank2": 0.0546, "p_rank3": 0.0043, "p_rank4": 0.0008, "p_top2": 0.9948, "p_advance": 0.999, "expected_points": 8.161, "expected_goal_difference": 7.248, "status": "advanced (clinched)"}, {"group": "H", "team": "Uruguay", "matches_played": 0, "current_points": 0, "p_rank1": 0.0476, "p_rank2": 0.6414, "p_rank3": 0.2352, "p_rank4": 0.0756, "p_top2": 0.6891, "p_advance": 0.8266, "expected_points": 4.27, "expected_goal_difference": -0.262, "status": "active"}, {"group": "H", "team": "Cabo Verde", "matches_played": 0, "current_points": 0, "p_rank1": 0.0093, "p_rank2": 0.2263, "p_rank3": 0.5061, "p_rank4": 0.2582, "p_top2": 0.2356, "p_advance": 0.5272, "expected_points": 2.774, "expected_goal_difference": -2.749, "status": "active"}, {"group": "H", "team": "Saudi Arabia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0029, "p_rank2": 0.0776, "p_rank3": 0.2542, "p_rank4": 0.6653, "p_top2": 0.0805, "p_advance": 0.1669, "expected_points": 1.393, "expected_goal_difference": -4.237, "status": "active"}, {"group": "I", "team": "France", "matches_played": 0, "current_points": 0, "p_rank1": 0.6558, "p_rank2": 0.2572, "p_rank3": 0.0745, "p_rank4": 0.0125, "p_top2": 0.9131, "p_advance": 0.9795, "expected_points": 6.569, "expected_goal_difference": 3.275, "status": "active"}, {"group": "I", "team": "Norway", "matches_played": 0, "current_points": 0, "p_rank1": 0.2782, "p_rank2": 0.5011, "p_rank3": 0.1855, "p_rank4": 0.0352, "p_top2": 0.7793, "p_advance": 0.9361, "expected_points": 5.19, "expected_goal_difference": 1.751, "status": "active"}, {"group": "I", "team": "Senegal", "matches_played": 0, "current_points": 0, "p_rank1": 0.0593, "p_rank2": 0.2037, "p_rank3": 0.5695, "p_rank4": 0.1674, "p_top2": 0.2631, "p_advance": 0.6618, "expected_points": 3.265, "expected_goal_difference": -0.775, "status": "active"}, {"group": "I", "team": "Iraq", "matches_played": 0, "current_points": 0, "p_rank1": 0.0066, "p_rank2": 0.0379, "p_rank3": 0.1706, "p_rank4": 0.785, "p_top2": 0.0445, "p_advance": 0.1333, "expected_points": 1.2, "expected_goal_difference": -4.251, "status": "active"}, {"group": "J", "team": "Argentina", "matches_played": 0, "current_points": 0, "p_rank1": 0.7968, "p_rank2": 0.1643, "p_rank3": 0.0327, "p_rank4": 0.0063, "p_top2": 0.961, "p_advance": 0.9911, "expected_points": 7.106, "expected_goal_difference": 4.243, "status": "active"}, {"group": "J", "team": "Austria", "matches_played": 0, "current_points": 0, "p_rank1": 0.1587, "p_rank2": 0.5553, "p_rank3": 0.2162, "p_rank4": 0.0698, "p_top2": 0.714, "p_advance": 0.8673, "expected_points": 4.644, "expected_goal_difference": 0.756, "status": "active"}, {"group": "J", "team": "Algeria", "matches_played": 0, "current_points": 0, "p_rank1": 0.0344, "p_rank2": 0.2064, "p_rank3": 0.4983, "p_rank4": 0.2609, "p_top2": 0.2409, "p_advance": 0.5742, "expected_points": 2.92, "expected_goal_difference": -1.73, "status": "active"}, {"group": "J", "team": "Jordan", "matches_played": 0, "current_points": 0, "p_rank1": 0.0101, "p_rank2": 0.074, "p_rank3": 0.2528, "p_rank4": 0.6631, "p_top2": 0.0842, "p_advance": 0.2006, "expected_points": 1.546, "expected_goal_difference": -3.269, "status": "active"}, {"group": "K", "team": "Portugal", "matches_played": 0, "current_points": 0, "p_rank1": 0.6046, "p_rank2": 0.2571, "p_rank3": 0.1056, "p_rank4": 0.0328, "p_top2": 0.8616, "p_advance": 0.9504, "expected_points": 5.985, "expected_goal_difference": 2.245, "status": "active"}, {"group": "K", "team": "Colombia", "matches_played": 0, "current_points": 0, "p_rank1": 0.2674, "p_rank2": 0.406, "p_rank3": 0.2313, "p_rank4": 0.0953, "p_top2": 0.6734, "p_advance": 0.854, "expected_points": 4.628, "expected_goal_difference": 0.745, "status": "active"}, {"group": "K", "team": "Uzbekistan", "matches_played": 0, "current_points": 0, "p_rank1": 0.0974, "p_rank2": 0.2389, "p_rank3": 0.408, "p_rank4": 0.2557, "p_top2": 0.3363, "p_advance": 0.6434, "expected_points": 3.285, "expected_goal_difference": -0.753, "status": "active"}, {"group": "K", "team": "Congo DR", "matches_played": 0, "current_points": 0, "p_rank1": 0.0307, "p_rank2": 0.098, "p_rank3": 0.255, "p_rank4": 0.6162, "p_top2": 0.1287, "p_advance": 0.2793, "expected_points": 1.92, "expected_goal_difference": -2.238, "status": "active"}, {"group": "L", "team": "England", "matches_played": 0, "current_points": 0, "p_rank1": 0.745, "p_rank2": 0.2107, "p_rank3": 0.0391, "p_rank4": 0.0052, "p_top2": 0.9556, "p_advance": 0.9909, "expected_points": 7.093, "expected_goal_difference": 4.226, "status": "active"}, {"group": "L", "team": "Croatia", "matches_played": 0, "current_points": 0, "p_rank1": 0.2193, "p_rank2": 0.5955, "p_rank3": 0.1537, "p_rank4": 0.0314, "p_top2": 0.8148, "p_advance": 0.94, "expected_points": 5.217, "expected_goal_difference": 1.792, "status": "active"}, {"group": "L", "team": "Panama", "matches_played": 0, "current_points": 0, "p_rank1": 0.0305, "p_rank2": 0.1588, "p_rank3": 0.597, "p_rank4": 0.2138, "p_top2": 0.1892, "p_advance": 0.5827, "expected_points": 2.937, "expected_goal_difference": -1.744, "status": "active"}, {"group": "L", "team": "Ghana", "matches_played": 0, "current_points": 0, "p_rank1": 0.0053, "p_rank2": 0.0351, "p_rank3": 0.2101, "p_rank4": 0.7496, "p_top2": 0.0403, "p_advance": 0.1348, "expected_points": 1.186, "expected_goal_difference": -4.274, "status": "active"}], "prediction_vs_actual": [], "scoring_summary": {"played_matches": 0, "total_points": 0.0, "possible_points_for_played_matches": 0.0, "points_missed": 0.0, "average_points_per_played_match": 0.0, "outcomes_correct": 0, "goal_differences_correct": 0, "exact_scores_correct": 0, "total_by_group": {}}, "final_group_standings": [{"group": "A", "rank_1": "Mexico", "rank_2": "Korea Republic", "rank_3": "Czechia", "rank_4": "South Africa", "confidence": "medium", "notes": "high_exact_standing_uncertainty"}, {"group": "B", "rank_1": "Switzerland", "rank_2": "Canada", "rank_3": "Bosnia and Herzegovina", "rank_4": "Qatar", "confidence": "high", "notes": "none"}, {"group": "C", "rank_1": "Brazil", "rank_2": "Morocco", "rank_3": "Scotland", "rank_4": "Haiti", "confidence": "high", "notes": "none"}, {"group": "D", "rank_1": "T\u00fcrkiye", "rank_2": "Paraguay", "rank_3": "Australia", "rank_4": "USA", "confidence": "low", "notes": "close_2nd_3rd_race, high_exact_standing_uncertainty"}, {"group": "E", "rank_1": "Germany", "rank_2": "Ecuador", "rank_3": "C\u00f4te d'Ivoire", "rank_4": "Cura\u00e7ao", "confidence": "medium", "notes": "high_exact_standing_uncertainty"}, {"group": "F", "rank_1": "Netherlands", "rank_2": "Japan", "rank_3": "Tunisia", "rank_4": "Sweden", "confidence": "high", "notes": "none"}, {"group": "G", "rank_1": "Belgium", "rank_2": "IR Iran", "rank_3": "Egypt", "rank_4": "New Zealand", "confidence": "high", "notes": "none"}, {"group": "H", "rank_1": "Spain", "rank_2": "Uruguay", "rank_3": "Saudi Arabia", "rank_4": "Cabo Verde", "confidence": "high", "notes": "none"}, {"group": "I", "rank_1": "France", "rank_2": "Norway", "rank_3": "Senegal", "rank_4": "Iraq", "confidence": "high", "notes": "none"}, {"group": "J", "rank_1": "Argentina", "rank_2": "Austria", "rank_3": "Algeria", "rank_4": "Jordan", "confidence": "high", "notes": "none"}, {"group": "K", "rank_1": "Portugal", "rank_2": "Colombia", "rank_3": "Congo DR", "rank_4": "Uzbekistan", "confidence": "medium", "notes": "high_exact_standing_uncertainty"}, {"group": "L", "rank_1": "England", "rank_2": "Croatia", "rank_3": "Panama", "rank_4": "Ghana", "confidence": "high", "notes": "none"}], "last8_picks": [{"stage": "quarter_finalist", "rank": 1, "team": "Spain", "probability": 0.6524, "stage_points": 20, "expected_points": 13.048, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 2, "team": "Switzerland", "probability": 0.503, "stage_points": 20, "expected_points": 10.06, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 3, "team": "Argentina", "probability": 0.4744, "stage_points": 20, "expected_points": 9.488, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 4, "team": "England", "probability": 0.4554, "stage_points": 20, "expected_points": 9.108, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 5, "team": "Belgium", "probability": 0.442, "stage_points": 20, "expected_points": 8.84, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 6, "team": "France", "probability": 0.4072, "stage_points": 20, "expected_points": 8.144, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 7, "team": "Netherlands", "probability": 0.4024, "stage_points": 20, "expected_points": 8.048, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "quarter_finalist", "rank": 8, "team": "Germany", "probability": 0.359, "stage_points": 20, "expected_points": 7.18, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "semi_finalist", "rank": 1, "team": "Spain", "probability": 0.5164, "stage_points": 40, "expected_points": 20.656, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "semi_finalist", "rank": 2, "team": "Switzerland", "probability": 0.3084, "stage_points": 40, "expected_points": 12.336, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "semi_finalist", "rank": 3, "team": "Argentina", "probability": 0.3, "stage_points": 40, "expected_points": 12.0, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "semi_finalist", "rank": 4, "team": "England", "probability": 0.2764, "stage_points": 40, "expected_points": 11.056, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "finalist", "rank": 1, "team": "Spain", "probability": 0.3888, "stage_points": 60, "expected_points": 23.328, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "finalist", "rank": 2, "team": "Argentina", "probability": 0.1904, "stage_points": 60, "expected_points": 11.424, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}, {"stage": "winner", "rank": 1, "team": "Spain", "probability": 0.2804, "stage_points": 100, "expected_points": 28.04, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": NaN}], "manual_review": [{"match_number": 2, "group": "A", "team_a": "Korea Republic", "team_b": "Czechia", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 12, "group": "F", "team_a": "Sweden", "team_b": "Tunisia", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 16, "group": "G", "team_a": "IR Iran", "team_b": "New Zealand", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 21, "group": "L", "team_a": "England", "team_b": "Croatia", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 23, "group": "K", "team_a": "Portugal", "team_b": "Congo DR", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 25, "group": "A", "team_a": "Mexico", "team_b": "Korea Republic", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 28, "group": "A", "team_a": "Czechia", "team_b": "South Africa", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 30, "group": "C", "team_a": "Scotland", "team_b": "Morocco", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 32, "group": "D", "team_a": "T\u00fcrkiye", "team_b": "Paraguay", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 40, "group": "G", "team_a": "New Zealand", "team_b": "Egypt", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 44, "group": "J", "team_a": "Jordan", "team_b": "Algeria", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 48, "group": "K", "team_a": "Colombia", "team_b": "Congo DR", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 49, "group": "C", "team_a": "Scotland", "team_b": "Brazil", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 50, "group": "C", "team_a": "Morocco", "team_b": "Haiti", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 51, "group": "B", "team_a": "Switzerland", "team_b": "Canada", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 53, "group": "A", "team_a": "Czechia", "team_b": "Mexico", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 55, "group": "E", "team_a": "Ecuador", "team_b": "Germany", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 61, "group": "I", "team_a": "Norway", "team_b": "France", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 66, "group": "H", "team_a": "Cabo Verde", "team_b": "Saudi Arabia", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 71, "group": "K", "team_a": "Colombia", "team_b": "Portugal", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 72, "group": "K", "team_a": "Congo DR", "team_b": "Uzbekistan", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}]}</script>
+<script id="payload" type="application/json">{"generated_at": "2026-06-04T20:31:41Z", "repo_slug": "", "active_candidate": {"name": "final_candidate_v1", "active_candidate_dir": "outputs/final_candidate_v1", "score_predictions_file": "final_group_score_predictions.csv", "standing_predictions_file": "final_group_standing_predictions.csv", "last8_predictions_file": "final_last8_predictions.csv", "submission_pack_file": "final_submission_pack.csv", "config_path": "data/live/active_candidate.yml", "config_existed": true}, "summary": {"matches_played": 0, "matches_remaining": 72, "n_sims": 20000}, "tie_break_note": "Tie-break limitation: live tables are ordered by points, then goal difference, then goals for, then team name (alphabetical) as a deterministic fallback. The full FIFA/FIF8A tie-breakers (head-to-head record, head-to-head goal difference/goals, disciplinary/fair-play points, drawing of lots) are NOT applied here. Final standings may differ when teams are level on points and goal difference.", "sim_tie_break_note": "Ranking within a group uses points -> goal difference -> goals for -> uniform random draw. The 8 best third-placed teams are chosen by the same ladder. Head-to-head and fair-play tie-breakers are not modelled.", "played_matches": [], "remaining_matches": [{"match_number": 1, "group": "A", "date": "2026-06-11", "team_a": "Mexico", "team_b": "South Africa", "status": "scheduled", "notes": null}, {"match_number": 2, "group": "A", "date": "2026-06-12", "team_a": "Korea Republic", "team_b": "Czechia", "status": "scheduled", "notes": null}, {"match_number": 3, "group": "B", "date": "2026-06-12", "team_a": "Canada", "team_b": "Bosnia and Herzegovina", "status": "scheduled", "notes": null}, {"match_number": 4, "group": "D", "date": "2026-06-13", "team_a": "USA", "team_b": "Paraguay", "status": "scheduled", "notes": null}, {"match_number": 5, "group": "C", "date": "2026-06-14", "team_a": "Brazil", "team_b": "Morocco", "status": "scheduled", "notes": null}, {"match_number": 6, "group": "D", "date": "2026-06-14", "team_a": "Australia", "team_b": "Türkiye", "status": "scheduled", "notes": null}, {"match_number": 7, "group": "C", "date": "2026-06-14", "team_a": "Haiti", "team_b": "Scotland", "status": "scheduled", "notes": null}, {"match_number": 8, "group": "B", "date": "2026-06-13", "team_a": "Qatar", "team_b": "Switzerland", "status": "scheduled", "notes": null}, {"match_number": 9, "group": "E", "date": "2026-06-14", "team_a": "Germany", "team_b": "Curaçao", "status": "scheduled", "notes": null}, {"match_number": 10, "group": "E", "date": "2026-06-15", "team_a": "Côte d'Ivoire", "team_b": "Ecuador", "status": "scheduled", "notes": null}, {"match_number": 11, "group": "F", "date": "2026-06-14", "team_a": "Netherlands", "team_b": "Japan", "status": "scheduled", "notes": null}, {"match_number": 12, "group": "F", "date": "2026-06-15", "team_a": "Sweden", "team_b": "Tunisia", "status": "scheduled", "notes": null}, {"match_number": 13, "group": "H", "date": "2026-06-15", "team_a": "Spain", "team_b": "Cabo Verde", "status": "scheduled", "notes": null}, {"match_number": 14, "group": "H", "date": "2026-06-16", "team_a": "Saudi Arabia", "team_b": "Uruguay", "status": "scheduled", "notes": null}, {"match_number": 15, "group": "G", "date": "2026-06-15", "team_a": "Belgium", "team_b": "Egypt", "status": "scheduled", "notes": null}, {"match_number": 16, "group": "G", "date": "2026-06-16", "team_a": "IR Iran", "team_b": "New Zealand", "status": "scheduled", "notes": null}, {"match_number": 17, "group": "I", "date": "2026-06-16", "team_a": "France", "team_b": "Senegal", "status": "scheduled", "notes": null}, {"match_number": 18, "group": "I", "date": "2026-06-17", "team_a": "Iraq", "team_b": "Norway", "status": "scheduled", "notes": null}, {"match_number": 19, "group": "J", "date": "2026-06-17", "team_a": "Argentina", "team_b": "Algeria", "status": "scheduled", "notes": null}, {"match_number": 20, "group": "J", "date": "2026-06-17", "team_a": "Austria", "team_b": "Jordan", "status": "scheduled", "notes": null}, {"match_number": 21, "group": "L", "date": "2026-06-17", "team_a": "England", "team_b": "Croatia", "status": "scheduled", "notes": null}, {"match_number": 22, "group": "L", "date": "2026-06-18", "team_a": "Ghana", "team_b": "Panama", "status": "scheduled", "notes": null}, {"match_number": 23, "group": "K", "date": "2026-06-17", "team_a": "Portugal", "team_b": "Congo DR", "status": "scheduled", "notes": null}, {"match_number": 24, "group": "K", "date": "2026-06-18", "team_a": "Uzbekistan", "team_b": "Colombia", "status": "scheduled", "notes": null}], "remaining_matches_total": 72, "groups": {"A": [{"rank": 1, "team": "Czechia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Korea Republic", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Mexico", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "South Africa", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "B": [{"rank": 1, "team": "Bosnia and Herzegovina", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Canada", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Qatar", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Switzerland", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "C": [{"rank": 1, "team": "Brazil", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Haiti", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Morocco", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Scotland", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "D": [{"rank": 1, "team": "Australia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Paraguay", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Türkiye", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "USA", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "E": [{"rank": 1, "team": "Curaçao", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Côte d'Ivoire", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Ecuador", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Germany", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "F": [{"rank": 1, "team": "Japan", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Netherlands", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Sweden", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Tunisia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "G": [{"rank": 1, "team": "Belgium", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Egypt", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "IR Iran", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "New Zealand", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "H": [{"rank": 1, "team": "Cabo Verde", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Saudi Arabia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Spain", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Uruguay", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "I": [{"rank": 1, "team": "France", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Iraq", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Norway", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Senegal", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "J": [{"rank": 1, "team": "Algeria", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Argentina", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Austria", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Jordan", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "K": [{"rank": 1, "team": "Colombia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "Congo DR", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Portugal", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Uzbekistan", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}], "L": [{"rank": 1, "team": "Croatia", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 2, "team": "England", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 3, "team": "Ghana", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}, {"rank": 4, "team": "Panama", "played": 0, "won": 0, "drawn": 0, "lost": 0, "goals_for": 0, "goals_against": 0, "goal_difference": 0, "points": 0}]}, "advancement": [{"group": "A", "team": "Mexico", "matches_played": 0, "current_points": 0, "p_rank1": 0.6139, "p_rank2": 0.2511, "p_rank3": 0.1022, "p_rank4": 0.0328, "p_top2": 0.865, "p_advance": 0.9513, "expected_points": 6.015, "expected_goal_difference": 2.267, "status": "active"}, {"group": "A", "team": "Korea Republic", "matches_played": 0, "current_points": 0, "p_rank1": 0.2591, "p_rank2": 0.4132, "p_rank3": 0.2324, "p_rank4": 0.0953, "p_top2": 0.6723, "p_advance": 0.856, "expected_points": 4.623, "expected_goal_difference": 0.745, "status": "active"}, {"group": "A", "team": "Czechia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0954, "p_rank2": 0.2397, "p_rank3": 0.4138, "p_rank4": 0.251, "p_top2": 0.3351, "p_advance": 0.6463, "expected_points": 3.27, "expected_goal_difference": -0.752, "status": "active"}, {"group": "A", "team": "South Africa", "matches_played": 0, "current_points": 0, "p_rank1": 0.0316, "p_rank2": 0.096, "p_rank3": 0.2515, "p_rank4": 0.6209, "p_top2": 0.1276, "p_advance": 0.275, "expected_points": 1.915, "expected_goal_difference": -2.26, "status": "active"}, {"group": "B", "team": "Switzerland", "matches_played": 0, "current_points": 0, "p_rank1": 0.7482, "p_rank2": 0.2084, "p_rank3": 0.0377, "p_rank4": 0.0056, "p_top2": 0.9567, "p_advance": 0.9909, "expected_points": 7.112, "expected_goal_difference": 4.262, "status": "active"}, {"group": "B", "team": "Canada", "matches_played": 0, "current_points": 0, "p_rank1": 0.2175, "p_rank2": 0.5938, "p_rank3": 0.1592, "p_rank4": 0.0295, "p_top2": 0.8113, "p_advance": 0.9396, "expected_points": 5.197, "expected_goal_difference": 1.745, "status": "active"}, {"group": "B", "team": "Bosnia and Herzegovina", "matches_played": 0, "current_points": 0, "p_rank1": 0.0301, "p_rank2": 0.1611, "p_rank3": 0.5995, "p_rank4": 0.2092, "p_top2": 0.1912, "p_advance": 0.5772, "expected_points": 2.937, "expected_goal_difference": -1.737, "status": "active"}, {"group": "B", "team": "Qatar", "matches_played": 0, "current_points": 0, "p_rank1": 0.0043, "p_rank2": 0.0366, "p_rank3": 0.2036, "p_rank4": 0.7556, "p_top2": 0.0408, "p_advance": 0.1323, "expected_points": 1.171, "expected_goal_difference": -4.27, "status": "active"}, {"group": "C", "team": "Brazil", "matches_played": 0, "current_points": 0, "p_rank1": 0.7076, "p_rank2": 0.2108, "p_rank3": 0.067, "p_rank4": 0.0146, "p_top2": 0.9184, "p_advance": 0.9781, "expected_points": 6.549, "expected_goal_difference": 3.248, "status": "active"}, {"group": "C", "team": "Morocco", "matches_played": 0, "current_points": 0, "p_rank1": 0.2035, "p_rank2": 0.4785, "p_rank3": 0.2405, "p_rank4": 0.0775, "p_top2": 0.682, "p_advance": 0.8605, "expected_points": 4.631, "expected_goal_difference": 0.744, "status": "active"}, {"group": "C", "team": "Scotland", "matches_played": 0, "current_points": 0, "p_rank1": 0.0752, "p_rank2": 0.243, "p_rank3": 0.4751, "p_rank4": 0.2067, "p_top2": 0.3182, "p_advance": 0.6558, "expected_points": 3.284, "expected_goal_difference": -0.742, "status": "active"}, {"group": "C", "team": "Haiti", "matches_played": 0, "current_points": 0, "p_rank1": 0.0137, "p_rank2": 0.0677, "p_rank3": 0.2173, "p_rank4": 0.7013, "p_top2": 0.0814, "p_advance": 0.1945, "expected_points": 1.556, "expected_goal_difference": -3.251, "status": "active"}, {"group": "D", "team": "Türkiye", "matches_played": 0, "current_points": 0, "p_rank1": 0.6062, "p_rank2": 0.2555, "p_rank3": 0.1051, "p_rank4": 0.0333, "p_top2": 0.8617, "p_advance": 0.9516, "expected_points": 5.99, "expected_goal_difference": 2.24, "status": "active"}, {"group": "D", "team": "Paraguay", "matches_played": 0, "current_points": 0, "p_rank1": 0.266, "p_rank2": 0.4124, "p_rank3": 0.2298, "p_rank4": 0.0918, "p_top2": 0.6784, "p_advance": 0.8551, "expected_points": 4.629, "expected_goal_difference": 0.754, "status": "active"}, {"group": "D", "team": "Australia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0968, "p_rank2": 0.2357, "p_rank3": 0.4145, "p_rank4": 0.253, "p_top2": 0.3325, "p_advance": 0.6418, "expected_points": 3.266, "expected_goal_difference": -0.758, "status": "active"}, {"group": "D", "team": "USA", "matches_played": 0, "current_points": 0, "p_rank1": 0.0311, "p_rank2": 0.0964, "p_rank3": 0.2506, "p_rank4": 0.622, "p_top2": 0.1274, "p_advance": 0.2788, "expected_points": 1.923, "expected_goal_difference": -2.236, "status": "active"}, {"group": "E", "team": "Germany", "matches_played": 0, "current_points": 0, "p_rank1": 0.6532, "p_rank2": 0.2611, "p_rank3": 0.0742, "p_rank4": 0.0115, "p_top2": 0.9143, "p_advance": 0.9819, "expected_points": 6.583, "expected_goal_difference": 3.254, "status": "active"}, {"group": "E", "team": "Ecuador", "matches_played": 0, "current_points": 0, "p_rank1": 0.2784, "p_rank2": 0.4985, "p_rank3": 0.1892, "p_rank4": 0.034, "p_top2": 0.7769, "p_advance": 0.9377, "expected_points": 5.198, "expected_goal_difference": 1.748, "status": "active"}, {"group": "E", "team": "Côte d'Ivoire", "matches_played": 0, "current_points": 0, "p_rank1": 0.0615, "p_rank2": 0.2043, "p_rank3": 0.5671, "p_rank4": 0.1671, "p_top2": 0.2658, "p_advance": 0.6592, "expected_points": 3.269, "expected_goal_difference": -0.762, "status": "active"}, {"group": "E", "team": "Curaçao", "matches_played": 0, "current_points": 0, "p_rank1": 0.0069, "p_rank2": 0.0362, "p_rank3": 0.1695, "p_rank4": 0.7875, "p_top2": 0.043, "p_advance": 0.1331, "expected_points": 1.188, "expected_goal_difference": -4.24, "status": "active"}, {"group": "F", "team": "Netherlands", "matches_played": 0, "current_points": 0, "p_rank1": 0.7956, "p_rank2": 0.1658, "p_rank3": 0.0321, "p_rank4": 0.0065, "p_top2": 0.9614, "p_advance": 0.9909, "expected_points": 7.082, "expected_goal_difference": 4.209, "status": "active"}, {"group": "F", "team": "Japan", "matches_played": 0, "current_points": 0, "p_rank1": 0.1598, "p_rank2": 0.5541, "p_rank3": 0.2152, "p_rank4": 0.0709, "p_top2": 0.7139, "p_advance": 0.8646, "expected_points": 4.648, "expected_goal_difference": 0.766, "status": "active"}, {"group": "F", "team": "Tunisia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0357, "p_rank2": 0.2041, "p_rank3": 0.494, "p_rank4": 0.2662, "p_top2": 0.2399, "p_advance": 0.5675, "expected_points": 2.908, "expected_goal_difference": -1.75, "status": "active"}, {"group": "F", "team": "Sweden", "matches_played": 0, "current_points": 0, "p_rank1": 0.0089, "p_rank2": 0.076, "p_rank3": 0.2587, "p_rank4": 0.6563, "p_top2": 0.0849, "p_advance": 0.2054, "expected_points": 1.565, "expected_goal_difference": -3.226, "status": "active"}, {"group": "G", "team": "Belgium", "matches_played": 0, "current_points": 0, "p_rank1": 0.7972, "p_rank2": 0.1635, "p_rank3": 0.0328, "p_rank4": 0.0066, "p_top2": 0.9607, "p_advance": 0.9907, "expected_points": 7.115, "expected_goal_difference": 4.237, "status": "active"}, {"group": "G", "team": "IR Iran", "matches_played": 0, "current_points": 0, "p_rank1": 0.159, "p_rank2": 0.5532, "p_rank3": 0.2185, "p_rank4": 0.0693, "p_top2": 0.7122, "p_advance": 0.8677, "expected_points": 4.641, "expected_goal_difference": 0.751, "status": "active"}, {"group": "G", "team": "Egypt", "matches_played": 0, "current_points": 0, "p_rank1": 0.0343, "p_rank2": 0.2062, "p_rank3": 0.499, "p_rank4": 0.2606, "p_top2": 0.2404, "p_advance": 0.5747, "expected_points": 2.927, "expected_goal_difference": -1.736, "status": "active"}, {"group": "G", "team": "New Zealand", "matches_played": 0, "current_points": 0, "p_rank1": 0.0095, "p_rank2": 0.0772, "p_rank3": 0.2497, "p_rank4": 0.6635, "p_top2": 0.0867, "p_advance": 0.2026, "expected_points": 1.543, "expected_goal_difference": -3.251, "status": "active"}, {"group": "H", "team": "Spain", "matches_played": 0, "current_points": 0, "p_rank1": 0.9402, "p_rank2": 0.0546, "p_rank3": 0.0043, "p_rank4": 0.0008, "p_top2": 0.9948, "p_advance": 0.999, "expected_points": 8.161, "expected_goal_difference": 7.248, "status": "advanced (clinched)"}, {"group": "H", "team": "Uruguay", "matches_played": 0, "current_points": 0, "p_rank1": 0.0476, "p_rank2": 0.6414, "p_rank3": 0.2352, "p_rank4": 0.0756, "p_top2": 0.6891, "p_advance": 0.8266, "expected_points": 4.27, "expected_goal_difference": -0.262, "status": "active"}, {"group": "H", "team": "Cabo Verde", "matches_played": 0, "current_points": 0, "p_rank1": 0.0093, "p_rank2": 0.2263, "p_rank3": 0.5061, "p_rank4": 0.2582, "p_top2": 0.2356, "p_advance": 0.5272, "expected_points": 2.774, "expected_goal_difference": -2.749, "status": "active"}, {"group": "H", "team": "Saudi Arabia", "matches_played": 0, "current_points": 0, "p_rank1": 0.0029, "p_rank2": 0.0776, "p_rank3": 0.2542, "p_rank4": 0.6653, "p_top2": 0.0805, "p_advance": 0.1669, "expected_points": 1.393, "expected_goal_difference": -4.237, "status": "active"}, {"group": "I", "team": "France", "matches_played": 0, "current_points": 0, "p_rank1": 0.6558, "p_rank2": 0.2572, "p_rank3": 0.0745, "p_rank4": 0.0125, "p_top2": 0.9131, "p_advance": 0.9795, "expected_points": 6.569, "expected_goal_difference": 3.275, "status": "active"}, {"group": "I", "team": "Norway", "matches_played": 0, "current_points": 0, "p_rank1": 0.2782, "p_rank2": 0.5011, "p_rank3": 0.1855, "p_rank4": 0.0352, "p_top2": 0.7793, "p_advance": 0.9361, "expected_points": 5.19, "expected_goal_difference": 1.751, "status": "active"}, {"group": "I", "team": "Senegal", "matches_played": 0, "current_points": 0, "p_rank1": 0.0593, "p_rank2": 0.2037, "p_rank3": 0.5695, "p_rank4": 0.1674, "p_top2": 0.2631, "p_advance": 0.6618, "expected_points": 3.265, "expected_goal_difference": -0.775, "status": "active"}, {"group": "I", "team": "Iraq", "matches_played": 0, "current_points": 0, "p_rank1": 0.0066, "p_rank2": 0.0379, "p_rank3": 0.1706, "p_rank4": 0.785, "p_top2": 0.0445, "p_advance": 0.1333, "expected_points": 1.2, "expected_goal_difference": -4.251, "status": "active"}, {"group": "J", "team": "Argentina", "matches_played": 0, "current_points": 0, "p_rank1": 0.7968, "p_rank2": 0.1643, "p_rank3": 0.0327, "p_rank4": 0.0063, "p_top2": 0.961, "p_advance": 0.9911, "expected_points": 7.106, "expected_goal_difference": 4.243, "status": "active"}, {"group": "J", "team": "Austria", "matches_played": 0, "current_points": 0, "p_rank1": 0.1587, "p_rank2": 0.5553, "p_rank3": 0.2162, "p_rank4": 0.0698, "p_top2": 0.714, "p_advance": 0.8673, "expected_points": 4.644, "expected_goal_difference": 0.756, "status": "active"}, {"group": "J", "team": "Algeria", "matches_played": 0, "current_points": 0, "p_rank1": 0.0344, "p_rank2": 0.2064, "p_rank3": 0.4983, "p_rank4": 0.2609, "p_top2": 0.2409, "p_advance": 0.5742, "expected_points": 2.92, "expected_goal_difference": -1.73, "status": "active"}, {"group": "J", "team": "Jordan", "matches_played": 0, "current_points": 0, "p_rank1": 0.0101, "p_rank2": 0.074, "p_rank3": 0.2528, "p_rank4": 0.6631, "p_top2": 0.0842, "p_advance": 0.2006, "expected_points": 1.546, "expected_goal_difference": -3.269, "status": "active"}, {"group": "K", "team": "Portugal", "matches_played": 0, "current_points": 0, "p_rank1": 0.6046, "p_rank2": 0.2571, "p_rank3": 0.1056, "p_rank4": 0.0328, "p_top2": 0.8616, "p_advance": 0.9504, "expected_points": 5.985, "expected_goal_difference": 2.245, "status": "active"}, {"group": "K", "team": "Colombia", "matches_played": 0, "current_points": 0, "p_rank1": 0.2674, "p_rank2": 0.406, "p_rank3": 0.2313, "p_rank4": 0.0953, "p_top2": 0.6734, "p_advance": 0.854, "expected_points": 4.628, "expected_goal_difference": 0.745, "status": "active"}, {"group": "K", "team": "Uzbekistan", "matches_played": 0, "current_points": 0, "p_rank1": 0.0974, "p_rank2": 0.2389, "p_rank3": 0.408, "p_rank4": 0.2557, "p_top2": 0.3363, "p_advance": 0.6434, "expected_points": 3.285, "expected_goal_difference": -0.753, "status": "active"}, {"group": "K", "team": "Congo DR", "matches_played": 0, "current_points": 0, "p_rank1": 0.0307, "p_rank2": 0.098, "p_rank3": 0.255, "p_rank4": 0.6162, "p_top2": 0.1287, "p_advance": 0.2793, "expected_points": 1.92, "expected_goal_difference": -2.238, "status": "active"}, {"group": "L", "team": "England", "matches_played": 0, "current_points": 0, "p_rank1": 0.745, "p_rank2": 0.2107, "p_rank3": 0.0391, "p_rank4": 0.0052, "p_top2": 0.9556, "p_advance": 0.9909, "expected_points": 7.093, "expected_goal_difference": 4.226, "status": "active"}, {"group": "L", "team": "Croatia", "matches_played": 0, "current_points": 0, "p_rank1": 0.2193, "p_rank2": 0.5955, "p_rank3": 0.1537, "p_rank4": 0.0314, "p_top2": 0.8148, "p_advance": 0.94, "expected_points": 5.217, "expected_goal_difference": 1.792, "status": "active"}, {"group": "L", "team": "Panama", "matches_played": 0, "current_points": 0, "p_rank1": 0.0305, "p_rank2": 0.1588, "p_rank3": 0.597, "p_rank4": 0.2138, "p_top2": 0.1892, "p_advance": 0.5827, "expected_points": 2.937, "expected_goal_difference": -1.744, "status": "active"}, {"group": "L", "team": "Ghana", "matches_played": 0, "current_points": 0, "p_rank1": 0.0053, "p_rank2": 0.0351, "p_rank3": 0.2101, "p_rank4": 0.7496, "p_top2": 0.0403, "p_advance": 0.1348, "expected_points": 1.186, "expected_goal_difference": -4.274, "status": "active"}], "prediction_vs_actual": [], "scoring_summary": {"played_matches": 0, "total_points": 0.0, "possible_points_for_played_matches": 0.0, "points_missed": 0.0, "average_points_per_played_match": 0.0, "outcomes_correct": 0, "goal_differences_correct": 0, "exact_scores_correct": 0, "total_by_group": {}}, "final_group_standings": [{"group": "A", "rank_1": "Mexico", "rank_2": "Korea Republic", "rank_3": "Czechia", "rank_4": "South Africa", "confidence": "medium", "notes": "high_exact_standing_uncertainty"}, {"group": "B", "rank_1": "Switzerland", "rank_2": "Canada", "rank_3": "Bosnia and Herzegovina", "rank_4": "Qatar", "confidence": "high", "notes": "none"}, {"group": "C", "rank_1": "Brazil", "rank_2": "Morocco", "rank_3": "Scotland", "rank_4": "Haiti", "confidence": "high", "notes": "none"}, {"group": "D", "rank_1": "Türkiye", "rank_2": "Paraguay", "rank_3": "Australia", "rank_4": "USA", "confidence": "low", "notes": "close_2nd_3rd_race, high_exact_standing_uncertainty"}, {"group": "E", "rank_1": "Germany", "rank_2": "Ecuador", "rank_3": "Côte d'Ivoire", "rank_4": "Curaçao", "confidence": "medium", "notes": "high_exact_standing_uncertainty"}, {"group": "F", "rank_1": "Netherlands", "rank_2": "Japan", "rank_3": "Tunisia", "rank_4": "Sweden", "confidence": "high", "notes": "none"}, {"group": "G", "rank_1": "Belgium", "rank_2": "IR Iran", "rank_3": "Egypt", "rank_4": "New Zealand", "confidence": "high", "notes": "none"}, {"group": "H", "rank_1": "Spain", "rank_2": "Uruguay", "rank_3": "Saudi Arabia", "rank_4": "Cabo Verde", "confidence": "high", "notes": "none"}, {"group": "I", "rank_1": "France", "rank_2": "Norway", "rank_3": "Senegal", "rank_4": "Iraq", "confidence": "high", "notes": "none"}, {"group": "J", "rank_1": "Argentina", "rank_2": "Austria", "rank_3": "Algeria", "rank_4": "Jordan", "confidence": "high", "notes": "none"}, {"group": "K", "rank_1": "Portugal", "rank_2": "Colombia", "rank_3": "Congo DR", "rank_4": "Uzbekistan", "confidence": "medium", "notes": "high_exact_standing_uncertainty"}, {"group": "L", "rank_1": "England", "rank_2": "Croatia", "rank_3": "Panama", "rank_4": "Ghana", "confidence": "high", "notes": "none"}], "last8_picks": [{"stage": "quarter_finalist", "rank": 1, "team": "Spain", "probability": 0.6524, "stage_points": 20, "expected_points": 13.048, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 2, "team": "Switzerland", "probability": 0.503, "stage_points": 20, "expected_points": 10.06, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 3, "team": "Argentina", "probability": 0.4744, "stage_points": 20, "expected_points": 9.488, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 4, "team": "England", "probability": 0.4554, "stage_points": 20, "expected_points": 9.108, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 5, "team": "Belgium", "probability": 0.442, "stage_points": 20, "expected_points": 8.84, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 6, "team": "France", "probability": 0.4072, "stage_points": 20, "expected_points": 8.144, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 7, "team": "Netherlands", "probability": 0.4024, "stage_points": 20, "expected_points": 8.048, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "quarter_finalist", "rank": 8, "team": "Germany", "probability": 0.359, "stage_points": 20, "expected_points": 7.18, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "semi_finalist", "rank": 1, "team": "Spain", "probability": 0.5164, "stage_points": 40, "expected_points": 20.656, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "semi_finalist", "rank": 2, "team": "Switzerland", "probability": 0.3084, "stage_points": 40, "expected_points": 12.336, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "semi_finalist", "rank": 3, "team": "Argentina", "probability": 0.3, "stage_points": 40, "expected_points": 12.0, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "semi_finalist", "rank": 4, "team": "England", "probability": 0.2764, "stage_points": 40, "expected_points": 11.056, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "finalist", "rank": 1, "team": "Spain", "probability": 0.3888, "stage_points": 60, "expected_points": 23.328, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "finalist", "rank": 2, "team": "Argentina", "probability": 0.1904, "stage_points": 60, "expected_points": 11.424, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}, {"stage": "winner", "rank": 1, "team": "Spain", "probability": 0.2804, "stage_points": 100, "expected_points": 28.04, "selection_type": "safe_highest_probability", "alternatives": "See last8_recommendation_report.md", "expected_points_estimate": null}], "manual_review": [{"match_number": 2, "group": "A", "team_a": "Korea Republic", "team_b": "Czechia", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 12, "group": "F", "team_a": "Sweden", "team_b": "Tunisia", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 16, "group": "G", "team_a": "IR Iran", "team_b": "New Zealand", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 21, "group": "L", "team_a": "England", "team_b": "Croatia", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 23, "group": "K", "team_a": "Portugal", "team_b": "Congo DR", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 25, "group": "A", "team_a": "Mexico", "team_b": "Korea Republic", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 28, "group": "A", "team_a": "Czechia", "team_b": "South Africa", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 30, "group": "C", "team_a": "Scotland", "team_b": "Morocco", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 32, "group": "D", "team_a": "Türkiye", "team_b": "Paraguay", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 40, "group": "G", "team_a": "New Zealand", "team_b": "Egypt", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 44, "group": "J", "team_a": "Jordan", "team_b": "Algeria", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 48, "group": "K", "team_a": "Colombia", "team_b": "Congo DR", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 49, "group": "C", "team_a": "Scotland", "team_b": "Brazil", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 50, "group": "C", "team_a": "Morocco", "team_b": "Haiti", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 51, "group": "B", "team_a": "Switzerland", "team_b": "Canada", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 53, "group": "A", "team_a": "Czechia", "team_b": "Mexico", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 55, "group": "E", "team_a": "Ecuador", "team_b": "Germany", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 61, "group": "I", "team_a": "Norway", "team_b": "France", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 66, "group": "H", "team_a": "Cabo Verde", "team_b": "Saudi Arabia", "final_recommended_score": "1-0", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 71, "group": "K", "team_a": "Colombia", "team_b": "Portugal", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}, {"match_number": 72, "group": "K", "team_a": "Congo DR", "team_b": "Uzbekistan", "final_recommended_score": "0-1", "reason": "safe_ev_disagreement_requires_manual_review"}]}</script>
 <script>
-const D = JSON.parse(document.getElementById('payload').textContent);
-const app = document.getElementById('app');
-const el = (h) => { const d=document.createElement('div'); d.innerHTML=h; return d.firstElementChild; };
-const esc = (s) => String(s==null?'':s).replace(/[&<>]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
-const pct = (x) => x==null ? '–' : (x*100).toFixed(0)+'%';
-const tick = (b) => b ? '✅' : '❌';
-const num = (x) => x==null ? '–' : (Math.round(x*100)/100);
+(function() {
+  const app = document.getElementById('app');
+  const metaEl = document.getElementById('meta');
+  const candEl = document.getElementById('cand');
+  const payloadEl = document.getElementById('payload');
 
-document.getElementById('meta').textContent =
-  `Updated ${D.generated_at} · ${D.summary.matches_played}/72 played · `
-  + (D.summary.n_sims ? D.summary.n_sims.toLocaleString()+' sims' : 'no sims');
-document.getElementById('cand').textContent =
-  `Active candidate: ${D.active_candidate.name} (${D.active_candidate.active_candidate_dir})`;
+  function safeObject(value) {
+    return value && typeof value === 'object' && !Array.isArray(value) ? value : {};
+  }
 
-function section(title, pill, bodyHtml) {
-  return `<section><h2>${title}${pill?` <span class="pill">${pill}</span>`:''}</h2>${bodyHtml}</section>`;
-}
+  function safeArray(value) {
+    return Array.isArray(value) ? value : [];
+  }
 
-// 1. Active candidate detail
-const candHtml = `<table>
-  <tr><td>Directory</td><td>${esc(D.active_candidate.active_candidate_dir)}</td></tr>
-  <tr><td>Scores file</td><td>${esc(D.active_candidate.score_predictions_file)}</td></tr>
-  <tr><td>Standings file</td><td>${esc(D.active_candidate.standing_predictions_file)}</td></tr>
-  <tr><td>Last-8 file</td><td>${esc(D.active_candidate.last8_predictions_file)}</td></tr>
-</table><p class="muted">All Travel Mode outputs are computed against this frozen candidate. Switch via data/live/active_candidate.yml.</p>`;
+  function esc(value) {
+    return String(value == null ? '' : value).replace(/[&<>"']/g, function(ch) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch];
+    });
+  }
 
-// 2. Score input instructions
-const repoLink = D.repo_slug
-  ? `<p><a href="https://github.com/${D.repo_slug}/actions/workflows/travel_mode_update.yml">▶ Open the single-match Travel Mode workflow</a></p>`
-  : '<p class="muted">Set <code>TRAVEL_MODE_REPO=owner/name</code> when building to get direct workflow links here.</p>';
-const howHtml = repoLink + `<p><b>One match (GitHub Actions):</b></p><ol>
-  <li>GitHub <b>Actions</b> → <b>Travel Mode update</b> → <b>Run workflow</b>.</li>
-  <li>Enter <code>match_number</code>, <code>team_a_goals</code>, <code>team_b_goals</code>; leave status <code>played</code>.</li>
-  <li>Run it; reload this page after ~1 minute.</li>
-</ol>
-<p><b>Several matches (GitHub Issue comment):</b> post a comment containing:</p>
-<pre>/WK-SCORES
-match_number,team_a_goals,team_b_goals,status,notes
-1,2,1,played,Mexico v South Africa
-2,1,1,played,Korea Republic v Czechia
-/END-WK-SCORES</pre>
-<p class="muted">To fix a wrong score, re-enter the same match number with corrected goals. To clear a result, set status to <code>scheduled</code>.</p>`;
+  function fmtNum(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? String(Math.round(n * 100) / 100) : '—';
+  }
 
-// 4. Matches played
-let playedHtml = D.played_matches.length
-  ? D.played_matches.map(m => `<div class="match"><span>#${m.match_number} ${esc(m.team_a)} v ${esc(m.team_b)} <span class="muted">(${esc(m.group)})</span></span><span class="sc">${m.team_a_goals}–${m.team_b_goals}</span></div>`).join('')
-  : '<p class="muted">No matches entered yet. The dashboard shows the frozen pre-tournament picks until you enter scores.</p>';
+  function fmtInt(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? String(Math.round(n)) : '—';
+  }
 
-// 5 + 6 + 7 + 8. Prediction vs actual + scoring
-const S = D.scoring_summary;
-let scoreHtml = `<div class="bignum">${num(S.total_points)} pts</div>`
-  + `<p class="muted">earned across ${S.played_matches} played match(es) · `
-  + `${num(S.possible_points_for_played_matches)} possible · ${num(S.points_missed)} missed · `
-  + `${num(S.average_points_per_played_match)} avg/match</p>`
-  + `<div class="stats">`
-  + `<div class="stat"><b>${S.outcomes_correct}/${S.played_matches}</b><span>outcomes ✅</span></div>`
-  + `<div class="stat"><b>${S.goal_differences_correct}/${S.played_matches}</b><span>goal diff ✅</span></div>`
-  + `<div class="stat"><b>${S.exact_scores_correct}/${S.played_matches}</b><span>exact score ✅</span></div>`
-  + `</div>`;
-const grp = S.total_by_group || {};
-if (Object.keys(grp).length) {
-  scoreHtml += `<div class="grp">Points by group</div><table><tr><th>Grp</th><th>MP</th><th>Pts</th><th>Poss</th><th>Missed</th></tr>`
-    + Object.keys(grp).sort().map(g => `<tr><td>${esc(g)}</td><td>${grp[g].played_matches}</td><td>${num(grp[g].total_points)}</td><td>${num(grp[g].possible_points)}</td><td>${num(grp[g].points_missed)}</td></tr>`).join('')
-    + `</table>`;
-}
+  function fmtPct(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? String(Math.round(n * 100)) + '%' : '—';
+  }
 
-let pvaHtml;
-if (D.prediction_vs_actual.length) {
-  pvaHtml = `<table><tr><th>#</th><th>Match</th><th>Pred</th><th>Act</th><th>O</th><th>GD</th><th>Exact</th><th>Pts</th></tr>`
-    + D.prediction_vs_actual.map(m => `<tr><td>${m.match_number}</td><td style="text-align:left">${esc(m.team_a)} v ${esc(m.team_b)}</td><td>${esc(m.predicted_score)}</td><td>${esc(m.actual_score)}</td><td>${tick(m.outcome_correct)}</td><td>${tick(m.goal_difference_correct)}</td><td>${tick(m.exact_score_correct)}</td><td>${num(m.total_points)}</td></tr>`).join('')
-    + `</table>`
-    + D.prediction_vs_actual.map(m => `<details><summary>#${m.match_number} ${esc(m.team_a)} v ${esc(m.team_b)} — ${num(m.total_points)} pts</summary><p class="muted">${esc(m.scoring_explanation)}</p></details>`).join('');
-} else {
-  pvaHtml = '<p class="muted">No played matches yet — enter scores to compare predicted vs actual and see points earned.</p>';
-}
+  function pctWidth(value) {
+    const n = Number(value);
+    return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n * 100))) : 0;
+  }
 
-// 9. Live group tables
-let tablesHtml = '';
-for (const [g, rows] of Object.entries(D.groups)) {
-  tablesHtml += `<div class="grp">Group ${g}</div><table><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>` +
-    rows.map(r => `<tr><td>${r.rank}. ${esc(r.team)}</td><td>${r.played}</td><td>${r.won}</td><td>${r.drawn}</td><td>${r.lost}</td><td>${r.goal_difference>=0?'+':''}${r.goal_difference}</td><td>${r.points}</td></tr>`).join('') +
-    `</table>`;
-}
-tablesHtml += `<p class="muted">${esc(D.tie_break_note)}</p>`;
+  function buildSection(title, pill, body) {
+    return '<section><h2>' + title + (pill ? '<span class="pill">' + pill + '</span>' : '') + '</h2>' + body + '</section>';
+  }
 
-// 10. Advancement probabilities
-const byGroup = {};
-D.advancement.forEach(t => { (byGroup[t.group]=byGroup[t.group]||[]).push(t); });
-let advHtml = '';
-for (const [g, rows] of Object.entries(byGroup)) {
-  advHtml += `<div class="grp">Group ${g}</div>` + rows.map(t => {
-    const cls = t.p_advance>=0.5?'adv':(t.p_advance<=0.05?'out':'');
-    return `<div style="margin:.35rem 0"><div style="display:flex;justify-content:space-between"><span class="${cls}">${esc(t.team)}</span><span class="muted">adv ${pct(t.p_advance)} · win ${pct(t.p_rank1)}</span></div><div class="bar"><i style="width:${(t.p_advance*100).toFixed(0)}%"></i></div></div>`;
-  }).join('');
-}
+  function showError(title, err, data) {
+    const keys = data && typeof data === 'object' && !Array.isArray(data) ? Object.keys(data) : [];
+    const message = err && err.message ? err.message : String(err || 'Unknown error');
+    const stack = err && err.stack ? '<pre>' + esc(err.stack) + '</pre>' : '';
+    if (metaEl) metaEl.textContent = 'Dashboard error';
+    if (candEl) candEl.textContent = '';
+    app.innerHTML = '<section class="error"><h3>❌ ' + esc(title) + '</h3><p>' + esc(message) + '</p><p><b>Loaded keys:</b> ' + esc(keys.length ? keys.join(', ') : 'none') + '</p>' + stack + '</section>';
+  }
 
-// 11. Remaining matches
-let remHtml = D.remaining_matches.length
-  ? D.remaining_matches.map(m => `<div class="match"><span>#${m.match_number} ${esc(m.team_a)} v ${esc(m.team_b)} <span class="muted">(${esc(m.group)})</span></span><span class="muted">${esc(m.date)}</span></div>`).join('')
-    + (D.remaining_matches_total > D.remaining_matches.length ? `<p class="muted">… ${D.remaining_matches_total - D.remaining_matches.length} more</p>` : '')
-  : '<p class="muted">All group matches played.</p>';
+  function parseInlinePayload() {
+    const raw = payloadEl && payloadEl.textContent ? payloadEl.textContent.trim() : '';
+    if (!raw) return null;
+    return JSON.parse(raw);
+  }
 
-// 6b. Final candidate group-standing picks
-let standHtml = `<table><tr><th>Grp</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th></tr>` +
-  D.final_group_standings.map(s => `<tr><td>${esc(s.group)}</td><td>${esc(s.rank_1)}</td><td>${esc(s.rank_2)}</td><td>${esc(s.rank_3)}</td><td>${esc(s.rank_4)}</td></tr>`).join('') +
-  `</table><p class="muted">Frozen picks from ${esc(D.active_candidate.name)} — not changed by score entry.</p>`;
+  function fetchPayload() {
+    return fetch('./mobile_dashboard_data.json', { cache: 'no-store' })
+      .then(function(response) {
+        if (!response.ok) {
+          throw new Error('HTTP ' + response.status);
+        }
+        return response.text();
+      })
+      .then(function(text) {
+        const raw = text ? text.trim() : '';
+        if (!raw) {
+          throw new Error('Fetched dashboard payload was empty');
+        }
+        return JSON.parse(raw);
+      });
+  }
 
-// 12. Last-8 picks
-const stages = {};
-D.last8_picks.forEach(p => { (stages[p.stage]=stages[p.stage]||[]).push(p); });
-let last8Html = '';
-for (const [st, rows] of Object.entries(stages)) {
-  last8Html += `<div class="grp">${esc(st.replace(/_/g,' '))}</div>` +
-    rows.map(r => `<div class="match"><span>${r.rank}. ${esc(r.team)}</span><span class="muted">${pct(r.probability)}</span></div>`).join('');
-}
+  function validatePayload(raw) {
+    const data = safeObject(raw);
+    const requiredObjects = ['active_candidate', 'summary', 'groups', 'scoring_summary'];
+    const requiredArrays = ['played_matches', 'remaining_matches', 'advancement', 'prediction_vs_actual', 'final_group_standings', 'last8_picks', 'manual_review'];
+    const errors = [];
 
-// 13. Manual review / warnings
-let warnHtml = '';
-if (D.manual_review.length) {
-  warnHtml += `<p>${D.manual_review.length} fixture(s) were flagged for manual review in the frozen pack (safe vs EV disagreement):</p>` +
-    D.manual_review.map(m => `<div class="match"><span>#${m.match_number} ${esc(m.team_a)} v ${esc(m.team_b)}</span><span class="muted">${esc(m.final_recommended_score)}</span></div>`).join('');
-} else { warnHtml = '<p class="muted">No flagged fixtures.</p>'; }
-warnHtml += `<details><summary>Simulation tie-break note</summary><p class="muted">${esc(D.sim_tie_break_note)}</p></details>`;
+    if (!data || typeof data !== 'object') {
+      errors.push('payload must be an object');
+    }
 
-// File links
-const fileLinks = `<div class="filelinks">
-  <a href="prediction_vs_actual.csv">prediction_vs_actual.csv</a>
-  <a href="scoring_summary.csv">scoring_summary.csv</a>
-  <a href="live_group_tables.csv">group_tables.csv</a>
-  <a href="live_group_stage_simulation_summary.csv">simulation_summary.csv</a>
-  <a href="played_matches.csv">played.csv</a>
-  <a href="remaining_matches.csv">remaining.csv</a>
-  <a href="mobile_dashboard_data.json">dashboard_data.json</a>
-</div>`;
+    for (let i = 0; i < requiredObjects.length; i += 1) {
+      const key = requiredObjects[i];
+      if (!(key in data)) {
+        errors.push(key + ' missing');
+      } else if (data[key] != null && (typeof data[key] !== 'object' || Array.isArray(data[key]))) {
+        errors.push(key + ' must be an object');
+      }
+    }
 
-app.appendChild(el(section('🧭 Active candidate', D.active_candidate.name, candHtml)));
-app.appendChild(el(section('📱 How to enter scores', null, howHtml)));
-app.appendChild(el(section('📋 Matches played', `${D.summary.matches_played}/72`, playedHtml)));
-app.appendChild(el(section('🏅 Points earned', null, scoreHtml)));
-app.appendChild(el(section('🎯 Prediction vs actual', `${D.prediction_vs_actual.length} scored`, pvaHtml)));
-app.appendChild(el(section('📊 Live group tables', null, tablesHtml)));
-app.appendChild(el(section('📈 Advancement probabilities', D.summary.n_sims?`${D.summary.n_sims.toLocaleString()} sims`:null, advHtml)));
-app.appendChild(el(section('⏭️ Remaining matches', `${D.summary.matches_remaining} left`, remHtml)));
-app.appendChild(el(section('🥇 Final candidate group picks', 'frozen', standHtml)));
-app.appendChild(el(section('🏁 Last-8 picks', 'frozen', last8Html)));
-const warnSection = el(section('⚠️ Manual review &amp; warnings', null, warnHtml));
-warnSection.classList.add('warn');
-app.appendChild(warnSection);
-app.appendChild(el(section('🔗 Raw files', null, fileLinks)));
+    for (let i = 0; i < requiredArrays.length; i += 1) {
+      const key = requiredArrays[i];
+      if (!(key in data)) {
+        errors.push(key + ' missing');
+      } else if (data[key] != null && !Array.isArray(data[key])) {
+        errors.push(key + ' must be an array');
+      }
+    }
+
+    if (errors.length) {
+      const err = new Error('Dashboard schema validation failed: ' + errors.join('; '));
+      err.loadedKeys = Object.keys(data);
+      throw err;
+    }
+
+    const remainingMatches = safeArray(data.remaining_matches);
+
+    return {
+      generated_at: typeof data.generated_at === 'string' ? data.generated_at : '',
+      repo_slug: typeof data.repo_slug === 'string' ? data.repo_slug : '',
+      active_candidate: safeObject(data.active_candidate),
+      summary: safeObject(data.summary),
+      tie_break_note: typeof data.tie_break_note === 'string' ? data.tie_break_note : '',
+      sim_tie_break_note: typeof data.sim_tie_break_note === 'string' ? data.sim_tie_break_note : '',
+      played_matches: safeArray(data.played_matches),
+      remaining_matches: remainingMatches,
+      remaining_matches_total: Number.isFinite(Number(data.remaining_matches_total)) ? Number(data.remaining_matches_total) : remainingMatches.length,
+      groups: safeObject(data.groups),
+      advancement: safeArray(data.advancement),
+      prediction_vs_actual: safeArray(data.prediction_vs_actual),
+      scoring_summary: safeObject(data.scoring_summary),
+      final_group_standings: safeArray(data.final_group_standings),
+      last8_picks: safeArray(data.last8_picks),
+      manual_review: safeArray(data.manual_review)
+    };
+  }
+
+  function renderPlayedMatches(rows) {
+    if (!rows.length) {
+      return '<p class="muted">No matches played yet.</p>';
+    }
+    let html = '';
+    for (let i = 0; i < rows.length; i += 1) {
+      const m = safeObject(rows[i]);
+      html += '<div class="match"><span>#' + fmtInt(m.match_number) + ' ' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + '</span><span class="sc">' + fmtInt(m.team_a_goals) + '–' + fmtInt(m.team_b_goals) + '</span></div>';
+    }
+    return html;
+  }
+
+  function renderPredictionVsActual(rows) {
+    if (!rows.length) {
+      return '<p class="muted">No prediction-vs-actual data yet.</p>';
+    }
+    let table = '<table><tr><th>#</th><th>Match</th><th>Pred</th><th>Actual</th><th>O</th><th>GD</th><th>Exact</th><th>Pts</th></tr>';
+    let details = '';
+    for (let i = 0; i < rows.length; i += 1) {
+      const m = safeObject(rows[i]);
+      table += '<tr><td>' + fmtInt(m.match_number) + '</td><td style="text-align:left">' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + '</td><td>' + esc(m.predicted_score || '—') + '</td><td>' + esc(m.actual_score || '—') + '</td><td>' + (m.outcome_correct ? '✅' : '❌') + '</td><td>' + (m.goal_difference_correct ? '✅' : '❌') + '</td><td>' + (m.exact_score_correct ? '✅' : '❌') + '</td><td>' + fmtNum(m.total_points) + '</td></tr>';
+      details += '<details><summary>#' + fmtInt(m.match_number) + ' ' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + ' - ' + fmtNum(m.total_points) + ' pts</summary><p class="muted">' + esc(m.scoring_explanation || 'No explanation available.') + '</p></details>';
+    }
+    table += '</table>';
+    return table + details;
+  }
+
+  function renderGroups(groups) {
+    const keys = Object.keys(groups).sort();
+    let html = '';
+    for (let i = 0; i < keys.length; i += 1) {
+      const groupName = keys[i];
+      const rows = safeArray(groups[groupName]);
+      if (!rows.length) {
+        continue;
+      }
+      html += '<div class="grp">Group ' + esc(groupName) + '</div><table><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>';
+      for (let j = 0; j < rows.length; j += 1) {
+        const row = safeObject(rows[j]);
+        const gd = Number(row.goal_difference);
+        const gdText = Number.isFinite(gd) ? (gd >= 0 ? '+' : '') + fmtInt(gd) : '—';
+        html += '<tr><td>' + fmtInt(row.rank) + '. ' + esc(row.team || '—') + '</td><td>' + fmtInt(row.played) + '</td><td>' + fmtInt(row.won) + '</td><td>' + fmtInt(row.drawn) + '</td><td>' + fmtInt(row.lost) + '</td><td>' + gdText + '</td><td>' + fmtInt(row.points) + '</td></tr>';
+      }
+      html += '</table>';
+    }
+    return html || '<p class="muted">No live group table data yet.</p>';
+  }
+
+  function renderAdvancement(rows) {
+    if (!rows.length) {
+      return '<p class="muted">No advancement probabilities yet.</p>';
+    }
+    const byGroup = {};
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = safeObject(rows[i]);
+      const groupName = row.group || '?';
+      if (!byGroup[groupName]) {
+        byGroup[groupName] = [];
+      }
+      byGroup[groupName].push(row);
+    }
+    const keys = Object.keys(byGroup).sort();
+    let html = '';
+    for (let i = 0; i < keys.length; i += 1) {
+      const groupName = keys[i];
+      const groupRows = byGroup[groupName];
+      html += '<div class="grp">Group ' + esc(groupName) + '</div>';
+      for (let j = 0; j < groupRows.length; j += 1) {
+        const row = groupRows[j];
+        const className = Number(row.p_advance) >= 0.5 ? 'adv' : (Number(row.p_advance) <= 0.05 ? 'out' : '');
+        html += '<div style="margin:.35rem 0"><div style="display:flex;justify-content:space-between;gap:.5rem"><span class="' + className + '">' + esc(row.team || '—') + '</span><span class="muted">adv ' + fmtPct(row.p_advance) + ' · win ' + fmtPct(row.p_rank1) + '</span></div><div class="bar"><i style="width:' + pctWidth(row.p_advance) + '%"></i></div></div>';
+      }
+    }
+    return html;
+  }
+
+  function renderRemainingMatches(rows, total) {
+    if (!rows.length) {
+      return '<p class="muted">No remaining matches.</p>';
+    }
+    let html = '';
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = safeObject(rows[i]);
+      html += '<div class="match"><span>#' + fmtInt(row.match_number) + ' ' + esc(row.team_a || '—') + ' v ' + esc(row.team_b || '—') + '</span><span class="muted">' + esc(row.date || '—') + '</span></div>';
+    }
+    if (Number.isFinite(Number(total)) && total > rows.length) {
+      html += '<p class="muted">... ' + fmtInt(Number(total) - rows.length) + ' more</p>';
+    }
+    return html;
+  }
+
+  function renderStandings(rows) {
+    if (!rows.length) {
+      return '<p class="muted">No group picks available yet.</p>';
+    }
+    let html = '<table><tr><th>G</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th></tr>';
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = safeObject(rows[i]);
+      html += '<tr><td>' + esc(row.group || '—') + '</td><td>' + esc(row.rank_1 || '—') + '</td><td>' + esc(row.rank_2 || '—') + '</td><td>' + esc(row.rank_3 || '—') + '</td><td>' + esc(row.rank_4 || '—') + '</td></tr>';
+    }
+    return html + '</table>';
+  }
+
+  function renderLast8(rows) {
+    if (!rows.length) {
+      return '<p class="muted">No last-8 picks yet.</p>';
+    }
+    const stageOrder = ['quarter_finalist', 'semi_finalist', 'finalist', 'winner'];
+    const grouped = {};
+    for (let i = 0; i < rows.length; i += 1) {
+      const row = safeObject(rows[i]);
+      const stageName = row.stage || 'unknown';
+      if (!grouped[stageName]) {
+        grouped[stageName] = [];
+      }
+      grouped[stageName].push(row);
+    }
+    const keys = Object.keys(grouped).sort(function(a, b) {
+      const ai = stageOrder.indexOf(a);
+      const bi = stageOrder.indexOf(b);
+      if (ai === -1 && bi === -1) return a.localeCompare(b);
+      if (ai === -1) return 1;
+      if (bi === -1) return -1;
+      return ai - bi;
+    });
+    let html = '';
+    for (let i = 0; i < keys.length; i += 1) {
+      const stageName = keys[i];
+      html += '<div class="grp">' + esc(stageName.replace(/_/g, ' ')) + '</div>';
+      const stageRows = grouped[stageName];
+      for (let j = 0; j < stageRows.length; j += 1) {
+        const row = stageRows[j];
+        html += '<div class="match"><span>' + fmtInt(row.rank) + '. ' + esc(row.team || '—') + '</span><span class="muted">' + fmtPct(row.probability) + '</span></div>';
+      }
+    }
+    return html;
+  }
+
+  function renderValidationNotes(data) {
+    const notes = [];
+    if (data.tie_break_note) {
+      notes.push('<li>' + esc(data.tie_break_note) + '</li>');
+    }
+    if (data.sim_tie_break_note) {
+      notes.push('<li>' + esc(data.sim_tie_break_note) + '</li>');
+    }
+    const manualReview = safeArray(data.manual_review);
+    if (manualReview.length) {
+      notes.push('<li>Manual review fixtures: ' + manualReview.length + '</li>');
+    } else {
+      notes.push('<li>No manual review fixtures flagged.</li>');
+    }
+    let html = '<ul>';
+    for (let i = 0; i < notes.length; i += 1) {
+      html += notes[i];
+    }
+    html += '</ul>';
+    if (manualReview.length) {
+      html += '<div class="grp">Manual review</div>';
+      for (let i = 0; i < manualReview.length; i += 1) {
+        const row = safeObject(manualReview[i]);
+        html += '<div class="match"><span>#' + fmtInt(row.match_number) + ' ' + esc(row.team_a || '—') + ' v ' + esc(row.team_b || '—') + '</span><span class="muted">' + esc(row.final_recommended_score || '—') + '</span></div>';
+      }
+    }
+    return html;
+  }
+
+  let rawData = null;
+  try {
+    const rawInline = parseInlinePayload();
+    if (rawInline === null) {
+      fetchPayload()
+        .then(function(raw) {
+          renderDashboard(validatePayload(raw));
+        })
+        .catch(function(err) {
+          showError('Could not load dashboard', err, null);
+        });
+      return;
+    }
+
+    rawData = rawInline;
+    const data = validatePayload(rawData);
+    renderDashboard(data);
+  } catch (err) {
+    showError('Initialization failed', err, rawData);
+    return;
+  }
+
+  function renderDashboard(data) {
+    try {
+      const summary = safeObject(data.summary);
+      const activeCandidate = safeObject(data.active_candidate);
+      const scoringSummary = safeObject(data.scoring_summary);
+      const groups = safeObject(data.groups);
+      const advancement = safeArray(data.advancement);
+      const playedMatches = safeArray(data.played_matches);
+      const predictionVsActual = safeArray(data.prediction_vs_actual);
+      const remainingMatches = safeArray(data.remaining_matches);
+      const standings = safeArray(data.final_group_standings);
+      const last8 = safeArray(data.last8_picks);
+      const manualReview = safeArray(data.manual_review);
+      const byGroup = safeObject(scoringSummary.total_by_group);
+
+      if (metaEl) {
+        const sims = Number.isFinite(Number(summary.n_sims)) ? Number(summary.n_sims).toLocaleString() + ' sims' : 'no sims';
+        metaEl.textContent = 'Updated ' + (data.generated_at || '—') + ' · ' + fmtInt(summary.matches_played) + '/72 played · ' + sims;
+      }
+      if (candEl) {
+        candEl.textContent = 'Active candidate: ' + (activeCandidate.name || '—') + ' (' + (activeCandidate.active_candidate_dir || '—') + ')';
+      }
+
+      let activeHtml = '<table><tr><td>Candidate</td><td>' + esc(activeCandidate.name || '—') + '</td></tr><tr><td>Directory</td><td>' + esc(activeCandidate.active_candidate_dir || '—') + '</td></tr><tr><td>Scores</td><td>' + esc(activeCandidate.score_predictions_file || '—') + '</td></tr><tr><td>Standings</td><td>' + esc(activeCandidate.standing_predictions_file || '—') + '</td></tr><tr><td>Last-8</td><td>' + esc(activeCandidate.last8_predictions_file || '—') + '</td></tr><tr><td>Last updated</td><td>' + esc(data.generated_at || '—') + '</td></tr></table>';
+      if (data.repo_slug) {
+        activeHtml += '<p><a href="https://github.com/' + esc(data.repo_slug) + '/actions/workflows/travel_mode_update.yml">Open the single-match workflow</a></p>';
+      } else {
+        activeHtml += '<p class="muted">Set TRAVEL_MODE_REPO to enable the workflow link.</p>';
+      }
+
+      let instructionsHtml = '<p><b>Score input instructions:</b> Use the GitHub Actions workflow or an issue comment with a <code>/WK-SCORES</code> block.</p>';
+      instructionsHtml += '<p class="muted">The dashboard uses the inline payload first and only fetches <code>./mobile_dashboard_data.json</code> when the inline payload is absent.</p>';
+
+      const playedHtml = renderPlayedMatches(playedMatches);
+
+      let scoringHtml = '';
+      if (Number(summary.matches_played) > 0) {
+        scoringHtml = '<div class="bignum">' + fmtNum(scoringSummary.total_points) + ' pts</div><p class="muted">' + fmtInt(scoringSummary.played_matches) + ' played · ' + fmtNum(scoringSummary.possible_points_for_played_matches) + ' possible · ' + fmtNum(scoringSummary.points_missed) + ' missed · ' + fmtNum(scoringSummary.average_points_per_played_match) + ' avg</p>';
+        scoringHtml += '<div class="stats"><div class="stat"><b>' + fmtInt(scoringSummary.outcomes_correct) + '/' + fmtInt(scoringSummary.played_matches) + '</b><span>outcomes</span></div><div class="stat"><b>' + fmtInt(scoringSummary.goal_differences_correct) + '/' + fmtInt(scoringSummary.played_matches) + '</b><span>goal diffs</span></div><div class="stat"><b>' + fmtInt(scoringSummary.exact_scores_correct) + '/' + fmtInt(scoringSummary.played_matches) + '</b><span>exact scores</span></div></div>';
+        const groupKeys = Object.keys(byGroup).sort();
+        if (groupKeys.length) {
+          scoringHtml += '<div class="grp">By group</div><table><tr><th>G</th><th>MP</th><th>Pts</th><th>Poss</th></tr>';
+          for (let i = 0; i < groupKeys.length; i += 1) {
+            const groupName = groupKeys[i];
+            const row = safeObject(byGroup[groupName]);
+            scoringHtml += '<tr><td>' + esc(groupName) + '</td><td>' + fmtInt(row.played_matches) + '</td><td>' + fmtNum(row.total_points) + '</td><td>' + fmtNum(row.possible_points) + '</td></tr>';
+          }
+          scoringHtml += '</table>';
+        }
+      } else {
+        scoringHtml = '<p class="muted">No scoring summary yet.</p>';
+      }
+
+      const pvaHtml = renderPredictionVsActual(predictionVsActual);
+      const groupsHtml = renderGroups(groups);
+      const advancementHtml = renderAdvancement(advancement);
+      const remainingHtml = renderRemainingMatches(remainingMatches, data.remaining_matches_total);
+      const standingsHtml = renderStandings(standings);
+      const last8Html = renderLast8(last8);
+      const validationHtml = renderValidationNotes({ tie_break_note: data.tie_break_note, sim_tie_break_note: data.sim_tie_break_note, manual_review: manualReview });
+
+      const filesHtml = '<div class="filelinks"><a href="prediction_vs_actual.csv">pva.csv</a> <a href="scoring_summary.csv">score.csv</a> <a href="live_group_tables.csv">tables.csv</a> <a href="mobile_dashboard_data.json">data.json</a></div>';
+
+      app.innerHTML = [
+        buildSection('🧭 Active candidate', 'live', activeHtml),
+        buildSection('📱 Score input instructions', null, instructionsHtml),
+        buildSection('📋 Played matches', fmtInt(summary.matches_played) + '/72', playedHtml),
+        buildSection('🏅 Points earned / scoring summary', null, scoringHtml),
+        buildSection('🎯 Prediction vs actual', fmtInt(predictionVsActual.length) + ' scored', pvaHtml),
+        buildSection('📊 Live group tables', null, groupsHtml),
+        buildSection('📈 Advancement probabilities', Number.isFinite(Number(summary.n_sims)) ? Number(summary.n_sims).toLocaleString() + ' sims' : null, advancementHtml),
+        buildSection('⏭️ Remaining matches', fmtInt(summary.matches_remaining) + ' left', remainingHtml),
+        buildSection('🥇 Group picks', 'frozen', standingsHtml),
+        buildSection('🏁 Last-8 picks', 'frozen', last8Html),
+        buildSection('⚠️ Validation notes', null, validationHtml),
+        buildSection('🔗 Files', null, filesHtml)
+      ].join('');
+    } catch (err) {
+      showError('Render failed', err, data);
+    }
+  }
+})();
 </script>
 </body>
 </html>
