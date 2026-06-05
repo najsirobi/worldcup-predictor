@@ -130,6 +130,36 @@ official_fifa:
     role: "official competing teams page"
     target_raw_dir: "data/raw/fifa_official/teams"
 
+  worldcup_2026_schedule_pdf:
+    source_type: "official_fifa_pdf"
+    source_url: "https://digitalhub.fifa.com/m/1be9ce37eb98fcc5/original/FWC26-Match-Schedule_English.pdf"
+    role: "official WC2026 match schedule PDF"
+    target_raw_dir: "data/raw/fifa_official/schedule"
+
+  worldcup_2026_schedule_page:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums"
+    role: "official WC2026 match schedule article page"
+    target_raw_dir: "data/raw/fifa_official/schedule"
+
+  worldcup_2026_host_cities_page:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/host-cities"
+    role: "official WC2026 host cities page"
+    target_raw_dir: "data/raw/fifa_official/schedule"
+
+  worldcup_2026_stadium_overview:
+    source_type: "official_fifa"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/world-cup-2026-stadiums-fifa-soccer-football-mexico-usa-canada"
+    role: "official WC2026 stadium overview page"
+    target_raw_dir: "data/raw/fifa_official/schedule"
+
+  worldcup_2026_suites_games:
+    source_type: "official_fifa"
+    source_url: "https://fifaworldcup26.suites.fifa.com/games/"
+    role: "official FIFA suites venue listing used as a structured cross-check"
+    target_raw_dir: "data/raw/fifa_official/schedule"
+
 world_bank:
   world_bank_country_context:
     source_type: "world_bank_api"
@@ -176,3 +206,42 @@ manual_import:
     current_only: true  # cycle-level funding snapshot, not a per-match time series
     caution:
       - "funding availability is not the same as actual spending on the national team"
+
+reference_data:
+  wc2026_venues:
+    source_type: "derived_reference"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/world-cup-2026-stadiums-fifa-soccer-football-mexico-usa-canada; https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/host-cities; https://fifaworldcup26.suites.fifa.com/games/"
+    role: "16-row WC2026 venue/stadium reference with geocode and elevation context"
+    target_path: "data/reference/wc2026_venues.csv"
+    current_only: true
+
+  wc2026_match_venues:
+    source_type: "derived_reference"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums; https://digitalhub.fifa.com/m/1be9ce37eb98fcc5/original/FWC26-Match-Schedule_English.pdf; https://fifaworldcup26.suites.fifa.com/games/"
+    role: "104-row WC2026 match-to-venue crosswalk"
+    target_path: "data/reference/wc2026_match_venues.csv"
+    current_only: true
+
+  wc2026_match_venues_enriched:
+    source_type: "derived_reference"
+    source_url: "https://www.fifa.com/en/tournaments/mens/worldcup/canadamexicousa2026/articles/match-schedule-fixtures-results-teams-stadiums; https://digitalhub.fifa.com/m/1be9ce37eb98fcc5/original/FWC26-Match-Schedule_English.pdf; https://fifaworldcup26.suites.fifa.com/games/"
+    role: "104-row WC2026 match-to-venue crosswalk with altitude context"
+    target_path: "data/reference/wc2026_match_venues_enriched.csv"
+    current_only: true
+
+derived_data:
+  wc2026_travel_sequences:
+    source_type: "script_generated_interim"
+    source_script: "scripts/build_wc2026_travel_sequences.py"
+    role: "WC2026 team match travel / recovery burden context sequence"
+    source_inputs:
+      - "data/reference/wc2026_match_venues_enriched.csv"
+      - "data/reference/wc2026_venues.csv"
+      - "outputs/reports/wc2026_venue_extraction_cross_check_summary.md"
+      - "outputs/live/knockout_predictions.csv, if present for projected knockout context"
+    target_path: "data/interim/wc2026_travel_sequences.parquet"
+    current_only: true
+    caution:
+      - "context metric only; not a causal penalty"
+      - "do not use for historical backtesting until comparable historical venue/time-zone/elevation data passes QA"
+      - "projected knockout rows are marked needs_review"
