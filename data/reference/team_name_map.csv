@@ -19,6 +19,10 @@ international_results,Japan,Japan,JPN,from martj42 dataset
 international_results,South Korea,South Korea,KOR,from martj42 dataset
 international_results,Australia,Australia,AUS,from martj42 dataset
 international_results,Morocco,Morocco,MAR,from martj42 dataset
+world_cup_history,Korea Republic,South Korea,KOR,explicit WC history to model-matrix name for group incentive audit
+world_cup_history,Korea DPR,North Korea,PRK,explicit WC history to model-matrix name for group incentive audit
+world_cup_history,Côte d'Ivoire,Ivory Coast,CIV,explicit WC history to model-matrix name for group incentive audit
+world_cup_history,IR Iran,Iran,IRN,explicit WC history to model-matrix name for group incentive audit
 international_elo,Afghanistan,Afghanistan,AFG,safe exact match: present in eloratings.csv and matches_clean backbone (identity canonical)
 international_elo,Albania,Albania,ALB,safe exact match: present in eloratings.csv and matches_clean backbone (identity canonical)
 international_elo,Algeria,Algeria,ALG,safe exact match: present in eloratings.csv and matches_clean backbone (identity canonical)
