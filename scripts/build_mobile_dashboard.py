@@ -12,6 +12,7 @@ import json
 import math
 import os
 import shutil
+from html import escape as _escape
 from pathlib import Path
 
 import pandas as pd
@@ -427,8 +428,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 <body>
 <header>
   <h1>🏆 WC2026 Travel Mode</h1>
-  <div class="meta" id="meta">Loading…</div>
-  <div class="cand" id="cand"></div>
+  <div class="meta" id="meta"><!--META_PLACEHOLDER--></div>
+  <div class="cand" id="cand"><!--CAND_PLACEHOLDER--></div>
 </header>
 <nav class="tabs" id="tabs">
   <a href="#overview">Overview</a>
@@ -441,7 +442,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <a href="#live-group-tables">Live group tables</a>
   <a href="#advancement">Advancement</a>
 </nav>
-<main id="app"></main>
+<main id="app"><!--APP_PLACEHOLDER--></main>
 <script id="payload" type="application/json"><!--PAYLOAD_JSON_PLACEHOLDER--></script>
 <script>
 (function() {
@@ -493,12 +494,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   }
 
   function showError(title, err, data) {
+    // Non-destructive: the server-rendered sections stay; we only prepend a
+    // banner so the dashboard is still usable if the JS enhancement fails.
     const keys = data && typeof data === 'object' && !Array.isArray(data) ? Object.keys(data) : [];
     const message = err && err.message ? err.message : String(err || 'Unknown error');
     const stack = err && err.stack ? '<pre>' + esc(err.stack) + '</pre>' : '';
-    if (metaEl) metaEl.textContent = 'Dashboard error';
-    if (candEl) candEl.textContent = '';
-    app.innerHTML = '<section class="error"><h3>❌ ' + esc(title) + '</h3><p>' + esc(message) + '</p><p><b>Loaded keys:</b> ' + esc(keys.length ? keys.join(', ') : 'none') + '</p>' + stack + '</section>';
+    const banner = '<section class="error" id="js-error-banner"><h3>⚠️ ' + esc(title) + ' (showing pre-rendered content)</h3><p>' + esc(message) + '</p><p><b>Loaded keys:</b> ' + esc(keys.length ? keys.join(', ') : 'none') + '</p>' + stack + '</section>';
+    if (app && !document.getElementById('js-error-banner')) {
+      app.insertAdjacentHTML('afterbegin', banner);
+    }
   }
 
   function parseInlinePayload() {
@@ -1059,28 +1063,66 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return html;
   }
 
+  // Progressive enhancement only. Every section is already server-rendered into
+  // #app at build time, so the dashboard is fully usable with JavaScript off or
+  // broken. Here we only hydrate the header lines and wire the tab anchors; on
+  // any failure we keep the pre-rendered content and just prepend a banner.
+  function setupTabs() {
+    const nav = document.getElementById('tabs');
+    if (!nav) return;
+    const links = nav.querySelectorAll('a[href^="#"]');
+    for (let i = 0; i < links.length; i += 1) {
+      links[i].addEventListener('click', function() {
+        // Sections stay in the document; the anchor simply scrolls to them.
+        // (Kept as a hook for future show/hide filtering without hiding by default.)
+      });
+    }
+  }
+
+  function hydrate(data) {
+    try {
+      const summary = safeObject(data.summary);
+      const activeCandidate = safeObject(data.active_candidate);
+      if (metaEl) {
+        const sims = Number.isFinite(Number(summary.n_sims)) ? Number(summary.n_sims).toLocaleString() + ' sims' : 'no sims';
+        metaEl.textContent = 'Updated ' + (data.generated_at || '—') + ' · ' + fmtInt(summary.matches_played) + '/72 played · ' + sims;
+      }
+      if (candEl) {
+        candEl.textContent = 'Active candidate: ' + (activeCandidate.name || '—') + ' (' + (activeCandidate.active_candidate_dir || '—') + ')';
+      }
+      setupTabs();
+    } catch (err) {
+      showError('Enhancement failed', err, data);
+    }
+  }
+
   let rawData = null;
   try {
     const rawInline = parseInlinePayload();
     if (rawInline === null) {
+      // No inline payload: header sections are still server-rendered; try to
+      // hydrate the header from the JSON file but never blank the content.
       fetchPayload()
         .then(function(raw) {
-          renderDashboard(validatePayload(raw));
+          hydrate(validatePayload(raw));
         })
         .catch(function(err) {
-          showError('Could not load dashboard', err, null);
+          showError('Could not load dashboard data (showing pre-rendered content)', err, null);
         });
       return;
     }
 
     rawData = rawInline;
     const data = validatePayload(rawData);
-    renderDashboard(data);
+    hydrate(data);
   } catch (err) {
     showError('Initialization failed', err, rawData);
     return;
   }
 
+  // Legacy full client renderer, retained as a non-default fallback. The static
+  // server-rendered sections are authoritative; this is intentionally not called
+  // on load so a render bug can never blank the page.
   function renderDashboard(data) {
     try {
       const summary = safeObject(data.summary);
@@ -1186,10 +1228,619 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 """
 
 
+# ---------------------------------------------------------------------------
+# Server-side rendering (SSR).
+#
+# The dashboard is pre-rendered to static HTML here at build time so the page is
+# fully useful even if the client JavaScript fails to run. The inline <script>
+# only *enhances* (hydrates meta/candidate lines, re-renders identical sections,
+# wires tab anchors); on any JS error the pre-rendered sections remain and a
+# small banner is prepended. No section is created only by JavaScript.
+# ---------------------------------------------------------------------------
+
+
+def _esc(value) -> str:
+    if value is None:
+        return ""
+    return _escape(str(value), quote=True)
+
+
+def _fi(value) -> str:
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    return str(round(f)) if math.isfinite(f) else "—"
+
+
+def _fnum(value) -> str:
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    if not math.isfinite(f):
+        return "—"
+    r = round(f * 100) / 100
+    return str(int(r)) if r == int(r) else str(r)
+
+
+def _fpct(value) -> str:
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return "—"
+    return f"{round(f * 100)}%" if math.isfinite(f) else "—"
+
+
+def _pctw(value) -> int:
+    try:
+        f = float(value)
+    except (TypeError, ValueError):
+        return 0
+    if not math.isfinite(f):
+        return 0
+    return max(0, min(100, round(f * 100)))
+
+
+def _obj(value) -> dict:
+    return value if isinstance(value, dict) else {}
+
+
+def _arr(value) -> list:
+    return value if isinstance(value, list) else []
+
+
+def _section(section_id: str, title: str, pill, body: str) -> str:
+    pill_html = f'<span class="pill">{_esc(pill)}</span>' if pill else ""
+    return f'<section id="{section_id}"><h2>{_esc(title)}{pill_html}</h2>{body}</section>'
+
+
+def _subcard(title: str, body: str, right=None) -> str:
+    right_html = f'<span class="pill">{_esc(right)}</span>' if right else ""
+    return (
+        f'<div class="subcard"><h3><span>{_esc(title)}</span>{right_html}</h3>'
+        f'{body}</div>'
+    )
+
+
+def _copy_btn(target_id: str, label: str) -> str:
+    return (
+        '<button type="button" onclick="navigator.clipboard.writeText('
+        f"document.getElementById('{target_id}').innerText)\">{_esc(label)}</button>"
+    )
+
+
+def _render_overview(data: dict) -> str:
+    summary = _obj(data.get("submission_summary"))
+    live = _obj(data.get("summary"))
+    scoring = _obj(data.get("scoring_summary"))
+    candidate = _obj(data.get("active_candidate"))
+    cards = [
+        ("Scores to fill in", f"{_fi(summary.get('total_matches'))} / 72", "one score per group-stage match"),
+        ("Group standings", f"{_fi(len(_arr(data.get('submission_group_standings'))))} / 12", "rank 1-4 per group"),
+        ("Last-8 picks", _fi(len(_arr(data.get("submission_last8_picks")))), "quarters → winner"),
+        ("Matches played", f"{_fi(live.get('matches_played'))} / 72", f"{_fi(live.get('matches_remaining'))} remaining"),
+    ]
+    if float(live.get("matches_played") or 0) > 0:
+        cards.append(("Points so far", _fnum(scoring.get("total_points")), f"{_fnum(scoring.get('average_points_per_played_match'))} avg/match"))
+    html = '<div class="summary-grid">'
+    for label, value, sub in cards:
+        html += (
+            f'<div class="summary-card"><b>{_esc(label)}</b><span>{_esc(value)}</span>'
+            f'<div class="muted" style="margin-top:.35rem">{_esc(sub)}</div></div>'
+        )
+    html += "</div>"
+    html += (
+        '<p class="muted" style="margin-top:.75rem">Fill in the game from the sections '
+        "below: <b>Scores to fill in</b> (72 match scores), <b>Group standings to fill in</b>, "
+        "<b>Last-8 to fill in</b>, and <b>Knockout predictions</b>. Live tracking sits "
+        "further down once matches are played. Submitted prediction files are frozen; "
+        "actual results only update scoring, live tables, and future projections.</p>"
+    )
+    html += (
+        '<details class="audit-details"><summary>Audit details (how the picks were chosen)</summary>'
+        '<div class="row-meta" style="margin-top:.5rem">'
+        f'<span class="pill">Auto-resolved rows: {_fi(summary.get("manual_review_rows_auto_resolved"))}</span>'
+        f'<span class="pill">EV overrides accepted: {_fi(summary.get("ev_overrides_accepted"))}</span>'
+        f'<span class="pill">EV overrides rejected: {_fi(summary.get("ev_overrides_rejected"))}</span>'
+        f'<span class="pill">Safe scores kept: {_fi(summary.get("safe_scores_kept"))}</span>'
+        "</div>"
+        f'<p class="muted" style="margin:.45rem 0 0">Active candidate: {_esc(candidate.get("name") or "—")} '
+        f'({_esc(candidate.get("active_candidate_dir") or "—")}).</p></details>'
+    )
+    return html
+
+
+def _render_submission_scores(data: dict) -> str:
+    rows = _arr(data.get("submission_score_predictions"))
+    copy_text = data.get("submission_score_copy_text") or ""
+    if not rows:
+        return '<p class="muted">No submitted score predictions available.</p>'
+    by_group: dict[str, list] = {}
+    for row in rows:
+        by_group.setdefault(_obj(row).get("group") or "?", []).append(_obj(row))
+    group_keys = sorted(by_group)
+
+    html = (
+        '<p class="muted"><b>All 72 group-stage scores to fill in</b>, grouped A-L. '
+        "One score per match — the big green number. These are your <b>Submitted prediction</b> "
+        "(locked/submitted); copy the whole list or one group at a time below.</p>"
+    )
+    html += (
+        f'<div class="copybar"><b>All submitted predictions</b>{_copy_btn("scores-copy", "Copy all scores")}'
+        f'<span class="muted">{_fi(len(rows))} lines</span></div>'
+    )
+    html += f'<pre class="copyblock" id="scores-copy">{_esc(copy_text)}</pre>'
+
+    per_group = ""
+    for group in group_keys:
+        block_id = f"scores-copy-group-{_esc(group)}"
+        lines = "\n".join(
+            (r.get("copy_text") or f"{_fi(r.get('match_number'))}. {r.get('team_a')} {r.get('score_to_fill_in') or r.get('submitted_score') or ''} {r.get('team_b')}")
+            for r in by_group[group]
+        )
+        per_group += f'<div class="copybar"><b>Group {_esc(group)}</b>{_copy_btn(block_id, "Copy group " + group)}</div>'
+        per_group += f'<pre class="copyblock" id="{block_id}">{_esc(lines)}</pre>'
+    html += f'<details class="group-summary"><summary class="group-summary">Per-group copy blocks</summary>{per_group}</details>'
+
+    for group in group_keys:
+        group_html = ""
+        for row in by_group[group]:
+            score = row.get("submitted_score") or row.get("score_to_fill_in") or row.get("final_recommended_score") or "—"
+            actual_score = row.get("actual_score") or "Pending"
+            points = row.get("points_earned")
+            points_txt = "Pending" if points is None else _fnum(points)
+            policy = str(row.get("auto_policy_decision") or "")
+            if policy == "ev_override_accepted":
+                explain = "EV alternative accepted: its expected-points uplift cleared the strict override threshold."
+            elif str(row.get("safe_score") or "") == str(row.get("ev_score") or ""):
+                explain = "All scientific sources agreed on this score."
+            else:
+                explain = "Safe alternative kept: the EV alternative did not clear the strict override threshold."
+            date = f' · {_esc(row.get("date"))}' if row.get("date") else ""
+            copy_line = row.get("copy_text") or f"{_fi(row.get('match_number'))}. {row.get('team_a')} {score} {row.get('team_b')}"
+            group_html += (
+                '<article class="row-card"><div class="row-top"><div>'
+                f'<div class="label">Match {_fi(row.get("match_number"))}{date}</div>'
+                f'<div class="row-title">{_esc(row.get("team_a") or "—")} vs {_esc(row.get("team_b") or "—")}</div>'
+                f'<div class="row-meta"><span class="pill">status: {_esc(row.get("status") or "locked/submitted")}</span></div>'
+                '</div><div><div class="label">Submitted prediction</div>'
+                f'<div class="score-big">{_esc(score)}</div>'
+                f'<div class="muted" style="margin-top:.25rem">Actual result: {_esc(actual_score)}</div>'
+                f'<div class="muted">Points earned: {_esc(points_txt)}</div></div></div>'
+                f'<div class="row-copy">{_esc(copy_line)}</div>'
+                '<details class="audit-details"><summary>Why? / Audit details</summary><div class="row-meta">'
+                f'<span class="pill">Safe alternative: {_esc(row.get("safe_score") or "—")}</span>'
+                f'<span class="pill">EV alternative: {_esc(row.get("ev_score") or "—")}</span>'
+                f'<span class="pill">Consensus/modal score: {_esc(row.get("auto_consensus_score") or "—")}</span>'
+                f'<span class="pill">Policy decision: {_esc(row.get("auto_policy_decision") or "—")}</span>'
+                "</div>"
+                f'<p class="muted" style="margin:.45rem 0 0">{_esc(explain)}</p>'
+                f'<p class="muted" style="margin:.25rem 0 0">Reason: {_esc(row.get("reason") or "—")}</p>'
+                "</details></article>"
+            )
+        html += (
+            f'<details class="group-summary"><summary class="group-summary">Group {_esc(group)} '
+            f'({_fi(len(by_group[group]))} matches)</summary>{group_html}</details>'
+        )
+    return html
+
+
+def _render_submission_standings(data: dict) -> str:
+    rows = _arr(data.get("submission_group_standings"))
+    if not rows:
+        return '<p class="muted">No submitted group standings available.</p>'
+    html = (
+        '<p class="muted"><b>Group standings to fill in.</b> Your <b>Submitted prediction</b> of '
+        "the final group order (rank 1-4), locked/submitted and separate from the live group table.</p>"
+    )
+    html += (
+        '<table class="aligned standings-table">'
+        '<colgroup><col class="gcol"><col><col><col><col></colgroup>'
+        "<tr><th>G</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th></tr>"
+    )
+    for row in rows:
+        row = _obj(row)
+        html += (
+            f'<tr><td>{_esc(row.get("group") or "—")}</td>'
+            f'<td>{_esc(row.get("rank_1") or "—")}</td><td>{_esc(row.get("rank_2") or "—")}</td>'
+            f'<td>{_esc(row.get("rank_3") or "—")}</td><td>{_esc(row.get("rank_4") or "—")}</td></tr>'
+        )
+    return html + "</table>"
+
+
+_STAGE_ORDER = ["quarter_finalist", "semi_finalist", "finalist", "winner"]
+
+
+def _render_submission_last8(data: dict) -> str:
+    rows = _arr(data.get("submission_last8_picks"))
+    if not rows:
+        return '<p class="muted">No submitted Last-8 picks available.</p>'
+    grouped: dict[str, list] = {}
+    for row in rows:
+        grouped.setdefault(_obj(row).get("stage") or "unknown", []).append(_obj(row))
+
+    def order(name: str) -> tuple:
+        return (_STAGE_ORDER.index(name) if name in _STAGE_ORDER else len(_STAGE_ORDER), name)
+
+    html = (
+        '<p class="muted"><b>Last-8 to fill in.</b> These Last-8 / progression picks are your '
+        "<b>Submitted prediction</b> (locked/submitted). Future recommendation output stays future-only.</p>"
+    )
+    for stage in sorted(grouped, key=order):
+        stage_rows = grouped[stage]
+        label = stage.replace("_", " ")
+        html += f'<details class="group-summary" open><summary class="group-summary">{_esc(label)} ({_fi(len(stage_rows))} picks)</summary>'
+        for row in stage_rows:
+            html += (
+                '<div class="row-card"><div class="row-top"><div>'
+                f'<div class="label">Rank {_fi(row.get("rank"))}</div>'
+                f'<div class="row-title">{_esc(row.get("team") or "—")}</div></div>'
+                f'<div class="score-big" style="font-size:1.2rem;color:#7dd3fc">{_fpct(row.get("probability"))}</div></div>'
+                f'<div class="row-meta"><span class="pill">{_esc(label)}</span>'
+                f'<span class="pill">{_esc(row.get("selection_type") or "—")}</span></div></div>'
+            )
+        html += "</details>"
+    return html
+
+
+def _knockout_status_label(row: dict) -> str:
+    status = row.get("status")
+    if status == "played":
+        return "played"
+    if status == "teams_set":
+        return "teams_set"
+    return "projected — pending previous results"
+
+
+def _render_next_round(k: dict) -> str:
+    matches = _arr(k.get("next_round_matches"))
+    label = k.get("next_round_label")
+    if not matches or not label:
+        all_m = _arr(k.get("matches"))
+        all_played = bool(all_m) and all(_obj(m).get("status") == "played" for m in all_m)
+        msg = (
+            "All knockout rounds are complete."
+            if all_played
+            else "No knockout round ready yet — waiting for group stage results."
+        )
+        return f'<div class="subcard"><h3>Next round to predict</h3><p class="muted">{_esc(msg)}</p></div>'
+    html = (
+        f'<div class="subcard"><h3><span>Next round to predict</span><span class="pill">{_esc(label)}</span></h3>'
+        f'<p class="muted">The full <b>{_esc(label)}</b> ({_fi(len(matches))} matches). Played matches show '
+        "the <b>Actual result</b>; matches without both real participants yet show the best "
+        "<b>Projected matchup</b>, labelled <i>projected — pending previous results</i>.</p>"
+    )
+    html += (
+        f'<div class="copybar"><b>Copy {_esc(label)}</b>{_copy_btn("next-round-copy", "Copy round")}'
+        f'<span class="muted">{_fi(len(matches))} lines</span></div>'
+    )
+    html += f'<pre class="copyblock" id="next-round-copy">{_esc(k.get("next_round_copy_text") or "")}</pre>'
+    for row in matches:
+        row = _obj(row)
+        team_a = row.get("current_team_a") or row.get("projected_team_a") or "TBD"
+        team_b = row.get("current_team_b") or row.get("projected_team_b") or "TBD"
+        score = row.get("current_score") or row.get("projected_score") or "—"
+        adv = row.get("current_advancing_team") or row.get("projected_advancing_team") or "—"
+        so = '<span class="pill">shoot-out</span>' if row.get("current_shootout") else ""
+        played = row.get("status") == "played"
+        big_label = "Actual result" if played else "Current recommendation"
+        big_value = (row.get("actual_score") or score) if played else score
+        pts = ""
+        if played and row.get("points_earned_estimate") is not None:
+            pts = f'<div class="muted" style="margin-top:.25rem">Points (est.): {_fnum(row.get("points_earned_estimate"))}</div>'
+        actual_pill = (
+            f'<span class="pill">Actual result: {_esc(row.get("actual_score"))}'
+            + (f' (adv {_esc(row.get("actual_advancing_team"))})' if row.get("actual_advancing_team") else "")
+            + "</span>"
+            if row.get("actual_score")
+            else ""
+        )
+        html += (
+            '<article class="row-card"><div class="row-top"><div>'
+            f'<div class="label">Match {_fi(row.get("match_number"))} · {_esc(row.get("round_label") or label)}</div>'
+            f'<div class="row-title">{_esc(team_a)} vs {_esc(team_b)}</div>'
+            f'<div class="row-meta"><span class="pill">status: {_esc(_knockout_status_label(row))}</span>{so}'
+            f'<span class="pill">advances: {_esc(adv)}</span></div>'
+            f'</div><div><div class="label">{big_label}</div><div class="score-big">{_esc(big_value)}</div>{pts}</div></div>'
+            f'<div class="row-copy">{_esc(row.get("copy_text") or "")}</div>'
+            '<details class="audit-details"><summary>Projected matchup vs current recommendation</summary><div class="row-meta">'
+            f'<span class="pill">Projected matchup: {_esc(row.get("projected_team_a") or "TBD")} {_esc(row.get("projected_score") or "—")} {_esc(row.get("projected_team_b") or "TBD")} (adv {_esc(row.get("projected_advancing_team") or "—")})</span>'
+            f'<span class="pill">Current recommendation: {_esc(team_a)} {_esc(score)} {_esc(team_b)} (adv {_esc(adv)})</span>'
+            f"{actual_pill}</div></details></article>"
+        )
+    html += "</div>"
+    return html
+
+
+def _render_knockout(data: dict) -> str:
+    k = _obj(data.get("knockout_predictions"))
+    matches = _arr(k.get("matches"))
+    if not matches:
+        return (
+            '<p class="muted">No knockout predictions available yet. They are generated from the '
+            "projected bracket and refresh as actual results arrive.</p>" + _render_next_round(k)
+        )
+    group_complete = bool(k.get("group_stage_complete"))
+    labels = _obj(k.get("round_labels"))
+    by_round = _obj(k.get("matches_by_round"))
+    rounds = _arr(k.get("rounds")) or list(by_round)
+
+    html = (
+        '<p class="muted"><b>Knockout match predictions</b> — predicted exact score, who advances, '
+        "and the shoot-out call for every match. These are <b>future recommendations</b> entered "
+        "round by round; your submitted group-stage scores stay locked.</p>"
+    )
+    html += (
+        '<p class="muted">Teams shown are '
+        + ("the <b>actual</b> qualifiers." if group_complete else "the model's <b>projected</b> bracket until real results arrive.")
+        + " The <b>projected</b> line is your original up-front gamble; the <b>current</b> line is the refreshed recommendation.</p>"
+    )
+    html += _render_next_round(k)
+    html += (
+        f'<div class="copybar"><b>All knockout predictions</b>{_copy_btn("knockout-copy", "Copy all")}'
+        f'<span class="muted">{_fi(len(matches))} matches</span></div>'
+    )
+    html += f'<pre class="copyblock" id="knockout-copy">{_esc(k.get("copy_text") or "")}</pre>'
+
+    for round_name in rounds:
+        round_rows = _arr(by_round.get(round_name))
+        if not round_rows:
+            continue
+        round_label = labels.get(round_name) or round_name
+        round_copy = "\n".join(_obj(r).get("copy_text") or "" for r in round_rows if _obj(r).get("copy_text"))
+        block_id = f"knockout-copy-{_esc(round_name)}"
+        inner = f'<div class="copybar"><b>{_esc(round_label)}</b>{_copy_btn(block_id, "Copy round")}</div>'
+        inner += f'<pre class="copyblock" id="{block_id}">{_esc(round_copy)}</pre>'
+        for row in round_rows:
+            row = _obj(row)
+            team_a = row.get("current_team_a") or row.get("projected_team_a") or "TBD"
+            team_b = row.get("current_team_b") or row.get("projected_team_b") or "TBD"
+            score = row.get("current_score") or row.get("projected_score") or "—"
+            adv = row.get("current_advancing_team") or row.get("projected_advancing_team") or "—"
+            so = '<span class="pill">shoot-out</span>' if row.get("current_shootout") else ""
+            inner += (
+                '<article class="row-card"><div class="row-top"><div>'
+                f'<div class="label">Match {_fi(row.get("match_number"))} · {_esc(row.get("round_label") or round_label)}</div>'
+                f'<div class="row-title">{_esc(team_a)} vs {_esc(team_b)}</div>'
+                f'<div class="row-meta"><span class="pill">status: {_esc(row.get("status") or "projected")}</span>'
+                f'<span class="pill">teams: {_esc(row.get("teams_source") or "projected")}</span>'
+                f'<span class="pill">advances: {_esc(adv)}</span>{so}</div>'
+                f'</div><div><div class="label">Predicted score</div><div class="score-big">{_esc(score)}</div></div></div>'
+                f'<div class="row-copy">{_esc(row.get("copy_text") or "")}</div>'
+                '<details class="audit-details"><summary>Compare gambles</summary><div class="row-meta">'
+                f'<span class="pill">Projected: {_esc(row.get("projected_team_a") or "TBD")} {_esc(row.get("projected_score") or "—")} {_esc(row.get("projected_team_b") or "TBD")} (adv {_esc(row.get("projected_advancing_team") or "—")})</span>'
+                f'<span class="pill">Current: {_esc(team_a)} {_esc(score)} {_esc(team_b)} (adv {_esc(adv)})</span>'
+                + (f'<span class="pill">Actual result: {_esc(row.get("actual_score"))}</span>' if row.get("actual_score") else "")
+                + "</div></details></article>"
+            )
+        open_attr = " open" if round_name == "R32" else ""
+        html += (
+            f'<details class="group-summary"{open_attr}><summary class="group-summary">{_esc(round_label)} '
+            f'({_fi(len(round_rows))} matches)</summary>{inner}</details>'
+        )
+    return html
+
+
+def _render_played(data: dict) -> str:
+    rows = _arr(data.get("played_matches"))
+    if not rows:
+        return '<p class="muted">No matches played yet.</p>'
+    html = ""
+    for row in rows:
+        row = _obj(row)
+        html += (
+            f'<div class="match"><span>#{_fi(row.get("match_number"))} {_esc(row.get("team_a") or "—")} v '
+            f'{_esc(row.get("team_b") or "—")}</span><span class="sc">{_fi(row.get("team_a_goals"))}–{_fi(row.get("team_b_goals"))}</span></div>'
+        )
+    return html
+
+
+def _render_scoring(data: dict) -> str:
+    summary = _obj(data.get("summary"))
+    scoring = _obj(data.get("scoring_summary"))
+    if float(summary.get("matches_played") or 0) <= 0:
+        return '<p class="muted">No scoring summary yet.</p>'
+    html = (
+        f'<div class="bignum">{_fnum(scoring.get("total_points"))} pts</div>'
+        f'<p class="muted">{_fi(scoring.get("played_matches"))} played · '
+        f'{_fnum(scoring.get("possible_points_for_played_matches"))} possible · '
+        f'{_fnum(scoring.get("points_missed"))} missed · '
+        f'{_fnum(scoring.get("average_points_per_played_match"))} avg</p>'
+    )
+    html += (
+        '<div class="stats">'
+        f'<div class="stat"><b>{_fi(scoring.get("outcomes_correct"))}/{_fi(scoring.get("played_matches"))}</b><span>outcomes</span></div>'
+        f'<div class="stat"><b>{_fi(scoring.get("goal_differences_correct"))}/{_fi(scoring.get("played_matches"))}</b><span>goal diffs</span></div>'
+        f'<div class="stat"><b>{_fi(scoring.get("exact_scores_correct"))}/{_fi(scoring.get("played_matches"))}</b><span>exact scores</span></div></div>'
+    )
+    return html
+
+
+def _render_remaining(data: dict) -> str:
+    rows = _arr(data.get("remaining_matches"))
+    total = data.get("remaining_matches_total")
+    if not rows:
+        return '<p class="muted">No remaining matches.</p>'
+    html = ""
+    for row in rows:
+        row = _obj(row)
+        html += (
+            f'<div class="match"><span>#{_fi(row.get("match_number"))} {_esc(row.get("team_a") or "—")} v '
+            f'{_esc(row.get("team_b") or "—")}</span><span class="muted">{_esc(row.get("date") or "—")}</span></div>'
+        )
+    try:
+        if total is not None and float(total) > len(rows):
+            html += f'<p class="muted">... {_fi(float(total) - len(rows))} more</p>'
+    except (TypeError, ValueError):
+        pass
+    return html
+
+
+def _render_live_results(data: dict) -> str:
+    summary = _obj(data.get("summary"))
+    instructions = (
+        '<p><b>Score input instructions:</b> Use the GitHub Actions workflow or an issue comment '
+        "with a <code>/WK-SCORES</code> block (group matches 1-72, knockout 73-104).</p>"
+        '<p class="muted">Actual results update live tables, scoring and projections only — never '
+        "the submitted predictions.</p>"
+    )
+    audit = (
+        '<details class="audit-details"><summary>Audit &amp; validation notes</summary>'
+        '<ul><li>Submitted group predictions are frozen; only live tables, scoring and '
+        "projections move.</li><li>Tie-breaks use points → GD → GF → name.</li></ul></details>"
+    )
+    return (
+        _subcard("Score input instructions", instructions)
+        + _subcard("Played matches", _render_played(data), f'{_fi(summary.get("matches_played"))}/72')
+        + _subcard("Points earned / scoring summary", _render_scoring(data))
+        + _subcard("Remaining matches", _render_remaining(data), f'{_fi(summary.get("matches_remaining"))} left')
+        + audit
+    )
+
+
+def _render_pva(data: dict) -> str:
+    rows = _arr(data.get("prediction_vs_actual"))
+    if not rows:
+        return '<p class="muted">No prediction-vs-actual data yet.</p>'
+    html = (
+        '<table class="aligned">'
+        '<colgroup><col class="numcol"><col><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"></colgroup>'
+        '<tr><th class="num">#</th><th class="team">Match</th><th class="num">Submitted</th>'
+        '<th class="num">Actual</th><th class="num">Exact</th><th class="num">Points</th></tr>'
+    )
+    for row in rows:
+        row = _obj(row)
+        points = row.get("points_earned")
+        if points is None:
+            points = row.get("total_points")
+        html += (
+            f'<tr><td class="num">{_fi(row.get("match_number"))}</td>'
+            f'<td class="team">{_esc(row.get("team_a") or "—")} v {_esc(row.get("team_b") or "—")}</td>'
+            f'<td class="num">{_esc(row.get("submitted_score") or row.get("predicted_score") or "—")}</td>'
+            f'<td class="num">{_esc(row.get("actual_score") or "—")}</td>'
+            f'<td class="num">{"yes" if row.get("exact_score_correct") else "no"}</td>'
+            f'<td class="num">{_fnum(points)}</td></tr>'
+        )
+    return html + "</table>"
+
+
+def _render_live_group_tables(data: dict) -> str:
+    groups = _obj(data.get("groups"))
+    intro = (
+        '<p class="muted">Live group table built from actual played results. Your submitted '
+        "group standings above stay locked.</p>"
+    )
+    keys = sorted(groups)
+    body = ""
+    for group in keys:
+        rows = _arr(groups.get(group))
+        if not rows:
+            continue
+        body += (
+            f'<div class="grp">Group {_esc(group)}</div><table class="aligned">'
+            '<colgroup><col><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"></colgroup>'
+            '<tr><th class="team">Team</th><th class="num">P</th><th class="num">W</th><th class="num">D</th>'
+            '<th class="num">L</th><th class="num">GF</th><th class="num">GA</th><th class="num">GD</th><th class="num">Pts</th></tr>'
+        )
+        for row in rows:
+            row = _obj(row)
+            gd = row.get("goal_difference")
+            try:
+                gd_txt = ("+" if float(gd) >= 0 else "") + _fi(gd)
+            except (TypeError, ValueError):
+                gd_txt = "—"
+            body += (
+                f'<tr><td class="team"><span class="rank">{_fi(row.get("rank"))}</span>{_esc(row.get("team") or "—")}</td>'
+                f'<td class="num">{_fi(row.get("played"))}</td><td class="num">{_fi(row.get("won"))}</td>'
+                f'<td class="num">{_fi(row.get("drawn"))}</td><td class="num">{_fi(row.get("lost"))}</td>'
+                f'<td class="num">{_fi(row.get("goals_for"))}</td><td class="num">{_fi(row.get("goals_against"))}</td>'
+                f'<td class="num">{gd_txt}</td><td class="num">{_fi(row.get("points"))}</td></tr>'
+            )
+        body += "</table>"
+    if not body:
+        body = '<p class="muted">No live group table data yet.</p>'
+    return intro + body
+
+
+def _render_advancement(data: dict) -> str:
+    rows = _arr(data.get("advancement"))
+    intro = (
+        '<p class="muted">Advancement combines actual played results with frozen simulations of '
+        "unplayed matches.</p>"
+    )
+    body = ""
+    if rows:
+        by_group: dict[str, list] = {}
+        for row in rows:
+            by_group.setdefault(_obj(row).get("group") or "?", []).append(_obj(row))
+        for group in sorted(by_group):
+            body += f'<div class="grp">Group {_esc(group)}</div>'
+            for row in by_group[group]:
+                cls = "adv" if float(row.get("p_advance") or 0) >= 0.5 else ("out" if float(row.get("p_advance") or 0) <= 0.05 else "")
+                body += (
+                    '<div style="margin:.35rem 0"><div style="display:flex;justify-content:space-between;gap:.5rem">'
+                    f'<span class="{cls}">{_esc(row.get("team") or "—")}</span>'
+                    f'<span class="muted">adv {_fpct(row.get("p_advance"))} · win {_fpct(row.get("p_rank1"))}</span></div>'
+                    f'<div class="bar"><i style="width:{_pctw(row.get("p_advance"))}%"></i></div></div>'
+                )
+    else:
+        body = '<p class="muted">No advancement probabilities yet.</p>'
+    bracket = _obj(data.get("actual_bracket_state"))
+    future = (
+        '<p class="muted"><b>Projected future bracket.</b> Submitted group-stage predictions stay '
+        "locked; actual results pin only played matches and future projections use only unplayed "
+        "fixtures.</p>"
+        '<p class="muted"><b>Future recommendation:</b> recommendations are future-only and apply '
+        "only to matches that have not been played.</p>"
+        f'<p class="muted">Bracket state: {_esc(bracket.get("status") or "pending_group_stage")}. '
+        f'{_esc(bracket.get("note") or "")}</p>'
+    )
+    return intro + body + future
+
+
+def render_app_html(data: dict) -> str:
+    """Server-render every dashboard section as static HTML (no JS required)."""
+    knockout = _obj(data.get("knockout_predictions"))
+    knockout_count = len(_arr(knockout.get("matches")))
+    return "".join(
+        [
+            _section("overview", "Overview", "live", _render_overview(data)),
+            _section("submitted-scores", "Scores to fill in", f"{_fi(len(_arr(data.get('submission_score_predictions'))))} matches", _render_submission_scores(data)),
+            _section("group-standings", "Group standings to fill in", "submitted", _render_submission_standings(data)),
+            _section("last8", "Last-8 to fill in", "submitted", _render_submission_last8(data)),
+            _section("knockout-predictions", "Knockout predictions", f"{_fi(knockout_count)} matches", _render_knockout(data)),
+            _section("live-results", "Live results", None, _render_live_results(data)),
+            _section("prediction-vs-actual", "Prediction vs Actual", f"{_fi(len(_arr(data.get('prediction_vs_actual'))))} scored", _render_pva(data)),
+            _section("live-group-tables", "Live group tables", None, _render_live_group_tables(data)),
+            _section("advancement", "Advancement / bracket projections", None, _render_advancement(data)),
+        ]
+    )
+
+
+def render_meta_text(data: dict) -> str:
+    summary = _obj(data.get("summary"))
+    n_sims = summary.get("n_sims")
+    try:
+        sims = f"{int(n_sims):,} sims" if n_sims is not None and math.isfinite(float(n_sims)) else "no sims"
+    except (TypeError, ValueError):
+        sims = "no sims"
+    return f"Updated {_esc(data.get('generated_at') or '—')} · {_fi(summary.get('matches_played'))}/72 played · {_esc(sims)}"
+
+
+def render_cand_text(data: dict) -> str:
+    candidate = _obj(data.get("active_candidate"))
+    return f"Active candidate: {_esc(candidate.get('name') or '—')} ({_esc(candidate.get('active_candidate_dir') or '—')})"
+
+
 def render_html(payload: dict) -> str:
     payload_json = _payload_json(payload).replace("</", "<\\/")
-    # Replace the payload placeholder with actual JSON.
-    return HTML_TEMPLATE.replace("<!--PAYLOAD_JSON_PLACEHOLDER-->", payload_json)
+    html = HTML_TEMPLATE.replace("<!--PAYLOAD_JSON_PLACEHOLDER-->", payload_json)
+    # Server-side pre-render so the page works with JavaScript disabled or broken.
+    html = html.replace("<!--APP_PLACEHOLDER-->", render_app_html(payload))
+    html = html.replace("<!--META_PLACEHOLDER-->", render_meta_text(payload))
+    html = html.replace("<!--CAND_PLACEHOLDER-->", render_cand_text(payload))
+    return html
 
 
 def main() -> None:

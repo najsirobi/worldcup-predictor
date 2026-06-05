@@ -149,6 +149,49 @@ def test_dashboard_fill_in_sections_and_alignment():
     json.loads(build_mobile_dashboard._payload_json(payload))
 
 
+def test_dashboard_is_server_side_prerendered_without_js():
+    """The page must show real content even if the client JavaScript never runs."""
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+
+    # No permanent "Loading" placeholder remains after build.
+    assert "Loading" not in html
+    # #app is server-rendered, not an empty shell filled only by JS.
+    assert "<main id=\"app\"><!--APP_PLACEHOLDER-->" not in html
+    assert "<main id=\"app\"><section" in html
+
+    # Every key section exists as a real <section> element (not JS-only).
+    for section_id in [
+        "overview",
+        "submitted-scores",
+        "group-standings",
+        "last8",
+        "knockout-predictions",
+        "live-results",
+        "prediction-vs-actual",
+        "live-group-tables",
+        "advancement",
+    ]:
+        assert f'<section id="{section_id}"' in html, section_id
+
+    # The static body (before the inline JSON payload) carries the real content,
+    # so the strings exist directly in the HTML and not only inside the payload.
+    body = html.split('<script id="payload"', 1)[0]
+    for marker in [
+        "Scores to fill in",
+        "1. Mexico 1-0 South Africa",
+        "Group standings to fill in",
+        "Last-8 to fill in",
+        "Next round to predict",
+        "Live group tables",
+    ]:
+        assert marker in body, f"missing from server-rendered body: {marker}"
+
+    # JS remains as progressive enhancement with non-destructive error handling.
+    assert "Loaded keys" in html  # error banner is appended, never blanks #app
+    assert "insertAdjacentHTML" in html
+
+
 def test_dashboard_includes_prediction_vs_actual_section():
     payload = build_mobile_dashboard.build_payload()
     assert "prediction_vs_actual" in payload
