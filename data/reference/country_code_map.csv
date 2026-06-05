@@ -1,21 +1,49 @@
-source,raw_country_name,canonical_country_name,fifa_code,iso2,iso3,world_bank_code,notes
-world_bank,United Kingdom,England,ENG,GB,GBR,GBR,England is part of UK
-world_bank,France,France,FRA,FR,FRA,FRA,
-world_bank,Germany,Germany,GER,DE,DEU,DEU,
-world_bank,Spain,Spain,ESP,ES,ESP,ESP,
-world_bank,Netherlands,Netherlands,NED,NL,NLD,NLD,
-world_bank,Italy,Italy,ITA,IT,ITA,ITA,
-world_bank,Brazil,Brazil,BRA,BR,BRA,BRA,
-world_bank,Argentina,Argentina,ARG,AR,ARG,ARG,
-world_bank,United States,USA,USA,US,USA,USA,
-world_bank,Mexico,Mexico,MEX,MX,MEX,MEX,
-world_bank,Canada,Canada,CAN,CA,CAN,CAN,
-world_bank,Belgium,Belgium,BEL,BE,BEL,BEL,
-world_bank,Portugal,Portugal,POR,PT,PRT,PRT,
-world_bank,Sweden,Sweden,SWE,SE,SWE,SWE,
-world_bank,Norway,Norway,NOR,NO,NOR,NOR,
-world_bank,Uruguay,Uruguay,URU,UY,URY,URY,
-world_bank,Japan,Japan,JPN,JP,JPN,JPN,
-world_bank,Korea,South Korea,KOR,KR,KOR,KOR,officially Democratic People's Republic of Korea (North) or Republic of Korea (South)
-world_bank,Australia,Australia,AUS,AU,AUS,AUS,
-world_bank,Morocco,Morocco,MAR,MA,MAR,MAR,
+team_name,canonical_team,fifa_code,country_code_iso3,world_bank_code,world_bank_country_name,source,is_proxy_mapping,notes,raw_country_name,canonical_country_name,iso2,iso3
+Algeria,Algeria,ALG,DZA,DZA,Algeria,world_bank_api_v2_country_metadata_2026-06-05,false,,Algeria,Algeria,DZ,DZA
+Argentina,Argentina,ARG,ARG,ARG,Argentina,world_bank_api_v2_country_metadata_2026-06-05,false,,Argentina,Argentina,AR,ARG
+Australia,Australia,AUS,AUS,AUS,Australia,world_bank_api_v2_country_metadata_2026-06-05,false,,Australia,Australia,AU,AUS
+Austria,Austria,AUT,AUT,AUT,Austria,world_bank_api_v2_country_metadata_2026-06-05,false,,Austria,Austria,AT,AUT
+Belgium,Belgium,BEL,BEL,BEL,Belgium,world_bank_api_v2_country_metadata_2026-06-05,false,,Belgium,Belgium,BE,BEL
+Bosnia and Herzegovina,Bosnia and Herzegovina,BIH,BIH,BIH,Bosnia and Herzegovina,world_bank_api_v2_country_metadata_2026-06-05,false,Official squad source capitalizes 'And'; World Bank metadata uses standard title case.,Bosnia and Herzegovina,Bosnia and Herzegovina,BA,BIH
+Brazil,Brazil,BRA,BRA,BRA,Brazil,world_bank_api_v2_country_metadata_2026-06-05,false,,Brazil,Brazil,BR,BRA
+Cabo Verde,Cabo Verde,CPV,CPV,CPV,Cabo Verde,world_bank_api_v2_country_metadata_2026-06-05,false,,Cabo Verde,Cabo Verde,CV,CPV
+Canada,Canada,CAN,CAN,CAN,Canada,world_bank_api_v2_country_metadata_2026-06-05,false,,Canada,Canada,CA,CAN
+Colombia,Colombia,COL,COL,COL,Colombia,world_bank_api_v2_country_metadata_2026-06-05,false,,Colombia,Colombia,CO,COL
+Congo DR,Congo DR,COD,COD,COD,"Congo, Dem. Rep.",world_bank_api_v2_country_metadata_2026-06-05,false,Football display name differs from World Bank metadata name.,"Congo, Dem. Rep.",Congo DR,CD,COD
+Croatia,Croatia,CRO,HRV,HRV,Croatia,world_bank_api_v2_country_metadata_2026-06-05,false,,Croatia,Croatia,HR,HRV
+Curaçao,Curaçao,CUW,CUW,CUW,Curacao,world_bank_api_v2_country_metadata_2026-06-05,false,World Bank metadata omits the cedilla in Curacao.,Curacao,Curaçao,CW,CUW
+Czechia,Czechia,CZE,CZE,CZE,Czechia,world_bank_api_v2_country_metadata_2026-06-05,false,,Czechia,Czechia,CZ,CZE
+Côte d'Ivoire,Côte d'Ivoire,CIV,CIV,CIV,Cote d'Ivoire,world_bank_api_v2_country_metadata_2026-06-05,false,World Bank metadata omits the accent in Cote d'Ivoire.,Cote d'Ivoire,Côte d'Ivoire,CI,CIV
+Ecuador,Ecuador,ECU,ECU,ECU,Ecuador,world_bank_api_v2_country_metadata_2026-06-05,false,,Ecuador,Ecuador,EC,ECU
+Egypt,Egypt,EGY,EGY,EGY,"Egypt, Arab Rep.",world_bank_api_v2_country_metadata_2026-06-05,false,Football display name differs from World Bank metadata name.,"Egypt, Arab Rep.",Egypt,EG,EGY
+England,England,ENG,GBR,GBR,United Kingdom,world_bank_api_v2_country_metadata_2026-06-05,true,UK macro proxy; World Bank has no England-specific country entity.,United Kingdom,England,GB,GBR
+France,France,FRA,FRA,FRA,France,world_bank_api_v2_country_metadata_2026-06-05,false,,France,France,FR,FRA
+Germany,Germany,GER,DEU,DEU,Germany,world_bank_api_v2_country_metadata_2026-06-05,false,,Germany,Germany,DE,DEU
+Ghana,Ghana,GHA,GHA,GHA,Ghana,world_bank_api_v2_country_metadata_2026-06-05,false,,Ghana,Ghana,GH,GHA
+Haiti,Haiti,HAI,HTI,HTI,Haiti,world_bank_api_v2_country_metadata_2026-06-05,false,,Haiti,Haiti,HT,HTI
+IR Iran,IR Iran,IRN,IRN,IRN,"Iran, Islamic Rep.",world_bank_api_v2_country_metadata_2026-06-05,false,Football display name differs from World Bank metadata name.,"Iran, Islamic Rep.",IR Iran,IR,IRN
+Iraq,Iraq,IRQ,IRQ,IRQ,Iraq,world_bank_api_v2_country_metadata_2026-06-05,false,,Iraq,Iraq,IQ,IRQ
+Japan,Japan,JPN,JPN,JPN,Japan,world_bank_api_v2_country_metadata_2026-06-05,false,,Japan,Japan,JP,JPN
+Jordan,Jordan,JOR,JOR,JOR,Jordan,world_bank_api_v2_country_metadata_2026-06-05,false,,Jordan,Jordan,JO,JOR
+Korea Republic,Korea Republic,KOR,KOR,KOR,"Korea, Rep.",world_bank_api_v2_country_metadata_2026-06-05,false,Football display name differs from World Bank metadata name.,"Korea, Rep.",Korea Republic,KR,KOR
+Mexico,Mexico,MEX,MEX,MEX,Mexico,world_bank_api_v2_country_metadata_2026-06-05,false,,Mexico,Mexico,MX,MEX
+Morocco,Morocco,MAR,MAR,MAR,Morocco,world_bank_api_v2_country_metadata_2026-06-05,false,,Morocco,Morocco,MA,MAR
+Netherlands,Netherlands,NED,NLD,NLD,Netherlands,world_bank_api_v2_country_metadata_2026-06-05,false,,Netherlands,Netherlands,NL,NLD
+New Zealand,New Zealand,NZL,NZL,NZL,New Zealand,world_bank_api_v2_country_metadata_2026-06-05,false,,New Zealand,New Zealand,NZ,NZL
+Norway,Norway,NOR,NOR,NOR,Norway,world_bank_api_v2_country_metadata_2026-06-05,false,,Norway,Norway,NO,NOR
+Panama,Panama,PAN,PAN,PAN,Panama,world_bank_api_v2_country_metadata_2026-06-05,false,,Panama,Panama,PA,PAN
+Paraguay,Paraguay,PAR,PRY,PRY,Paraguay,world_bank_api_v2_country_metadata_2026-06-05,false,Football FIFA code `PAR` maps to sovereign ISO3 `PRY`.,Paraguay,Paraguay,PY,PRY
+Portugal,Portugal,POR,PRT,PRT,Portugal,world_bank_api_v2_country_metadata_2026-06-05,false,,Portugal,Portugal,PT,PRT
+Qatar,Qatar,QAT,QAT,QAT,Qatar,world_bank_api_v2_country_metadata_2026-06-05,false,,Qatar,Qatar,QA,QAT
+Saudi Arabia,Saudi Arabia,KSA,SAU,SAU,Saudi Arabia,world_bank_api_v2_country_metadata_2026-06-05,false,FIFA code `KSA` maps to sovereign ISO3 `SAU`.,Saudi Arabia,Saudi Arabia,SA,SAU
+Scotland,Scotland,SCO,GBR,GBR,United Kingdom,world_bank_api_v2_country_metadata_2026-06-05,true,UK macro proxy; not Scotland-specific World Bank macro data.,United Kingdom,Scotland,GB,GBR
+Senegal,Senegal,SEN,SEN,SEN,Senegal,world_bank_api_v2_country_metadata_2026-06-05,false,,Senegal,Senegal,SN,SEN
+South Africa,South Africa,RSA,ZAF,ZAF,South Africa,world_bank_api_v2_country_metadata_2026-06-05,false,FIFA code `RSA` maps to sovereign ISO3 `ZAF`.,South Africa,South Africa,ZA,ZAF
+Spain,Spain,ESP,ESP,ESP,Spain,world_bank_api_v2_country_metadata_2026-06-05,false,,Spain,Spain,ES,ESP
+Sweden,Sweden,SWE,SWE,SWE,Sweden,world_bank_api_v2_country_metadata_2026-06-05,false,,Sweden,Sweden,SE,SWE
+Switzerland,Switzerland,SUI,CHE,CHE,Switzerland,world_bank_api_v2_country_metadata_2026-06-05,false,FIFA code `SUI` maps to sovereign ISO3 `CHE`.,Switzerland,Switzerland,CH,CHE
+Tunisia,Tunisia,TUN,TUN,TUN,Tunisia,world_bank_api_v2_country_metadata_2026-06-05,false,,Tunisia,Tunisia,TN,TUN
+Türkiye,Türkiye,TUR,TUR,TUR,Turkiye,world_bank_api_v2_country_metadata_2026-06-05,false,World Bank metadata uses `Turkiye` while football display name uses `Türkiye`.,Turkiye,Türkiye,TR,TUR
+USA,USA,USA,USA,USA,United States,world_bank_api_v2_country_metadata_2026-06-05,false,Football display name differs from World Bank metadata name.,United States,USA,US,USA
+Uruguay,Uruguay,URU,URY,URY,Uruguay,world_bank_api_v2_country_metadata_2026-06-05,false,FIFA code `URU` maps to sovereign ISO3 `URY`.,Uruguay,Uruguay,UY,URY
+Uzbekistan,Uzbekistan,UZB,UZB,UZB,Uzbekistan,world_bank_api_v2_country_metadata_2026-06-05,false,,Uzbekistan,Uzbekistan,UZ,UZB
