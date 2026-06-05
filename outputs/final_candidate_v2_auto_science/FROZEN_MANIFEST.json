@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "candidate_dir": "outputs/final_candidate_v2_auto_science",
+  "protected_dirs": [
+    "outputs/final_candidate_v2_auto_science",
+    "outputs/final_candidate_v1"
+  ],
+  "rule": "Submitted predictions are immutable. Live actual results may update only outputs/live, docs dashboard exports, and Travel Mode reports.",
+  "files": [
+    {
+      "path": "outputs/final_candidate_v2_auto_science/final_group_score_predictions_auto.csv",
+      "sha256": "a5855b4df3e4bc84b73fd433906a0402215c8f4d9400c9355d2d52e995db3439",
+      "size_bytes": 8526
+    },
+    {
+      "path": "outputs/final_candidate_v2_auto_science/final_group_standing_predictions_auto.csv",
+      "sha256": "273bdcb90afb6164ae3d39eac3169b5cf82193e715a0e612d7247eeb66ec7a5e",
+      "size_bytes": 741
+    },
+    {
+      "path": "outputs/final_candidate_v2_auto_science/final_last8_predictions_auto.csv",
+      "sha256": "d0da516272b439eb3c884693307ca5b5ff64119f708b7acfe71143e0d59104a7",
+      "size_bytes": 1639
+    },
+    {
+      "path": "outputs/final_candidate_v2_auto_science/final_submission_pack_auto.csv",
+      "sha256": "4a0db1831e1cd7f9573028348e5a30cfffb0154b18ccc94e38a3609426977b9a",
+      "size_bytes": 14259
+    }
+  ]
+}

@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
-"""Recalculate live group advancement probabilities (Travel Mode, Task C).
+"""Recalculate live group advancement probabilities (Travel Mode).
 
 Pins played matches to their entered scores and samples unplayed matches from
-the frozen final-candidate scorelines. Does NOT retrain and does NOT change the
-baseline predictions.
+the frozen active candidate's submitted scorelines. Does NOT change submitted
+predictions and does NOT train or regenerate first-round picks from actual
+results.
 
 Outputs:
     outputs/live/live_group_stage_simulation_summary.csv
@@ -26,6 +27,8 @@ from src.live.live_simulation import (
     simulate_live,
 )
 from src.live.scores_override import OVERRIDE_PATH, load_override, utc_now_iso
+from src.live.submission_guard import guard_frozen_submission
+from src.live.tournament_state import LIVE_STATE_SEMANTICS
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_DIR = ROOT / "outputs" / "live"
@@ -52,8 +55,14 @@ def write_report(summary, n_sims, elapsed, candidate, path: Path) -> None:
         "",
         "## Method & limitations",
         "",
-        "This does not retrain any model and does not change the baseline "
-        "predictions. Unplayed fixtures reuse `final_group_score_predictions.csv`.",
+        "This does not change submitted predictions. Actual results from "
+        "`data/live/scores_override.csv` pin played group matches only; unplayed "
+        f"fixtures reuse `{candidate['score_predictions_file']}` from the active "
+        "frozen candidate.",
+        "",
+        "## Live semantics",
+        "",
+        *[f"- {text}" for text in LIVE_STATE_SEMANTICS.values()],
         "",
         TIE_BREAK_NOTE,
         "",
@@ -93,41 +102,43 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    LIVE_DIR.mkdir(parents=True, exist_ok=True)
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    with guard_frozen_submission("recalculate_live_simulations.py"):
+        LIVE_DIR.mkdir(parents=True, exist_ok=True)
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    candidate_obj = load_active_candidate()
-    candidate = candidate_obj.as_dict()
-    predictions_path = args.predictions or candidate_obj.score_predictions_path
+        candidate_obj = load_active_candidate()
+        candidate = candidate_obj.as_dict()
+        predictions_path = args.predictions or candidate_obj.score_predictions_path
 
-    scores = load_override(args.scores)
-    predictions = load_predictions(predictions_path)
+        scores = load_override(args.scores)
+        predictions = load_predictions(predictions_path)
 
-    start = time.perf_counter()
-    summary = simulate_live(scores, predictions, n_sims=args.sims, seed=args.seed)
-    elapsed = time.perf_counter() - start
+        start = time.perf_counter()
+        summary = simulate_live(scores, predictions, n_sims=args.sims, seed=args.seed)
+        elapsed = time.perf_counter() - start
 
-    summary.to_csv(LIVE_DIR / "live_group_stage_simulation_summary.csv", index=False)
-    payload = {
-        "generated_at": utc_now_iso(),
-        "active_candidate": candidate,
-        "n_sims": int(args.sims),
-        "seed": int(args.seed),
-        "goal_floor": GOAL_FLOOR,
-        "n_advancing_thirds": N_ADVANCING_THIRDS,
-        "tie_break_note": TIE_BREAK_NOTE,
-        "teams": summary.to_dict(orient="records"),
-    }
-    (LIVE_DIR / "live_group_stage_simulation_summary.json").write_text(
-        json.dumps(payload, indent=2), encoding="utf-8"
-    )
-    write_report(
-        summary, args.sims, elapsed, candidate, REPORTS_DIR / "live_group_stage_simulation_report.md"
-    )
-    print(
-        f"Ran {args.sims:,} live simulations in {elapsed:.1f}s. "
-        f"Wrote summary CSV/JSON + report."
-    )
+        summary.to_csv(LIVE_DIR / "live_group_stage_simulation_summary.csv", index=False)
+        payload = {
+            "generated_at": utc_now_iso(),
+            "active_candidate": candidate,
+            "n_sims": int(args.sims),
+            "seed": int(args.seed),
+            "goal_floor": GOAL_FLOOR,
+            "n_advancing_thirds": N_ADVANCING_THIRDS,
+            "tie_break_note": TIE_BREAK_NOTE,
+            "semantics": LIVE_STATE_SEMANTICS,
+            "teams": summary.to_dict(orient="records"),
+        }
+        (LIVE_DIR / "live_group_stage_simulation_summary.json").write_text(
+            json.dumps(payload, indent=2), encoding="utf-8"
+        )
+        write_report(
+            summary, args.sims, elapsed, candidate, REPORTS_DIR / "live_group_stage_simulation_report.md"
+        )
+        print(
+            f"Ran {args.sims:,} live simulations in {elapsed:.1f}s. "
+            f"Wrote summary CSV/JSON + report."
+        )
 
 
 if __name__ == "__main__":

@@ -24,6 +24,7 @@ import pandas as pd
 
 from src.live.batch_update import BATCH_FIELDS, BatchValidationError, apply_batch
 from src.live.scores_override import OVERRIDE_PATH, load_override, utc_now_iso, write_override
+from src.live.submission_guard import guard_frozen_submission
 
 ROOT = Path(__file__).resolve().parents[1]
 BATCH_PATH = ROOT / "data" / "live" / "scores_batch_update.csv"
@@ -72,19 +73,20 @@ def main() -> None:
     parser.add_argument("--report", type=Path, default=REPORT_PATH)
     args = parser.parse_args()
 
-    frame = load_override(args.file)
-    try:
-        rows = read_batch_rows(args.batch)
-        updated, applied = apply_batch(frame, rows, source=SOURCE)
-    except BatchValidationError as exc:
-        write_report([], exc.errors, args.report)
-        raise SystemExit(
-            "ERROR: batch rejected, nothing applied:\n  - " + "\n  - ".join(exc.errors)
-        )
+    with guard_frozen_submission("apply_scores_batch_update.py"):
+        frame = load_override(args.file)
+        try:
+            rows = read_batch_rows(args.batch)
+            updated, applied = apply_batch(frame, rows, source=SOURCE)
+        except BatchValidationError as exc:
+            write_report([], exc.errors, args.report)
+            raise SystemExit(
+                "ERROR: batch rejected, nothing applied:\n  - " + "\n  - ".join(exc.errors)
+            )
 
-    write_override(updated, args.file)
-    write_report(applied, [], args.report)
-    print(f"Applied {len(applied)} match(es) from {args.batch} (source {SOURCE}).")
+        write_override(updated, args.file)
+        write_report(applied, [], args.report)
+        print(f"Applied {len(applied)} match(es) from {args.batch} (source {SOURCE}).")
 
 
 if __name__ == "__main__":

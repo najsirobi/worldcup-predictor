@@ -4,7 +4,7 @@
 Compares the active candidate's frozen ``final_recommended_score`` for every
 *played* group match against the manually entered scoreline, applying the
 group-stage scoring of RULES_AND_SCORING.md. Does NOT retrain, fetch APIs, or
-change any prediction.
+change any submitted prediction.
 
 Inputs:
     data/live/active_candidate.yml -> active candidate score predictions
@@ -35,6 +35,7 @@ from src.live.prediction_scoring import (
     summarise,
 )
 from src.live.scores_override import OVERRIDE_PATH, load_override, utc_now_iso
+from src.live.submission_guard import guard_frozen_submission
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_DIR = ROOT / "outputs" / "live"
@@ -78,16 +79,16 @@ def write_report(detail: pd.DataFrame, summary: dict, candidate: dict, path: Pat
         lines += [
             "## Per-match detail",
             "",
-            "| # | Match | Pred | Actual | Out | GD | Exact | Odd | Pts | Max | Missed |",
+            "| # | Match | Submitted prediction | Actual result | Out | GD | Exact | Odd | Points earned | Max | Missed |",
             "|---|-------|------|--------|-----|----|----|-----|-----|-----|--------|",
         ]
         for _, r in detail.iterrows():
             lines.append(
                 f"| {r['match_number']} | {r['team_a']} v {r['team_b']} | "
-                f"{r['predicted_score']} | {r['actual_score']} | "
+                f"{r['submitted_score']} | {r['actual_score']} | "
                 f"{_tick(r['outcome_correct'])} | {_tick(r['goal_difference_correct'])} | "
                 f"{_tick(r['exact_score_correct'])} | {r['applicable_odd']:g} | "
-                f"{r['total_points']:g} | {r['max_possible_points_for_match']:g} | "
+                f"{r['points_earned']:g} | {r['max_possible_points_for_match']:g} | "
                 f"{r['points_missed']:g} |"
             )
         lines.append("")
@@ -107,49 +108,50 @@ def write_report(detail: pd.DataFrame, summary: dict, candidate: dict, path: Pat
 
 
 def main() -> None:
-    LIVE_DIR.mkdir(parents=True, exist_ok=True)
-    REPORTS_DIR.mkdir(parents=True, exist_ok=True)
+    with guard_frozen_submission("score_predictions_vs_actuals.py"):
+        LIVE_DIR.mkdir(parents=True, exist_ok=True)
+        REPORTS_DIR.mkdir(parents=True, exist_ok=True)
 
-    candidate = load_active_candidate()
-    predictions = candidate.load_score_predictions()
-    scores = load_override(OVERRIDE_PATH)
-    odds = load_template_odds()
-    rules = load_scoring_rules()
+        candidate = load_active_candidate()
+        predictions = candidate.load_score_predictions()
+        scores = load_override(OVERRIDE_PATH)
+        odds = load_template_odds()
+        rules = load_scoring_rules()
 
-    detail = score_predictions_vs_actuals(predictions, scores, odds, rules)
-    summary = summarise(detail)
-    candidate_info = candidate.as_dict()
+        detail = score_predictions_vs_actuals(predictions, scores, odds, rules)
+        summary = summarise(detail)
+        candidate_info = candidate.as_dict()
 
-    detail.to_csv(LIVE_DIR / "prediction_vs_actual.csv", index=False)
-    (LIVE_DIR / "prediction_vs_actual.json").write_text(
-        json.dumps(
-            {
-                "generated_at": utc_now_iso(),
-                "active_candidate": candidate_info,
-                "matches": detail.to_dict(orient="records"),
-            },
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
+        detail.to_csv(LIVE_DIR / "prediction_vs_actual.csv", index=False)
+        (LIVE_DIR / "prediction_vs_actual.json").write_text(
+            json.dumps(
+                {
+                    "generated_at": utc_now_iso(),
+                    "active_candidate": candidate_info,
+                    "matches": detail.to_dict(orient="records"),
+                },
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
-    # Flat one-row summary CSV plus per-group rows for convenience.
-    summary_flat = {k: v for k, v in summary.items() if k != "total_by_group"}
-    pd.DataFrame([summary_flat]).to_csv(LIVE_DIR / "scoring_summary.csv", index=False)
-    (LIVE_DIR / "scoring_summary.json").write_text(
-        json.dumps(
-            {"generated_at": utc_now_iso(), "active_candidate": candidate_info, **summary},
-            indent=2,
-        ),
-        encoding="utf-8",
-    )
+        # Flat one-row summary CSV plus per-group rows for convenience.
+        summary_flat = {k: v for k, v in summary.items() if k != "total_by_group"}
+        pd.DataFrame([summary_flat]).to_csv(LIVE_DIR / "scoring_summary.csv", index=False)
+        (LIVE_DIR / "scoring_summary.json").write_text(
+            json.dumps(
+                {"generated_at": utc_now_iso(), "active_candidate": candidate_info, **summary},
+                indent=2,
+            ),
+            encoding="utf-8",
+        )
 
-    write_report(detail, summary, candidate_info, REPORTS_DIR / "prediction_vs_actual_report.md")
-    print(
-        f"Scored {summary['played_matches']} played match(es) for "
-        f"{candidate_info['name']}: {summary['total_points']:g} points "
-        f"(missed {summary['points_missed']:g}). Wrote prediction_vs_actual + scoring_summary."
-    )
+        write_report(detail, summary, candidate_info, REPORTS_DIR / "prediction_vs_actual_report.md")
+        print(
+            f"Scored {summary['played_matches']} played match(es) for "
+            f"{candidate_info['name']}: {summary['total_points']:g} points "
+            f"(missed {summary['points_missed']:g}). Wrote prediction_vs_actual + scoring_summary."
+        )
 
 
 if __name__ == "__main__":

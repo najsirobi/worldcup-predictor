@@ -5,19 +5,29 @@ import pytest
 
 from src.live.scores_override import (
     EXPECTED_MATCH_COUNT,
+    KNOCKOUT_MATCH_NUMBERS,
+    TOTAL_MATCH_COUNT,
     build_initial_override,
     update_match,
     validate_override,
 )
 
 
-def test_scores_override_initialises_to_72_rows():
+def test_scores_override_initialises_to_group_plus_knockout_rows():
     frame = build_initial_override()
-    assert len(frame) == EXPECTED_MATCH_COUNT == 72
+    # 72 group matches + 32 knockout placeholders = 104 total.
+    assert len(frame) == TOTAL_MATCH_COUNT == 104
+    assert (frame["match_number"] <= EXPECTED_MATCH_COUNT).sum() == EXPECTED_MATCH_COUNT == 72
+    assert frame["match_number"].isin(KNOCKOUT_MATCH_NUMBERS).sum() == 32
     assert frame["match_number"].is_unique
     assert (frame["status"] == "scheduled").all()
     assert frame["team_a_goals"].isna().all()
     assert frame["team_b_goals"].isna().all()
+    # Knockout placeholders carry no team names until their feeders resolve.
+    knockout = frame[frame["match_number"].isin(KNOCKOUT_MATCH_NUMBERS)]
+    assert (knockout["team_a"] == "").all()
+    assert (knockout["team_b"] == "").all()
+    assert "advanced_team" in frame.columns
 
 
 def test_valid_score_update_changes_one_row():

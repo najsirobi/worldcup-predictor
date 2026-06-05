@@ -14,12 +14,15 @@ from pathlib import Path
 
 from src.live.scores_override import (
     EXPECTED_MATCH_COUNT,
+    KNOCKOUT_MATCH_NUMBERS,
     OVERRIDE_PATH,
     TEMPLATE_PATH,
+    TOTAL_MATCH_COUNT,
     build_initial_override,
     load_override,
     write_override,
 )
+from src.live.submission_guard import guard_frozen_submission
 
 
 def main() -> None:
@@ -33,22 +36,30 @@ def main() -> None:
     )
     args = parser.parse_args()
 
-    if args.out.exists() and not args.force:
-        existing = load_override(args.out)
-        played = (existing["status"] == "played").sum()
-        if played:
-            raise SystemExit(
-                f"{args.out} already exists with {played} played match(es). "
-                "Refusing to overwrite. Pass --force to reset to a blank slate."
-            )
+    with guard_frozen_submission("init_scores_override.py"):
+        if args.out.exists() and not args.force:
+            existing = load_override(args.out)
+            played = (existing["status"] == "played").sum()
+            if played:
+                raise SystemExit(
+                    f"{args.out} already exists with {played} played match(es). "
+                    "Refusing to overwrite. Pass --force to reset to a blank slate."
+                )
 
-    frame = build_initial_override(args.template)
-    if len(frame) != EXPECTED_MATCH_COUNT:
-        raise SystemExit(
-            f"Expected {EXPECTED_MATCH_COUNT} matches from template, got {len(frame)}."
+        frame = build_initial_override(args.template)
+        group_rows = int((frame["match_number"] <= EXPECTED_MATCH_COUNT).sum())
+        knockout_rows = int(frame["match_number"].isin(KNOCKOUT_MATCH_NUMBERS).sum())
+        if group_rows != EXPECTED_MATCH_COUNT or len(frame) != TOTAL_MATCH_COUNT:
+            raise SystemExit(
+                f"Expected {EXPECTED_MATCH_COUNT} group + {len(KNOCKOUT_MATCH_NUMBERS)} "
+                f"knockout = {TOTAL_MATCH_COUNT} matches, got {len(frame)} "
+                f"({group_rows} group, {knockout_rows} knockout)."
+            )
+        write_override(frame, args.out)
+        print(
+            f"Initialised {args.out} with {group_rows} group + {knockout_rows} "
+            f"knockout scheduled matches ({len(frame)} total)."
         )
-    write_override(frame, args.out)
-    print(f"Initialised {args.out} with {len(frame)} scheduled matches.")
 
 
 if __name__ == "__main__":

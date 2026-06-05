@@ -18,6 +18,7 @@ import pandas as pd
 
 from src.live.active_candidate import load_active_candidate
 from src.live.scores_override import utc_now_iso
+from src.live.submission_guard import guard_frozen_submission
 
 ROOT = Path(__file__).resolve().parents[1]
 LIVE_DIR = ROOT / "outputs" / "live"
@@ -119,17 +120,38 @@ def _match_date_map(*record_sets: list[dict]) -> dict[int, str]:
     return mapping
 
 
-def _submission_score_rows(scores: pd.DataFrame, date_map: dict[int, str]) -> tuple[list[dict], str]:
+def _submission_score_rows(
+    scores: pd.DataFrame,
+    date_map: dict[int, str],
+    fill_map: dict[int, dict],
+    prediction_vs_actual: list[dict],
+) -> tuple[list[dict], str]:
+    """Build per-match frozen submission rows with live actual overlays.
+
+    Submitted scores and copy-friendly lines come from the clean fill-only export
+    when present. Actual scores and points are overlaid from live
+    prediction-vs-actual scoring without changing the submitted score.
+    """
+    actual_by_match = {
+        int(row["match_number"]): row
+        for row in prediction_vs_actual
+        if row.get("match_number") is not None
+    }
     rows: list[dict] = []
     copy_lines: list[str] = []
     for row in scores.where(pd.notna(scores), None).to_dict(orient="records"):
-        team_a_goals, team_b_goals = _score_parts(row.get("final_recommended_score"))
         match_number = int(row.get("match_number")) if row.get("match_number") is not None else None
-        group = row.get("group") or ""
-        team_a = row.get("team_a") or ""
-        team_b = row.get("team_b") or ""
-        final_score = row.get("final_recommended_score") or ""
+        fill = fill_map.get(match_number, {})
+        group = fill.get("group") or row.get("group") or ""
+        team_a = fill.get("team_a") or row.get("team_a") or ""
+        team_b = fill.get("team_b") or row.get("team_b") or ""
+        # Authoritative score + copy line come from the fill-only export.
+        score = fill.get("score_to_fill_in") or row.get("final_recommended_score") or ""
+        copy_text = fill.get("copy_text") or f"{match_number}. {team_a} {score} {team_b}"
+        team_a_goals, team_b_goals = _score_parts(score)
         date = date_map.get(match_number) if match_number is not None else None
+        actual = actual_by_match.get(match_number or -1, {})
+        points_earned = actual.get("points_earned", actual.get("total_points"))
         rows.append(
             {
                 "match_number": match_number,
@@ -137,10 +159,15 @@ def _submission_score_rows(scores: pd.DataFrame, date_map: dict[int, str]) -> tu
                 "date": date,
                 "team_a": team_a,
                 "team_b": team_b,
-                "final_recommended_score": final_score,
+                "status": "locked/submitted",
+                "submitted_score": score,
+                "actual_score": actual.get("actual_score"),
+                "points_earned": points_earned,
+                "final_recommended_score": score,
+                "score_to_fill_in": score,
+                "copy_text": copy_text,
                 "predicted_team_a_goals": team_a_goals,
                 "predicted_team_b_goals": team_b_goals,
-                "score_to_fill_in": final_score,
                 "safe_score": row.get("safe_score"),
                 "ev_score": row.get("ev_score"),
                 "auto_consensus_score": row.get("auto_consensus_score"),
@@ -150,7 +177,7 @@ def _submission_score_rows(scores: pd.DataFrame, date_map: dict[int, str]) -> tu
                 "manual_review_resolved_auto": bool(row.get("manual_review_resolved_auto")),
             }
         )
-        copy_lines.append(f"{match_number}. {team_a} {final_score} {team_b}")
+        copy_lines.append(copy_text)
     return rows, "\n".join(copy_lines)
 
 
@@ -162,6 +189,40 @@ def _compare_strings(v1: list[dict], v2: list[dict], keys: list[str]) -> int:
     return changes
 
 
+FILL_ONLY_NAME = "final_group_score_predictions_fill_only.csv"
+
+
+def _load_fill_map(candidate_dir: Path) -> dict[int, dict]:
+    """Read the clean fill-only export keyed by match number."""
+    path = candidate_dir / FILL_ONLY_NAME
+    if not path.exists():
+        return {}
+    frame = pd.read_csv(path)
+    fill_map: dict[int, dict] = {}
+    for row in frame.where(pd.notna(frame), None).to_dict(orient="records"):
+        number = row.get("match_number")
+        if number is None:
+            continue
+        fill_map[int(number)] = {
+            "group": row.get("group"),
+            "team_a": row.get("team_a"),
+            "team_b": row.get("team_b"),
+            "score_to_fill_in": row.get("score_to_fill_in"),
+            "copy_text": row.get("copy_text"),
+        }
+    return fill_map
+
+
+def _load_knockout_predictions() -> dict:
+    """Build fresh knockout predictions; fall back to any cached JSON, then empty."""
+    try:
+        from scripts.build_knockout_predictions import build as build_knockout
+
+        return build_knockout()
+    except Exception:
+        return _read_json(LIVE_DIR / "knockout_predictions.json")
+
+
 def build_payload() -> dict:
     candidate_obj = load_active_candidate()
     candidate = candidate_obj.as_dict()
@@ -170,6 +231,7 @@ def build_payload() -> dict:
     sim = _read_json(LIVE_DIR / "live_group_stage_simulation_summary.json")
     pva = _read_json(LIVE_DIR / "prediction_vs_actual.json")
     scoring = _read_json(LIVE_DIR / "scoring_summary.json")
+    knockout = _load_knockout_predictions()
 
     played = _read_csv_records(LIVE_DIR / "played_matches.csv")
     remaining = _read_csv_records(LIVE_DIR / "remaining_matches.csv")
@@ -180,7 +242,14 @@ def build_payload() -> dict:
     last8_df = candidate_obj.load_last8_predictions()
     standings = standings_df.to_dict(orient="records")
     last8 = last8_df.to_dict(orient="records")
-    submission_scores, submission_copy_text = _submission_score_rows(scores, date_map)
+    fill_map = _load_fill_map(candidate_obj.candidate_dir)
+    prediction_vs_actual_matches = pva.get("matches", [])
+    submission_scores, submission_copy_text = _submission_score_rows(
+        scores,
+        date_map,
+        fill_map,
+        prediction_vs_actual_matches,
+    )
     review = _review_rows(scores)
 
     manual_auto_resolved = int(scores["manual_review_flag_original"].fillna(False).astype(bool).sum()) if "manual_review_flag_original" in scores.columns else 0
@@ -247,12 +316,14 @@ def build_payload() -> dict:
         },
         "tie_break_note": live_tables.get("tie_break_note", ""),
         "sim_tie_break_note": sim.get("tie_break_note", ""),
+        "semantics": live_tables.get("semantics", sim.get("semantics", {})),
+        "actual_bracket_state": live_tables.get("actual_bracket_state", {}),
         "played_matches": played,
         "remaining_matches": remaining[:24],
         "remaining_matches_total": len(remaining),
         "groups": live_tables.get("groups", {}),
         "advancement": sim.get("teams", []),
-        "prediction_vs_actual": pva.get("matches", []),
+        "prediction_vs_actual": prediction_vs_actual_matches,
         "scoring_summary": scoring_summary,
         "submission_summary": submission_summary,
         "submission_score_predictions": submission_scores,
@@ -261,6 +332,7 @@ def build_payload() -> dict:
         "submission_last8_picks": last8,
         "final_group_standings": standings,
         "last8_picks": last8,
+        "knockout_predictions": knockout,
         "manual_review": review,
     }
 
@@ -292,6 +364,17 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   th, td { text-align: right; padding: .28rem .3rem; border-bottom: 1px solid #232836; }
   th:first-child, td:first-child { text-align: left; }
   th { color: #8b93a4; font-weight: 600; }
+  /* Aligned tables: fixed layout so headers line up with cells on mobile. */
+  table.aligned { width: 100%; table-layout: fixed; border-collapse: collapse; }
+  table.aligned th, table.aligned td { padding: .3rem .25rem; border-bottom: 1px solid #232836; overflow: hidden; }
+  table.aligned th { color: #8b93a4; font-weight: 600; }
+  table.aligned .num { text-align: right; font-variant-numeric: tabular-nums; }
+  table.aligned .ctr { text-align: center; font-variant-numeric: tabular-nums; }
+  table.aligned .team { text-align: left; white-space: normal; word-break: break-word; }
+  table.aligned .rank { display: inline-block; min-width: 1.2rem; color: #8b93a4; font-variant-numeric: tabular-nums; }
+  table.aligned col.numcol { width: 1.9rem; }
+  table.aligned.standings-table th, table.aligned.standings-table td { text-align: left; white-space: normal; word-break: break-word; }
+  table.aligned.standings-table col.gcol { width: 1.8rem; }
   .grp { font-weight: 700; color: #aab3c5; margin: .6rem 0 .2rem; font-size: .9rem; }
   .adv { color: #4ade80; }
   .out { color: #f87171; }
@@ -349,11 +432,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 </header>
 <nav class="tabs" id="tabs">
   <a href="#overview">Overview</a>
-  <a href="#submit-scores">Submit Scores</a>
+  <a href="#submitted-scores">Submitted Scores</a>
   <a href="#group-standings">Group Standings</a>
   <a href="#last8">Last-8</a>
+  <a href="#knockout-predictions">Knockout</a>
   <a href="#live-results">Live Results</a>
   <a href="#prediction-vs-actual">Prediction vs Actual</a>
+  <a href="#live-group-tables">Live group tables</a>
+  <a href="#advancement">Advancement</a>
 </nav>
 <main id="app"></main>
 <script id="payload" type="application/json"><!--PAYLOAD_JSON_PLACEHOLDER--></script>
@@ -440,8 +526,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function validatePayload(raw) {
     const data = safeObject(raw);
-    const requiredObjects = ['active_candidate', 'summary', 'groups', 'scoring_summary'];
-    const requiredArrays = ['played_matches', 'remaining_matches', 'advancement', 'prediction_vs_actual', 'final_group_standings', 'last8_picks', 'manual_review'];
+    const requiredObjects = ['active_candidate', 'summary', 'groups', 'scoring_summary', 'submission_summary'];
+    const requiredArrays = ['played_matches', 'remaining_matches', 'advancement', 'prediction_vs_actual', 'submission_score_predictions', 'submission_group_standings', 'submission_last8_picks', 'final_group_standings', 'last8_picks', 'manual_review'];
     const errors = [];
 
     if (!data || typeof data !== 'object') {
@@ -481,6 +567,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       summary: safeObject(data.summary),
       tie_break_note: typeof data.tie_break_note === 'string' ? data.tie_break_note : '',
       sim_tie_break_note: typeof data.sim_tie_break_note === 'string' ? data.sim_tie_break_note : '',
+      semantics: safeObject(data.semantics),
+      actual_bracket_state: safeObject(data.actual_bracket_state),
       played_matches: safeArray(data.played_matches),
       remaining_matches: remainingMatches,
       remaining_matches_total: Number.isFinite(Number(data.remaining_matches_total)) ? Number(data.remaining_matches_total) : remainingMatches.length,
@@ -488,8 +576,14 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       advancement: safeArray(data.advancement),
       prediction_vs_actual: safeArray(data.prediction_vs_actual),
       scoring_summary: safeObject(data.scoring_summary),
+      submission_summary: safeObject(data.submission_summary),
+      submission_score_predictions: safeArray(data.submission_score_predictions),
+      submission_score_copy_text: typeof data.submission_score_copy_text === 'string' ? data.submission_score_copy_text : '',
+      submission_group_standings: safeArray(data.submission_group_standings),
+      submission_last8_picks: safeArray(data.submission_last8_picks),
       final_group_standings: safeArray(data.final_group_standings),
       last8_picks: safeArray(data.last8_picks),
+      knockout_predictions: safeObject(data.knockout_predictions),
       manual_review: safeArray(data.manual_review)
     };
   }
@@ -510,12 +604,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     if (!rows.length) {
       return '<p class="muted">No prediction-vs-actual data yet.</p>';
     }
-    let table = '<table><tr><th>#</th><th>Match</th><th>Pred</th><th>Actual</th><th>O</th><th>GD</th><th>Exact</th><th>Pts</th></tr>';
+    let table = '<table class="aligned">'
+      + '<colgroup><col class="numcol"><col><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"></colgroup>'
+      + '<tr><th class="num">#</th><th class="team">Match</th><th class="num">Submitted</th><th class="num">Actual</th><th class="num">Exact</th><th class="num">Points</th></tr>';
     let details = '';
     for (let i = 0; i < rows.length; i += 1) {
       const m = safeObject(rows[i]);
-      table += '<tr><td>' + fmtInt(m.match_number) + '</td><td style="text-align:left">' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + '</td><td>' + esc(m.predicted_score || '—') + '</td><td>' + esc(m.actual_score || '—') + '</td><td>' + (m.outcome_correct ? '✅' : '❌') + '</td><td>' + (m.goal_difference_correct ? '✅' : '❌') + '</td><td>' + (m.exact_score_correct ? '✅' : '❌') + '</td><td>' + fmtNum(m.total_points) + '</td></tr>';
-      details += '<details><summary>#' + fmtInt(m.match_number) + ' ' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + ' - ' + fmtNum(m.total_points) + ' pts</summary><p class="muted">' + esc(m.scoring_explanation || 'No explanation available.') + '</p></details>';
+      const points = m.points_earned != null ? m.points_earned : m.total_points;
+      table += '<tr><td class="num">' + fmtInt(m.match_number) + '</td><td class="team">' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + '</td><td class="num">' + esc(m.submitted_score || m.predicted_score || '—') + '</td><td class="num">' + esc(m.actual_score || '—') + '</td><td class="num">' + (m.exact_score_correct ? 'yes' : 'no') + '</td><td class="num">' + fmtNum(points) + '</td></tr>';
+      details += '<details><summary>#' + fmtInt(m.match_number) + ' ' + esc(m.team_a || '—') + ' v ' + esc(m.team_b || '—') + ' - ' + fmtNum(points) + ' points earned</summary><p class="muted">' + esc(m.scoring_explanation || 'No explanation available.') + '</p></details>';
     }
     table += '</table>';
     return table + details;
@@ -530,12 +627,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (!rows.length) {
         continue;
       }
-      html += '<div class="grp">Group ' + esc(groupName) + '</div><table><tr><th>Team</th><th>P</th><th>W</th><th>D</th><th>L</th><th>GD</th><th>Pts</th></tr>';
+      html += '<div class="grp">Group ' + esc(groupName) + '</div>'
+        + '<table class="aligned">'
+        + '<colgroup><col><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"><col class="numcol"></colgroup>'
+        + '<tr><th class="team">Team</th><th class="num">P</th><th class="num">W</th><th class="num">D</th><th class="num">L</th><th class="num">GF</th><th class="num">GA</th><th class="num">GD</th><th class="num">Pts</th></tr>';
       for (let j = 0; j < rows.length; j += 1) {
         const row = safeObject(rows[j]);
         const gd = Number(row.goal_difference);
         const gdText = Number.isFinite(gd) ? (gd >= 0 ? '+' : '') + fmtInt(gd) : '—';
-        html += '<tr><td>' + fmtInt(row.rank) + '. ' + esc(row.team || '—') + '</td><td>' + fmtInt(row.played) + '</td><td>' + fmtInt(row.won) + '</td><td>' + fmtInt(row.drawn) + '</td><td>' + fmtInt(row.lost) + '</td><td>' + gdText + '</td><td>' + fmtInt(row.points) + '</td></tr>';
+        html += '<tr><td class="team"><span class="rank">' + fmtInt(row.rank) + '</span>' + esc(row.team || '—') + '</td><td class="num">' + fmtInt(row.played) + '</td><td class="num">' + fmtInt(row.won) + '</td><td class="num">' + fmtInt(row.drawn) + '</td><td class="num">' + fmtInt(row.lost) + '</td><td class="num">' + fmtInt(row.goals_for) + '</td><td class="num">' + fmtInt(row.goals_against) + '</td><td class="num">' + gdText + '</td><td class="num">' + fmtInt(row.points) + '</td></tr>';
       }
       html += '</table>';
     }
@@ -632,6 +732,25 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return html;
   }
 
+  function renderProjectedFutureBracket(bracketState, advancement) {
+    const state = safeObject(bracketState);
+    const r32 = safeArray(state.round_of_32_matches);
+    let html = '<p class="muted"><b>Projected future bracket.</b> Submitted group-stage predictions stay locked; actual results pin only played matches and future projections use only unplayed fixtures.</p>';
+    html += '<p class="muted"><b>Future recommendation:</b> recommendations are future-only and apply only to matches that have not been played.</p>';
+    html += '<p class="muted">Bracket state: ' + esc(state.status || 'pending_group_stage') + '. ' + esc(state.note || '') + '</p>';
+    if (r32.length) {
+      html += '<table><tr><th>#</th><th>Team A</th><th>Team B</th></tr>';
+      for (let i = 0; i < r32.length; i += 1) {
+        const row = safeObject(r32[i]);
+        html += '<tr><td>' + fmtInt(row.match_number) + '</td><td>' + esc(row.team_a || '—') + '</td><td>' + esc(row.team_b || '—') + '</td></tr>';
+      }
+      html += '</table>';
+    } else if (advancement.length) {
+      html += '<p class="muted">Current future signal: advancement probabilities combine actual played results with frozen simulations for unplayed group matches.</p>';
+    }
+    return html;
+  }
+
   function renderValidationNotes(data) {
     const notes = [];
     if (data.tie_break_note) {
@@ -663,35 +782,41 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function renderOverview(data) {
     const summary = safeObject(data.submission_summary);
+    const liveSummary = safeObject(data.summary);
+    const scoring = safeObject(data.scoring_summary);
     const activeCandidate = safeObject(data.active_candidate);
+    // Practical, at-a-glance cards for frozen submissions and live scoring.
     const cards = [
-      ['Active candidate', activeCandidate.name || '—', activeCandidate.active_candidate_dir || '—'],
-      ['Total matches', fmtInt(summary.total_matches), 'all 72 picks are present'],
-      ['Auto-resolved', fmtInt(summary.manual_review_rows_auto_resolved), 'science-only policy'],
-      ['EV accepted', fmtInt(summary.ev_overrides_accepted), 'policy kept EV out'],
-      ['EV rejected', fmtInt(summary.ev_overrides_rejected), 'safe score kept'],
-      ['Safe scores kept', fmtInt(summary.safe_scores_kept), 'recommended submission stayed with safe score'],
-      ['Scores changed vs v1', fmtInt(summary.score_changes_vs_v1), 'should remain zero'],
-      ['Group standings changed vs v1', fmtInt(summary.group_standings_changed_vs_v1), 'two groups changed'],
-      ['Last-8 changed vs v1', fmtInt(summary.last8_changed_vs_v1), 'unchanged'],
+      ['Submitted predictions', fmtInt(summary.total_matches) + ' / 72', 'locked group-stage scores'],
+      ['Submitted group standings', fmtInt(safeArray(data.submission_group_standings).length) + ' / 12', 'rank 1-4 per group'],
+      ['Submitted Last-8 picks', fmtInt(safeArray(data.submission_last8_picks).length), 'quarters to winner'],
+      ['Matches played', fmtInt(liveSummary.matches_played) + ' / 72', fmtInt(liveSummary.matches_remaining) + ' remaining'],
     ];
+    if (Number(liveSummary.matches_played) > 0) {
+      cards.push(['Points earned', fmtNum(scoring.total_points), fmtNum(scoring.average_points_per_played_match) + ' avg/match']);
+    }
     let html = '<div class="summary-grid">';
     for (let i = 0; i < cards.length; i += 1) {
       const card = cards[i];
       html += '<div class="summary-card"><b>' + esc(card[0]) + '</b><span>' + esc(card[1]) + '</span><div class="muted" style="margin-top:.35rem">' + esc(card[2]) + '</div></div>';
     }
     html += '</div>';
-    html += '<p class="muted" style="margin-top:.75rem">Science-only submission: auto-resolved by policy, with safe scores kept where EV was rejected.</p>';
-    html += '<ul class="policy-list">';
-    html += '<li>Original manual-review flags are preserved for audit only.</li>';
-    html += '<li>The submission sheet is fully auto-resolved by science-only policy.</li>';
-    html += '<li>Use the Submit Scores section below to copy the 72 recommended results.</li>';
-    html += '</ul>';
+    html += '<p class="muted" style="margin-top:.75rem">Submitted prediction files are frozen. Actual result updates are isolated to prediction-vs-actual scoring, the live group table, actual bracket state, and future-only projections.</p>';
+    // Audit/policy detail is secondary — kept collapsed, not shown by default.
+    html += '<details class="audit-details"><summary>Audit details (how the picks were chosen)</summary><div class="row-meta" style="margin-top:.5rem">'
+      + '<span class="pill">Auto-resolved rows: ' + fmtInt(summary.manual_review_rows_auto_resolved) + '</span>'
+      + '<span class="pill">EV overrides accepted: ' + fmtInt(summary.ev_overrides_accepted) + '</span>'
+      + '<span class="pill">EV overrides rejected: ' + fmtInt(summary.ev_overrides_rejected) + '</span>'
+      + '<span class="pill">Safe scores kept: ' + fmtInt(summary.safe_scores_kept) + '</span>'
+      + '</div><p class="muted" style="margin:.45rem 0 0">Active candidate: ' + esc(activeCandidate.name || '—') + '. See <code>outputs/reports/score_selection_policy_dashboard_note.md</code> for the full selection policy.</p></details>';
     return html;
   }
 
   function copyLine(row) {
-    const score = row.score_to_fill_in || row.final_recommended_score || '—';
+    if (row.copy_text) {
+      return String(row.copy_text);
+    }
+    const score = row.submitted_score || row.score_to_fill_in || row.final_recommended_score || '—';
     return fmtInt(row.match_number) + '. ' + (row.team_a || '—') + ' ' + score + ' ' + (row.team_b || '—');
   }
 
@@ -701,7 +826,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function renderSubmissionScores(rows, copyText) {
     if (!rows.length) {
-      return '<p class="muted">No score predictions available.</p>';
+      return '<p class="muted">No submitted score predictions available.</p>';
     }
     const byGroup = {};
     for (let i = 0; i < rows.length; i += 1) {
@@ -715,10 +840,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     const groupKeys = Object.keys(byGroup).sort();
     const total = rows.length;
 
-    let html = '<p class="muted"><b>Scores to fill in.</b> There is exactly <b>one</b> score to submit per match — the <b>Score to fill in</b> shown in green. Safe / EV / consensus values are alternatives kept for audit only; you do not submit those.</p>';
+    let html = '<p class="muted"><b>Submitted prediction.</b> These group-stage score predictions are locked/submitted. Actual results can earn points and update live tables while submitted picks remain unchanged.</p>';
 
-    // "All scores to fill in" copy block.
-    html += '<div class="copybar"><b>All scores to fill in</b>' + copyButton('scores-copy', 'Copy all scores') + '<span class="muted">' + fmtInt(total) + ' lines</span></div>';
+    // "All submitted predictions" copy block.
+    html += '<div class="copybar"><b>All submitted predictions</b>' + copyButton('scores-copy', 'Copy all scores') + '<span class="muted">' + fmtInt(total) + ' lines</span></div>';
     html += '<pre class="copyblock" id="scores-copy">' + esc(copyText) + '</pre>';
 
     // Per-group copy blocks (collapsed by default).
@@ -743,7 +868,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       let groupHtml = '';
       for (let j = 0; j < groupRows.length; j += 1) {
         const row = safeObject(groupRows[j]);
-        const score = row.score_to_fill_in || row.final_recommended_score || '—';
+        const score = row.submitted_score || row.score_to_fill_in || row.final_recommended_score || '—';
+        const actualScore = row.actual_score || 'Pending';
+        const pointsEarned = row.points_earned == null ? 'Pending' : fmtNum(row.points_earned);
         const policy = String(row.auto_policy_decision || '');
         let policyExplain = 'Selected by the science-only policy.';
         if (policy === 'ev_override_accepted') {
@@ -753,8 +880,8 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         } else {
           policyExplain = 'Safe alternative kept: the EV alternative did not clear the strict override threshold.';
         }
-        // Primary line: match number, team A, score, team B.
-        groupHtml += '<article class="row-card"><div class="row-top"><div><div class="label">Match ' + fmtInt(row.match_number) + (row.date ? ' · ' + esc(row.date) : '') + '</div><div class="row-title">' + esc(row.team_a || '—') + ' vs ' + esc(row.team_b || '—') + '</div></div><div><div class="label">Score to fill in</div><div class="score-big">' + esc(score) + '</div></div></div>';
+        // Primary line: submitted score, actual score, points earned, locked status.
+        groupHtml += '<article class="row-card"><div class="row-top"><div><div class="label">Match ' + fmtInt(row.match_number) + (row.date ? ' · ' + esc(row.date) : '') + '</div><div class="row-title">' + esc(row.team_a || '—') + ' vs ' + esc(row.team_b || '—') + '</div><div class="row-meta"><span class="pill">status: ' + esc(row.status || 'locked/submitted') + '</span></div></div><div><div class="label">Submitted prediction</div><div class="score-big">' + esc(score) + '</div><div class="muted" style="margin-top:.25rem">Actual result: ' + esc(actualScore) + '</div><div class="muted">Points earned: ' + esc(pointsEarned) + '</div></div></div>';
         groupHtml += '<div class="row-copy">' + esc(copyLine(row)) + '</div>';
         // Secondary, collapsed audit details.
         groupHtml += '<details class="audit-details"><summary>Why? / Audit details</summary><div class="row-meta">'
@@ -772,12 +899,123 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return html;
   }
 
+  function nextRoundStatusLabel(row) {
+    if (row.status === 'played') return 'played';
+    if (row.status === 'teams_set') return 'teams_set';
+    return 'projected — pending previous results';
+  }
+
+  function renderNextRound(data) {
+    const matches = safeArray(data.next_round_matches);
+    const label = data.next_round_label;
+    if (!matches.length || !label) {
+      const all = safeArray(data.matches);
+      const allPlayed = all.length > 0 && all.every(function(m) { return safeObject(m).status === 'played'; });
+      const msg = allPlayed
+        ? 'All knockout rounds are complete.'
+        : 'No knockout round ready yet — waiting for group stage results.';
+      return '<div class="subcard"><h3>Next round to predict</h3><p class="muted">' + esc(msg) + '</p></div>';
+    }
+    let html = '<div class="subcard"><h3><span>Next round to predict</span><span class="pill">' + esc(label) + '</span></h3>';
+    html += '<p class="muted">The full <b>' + esc(label) + '</b> (' + fmtInt(matches.length) + ' matches). Played matches show the <b>Actual result</b>; matches without both real participants yet show the best <b>Projected matchup</b>, labelled <i>projected — pending previous results</i>.</p>';
+    html += '<div class="copybar"><b>Copy ' + esc(label) + '</b>' + copyButton('next-round-copy', 'Copy round') + '<span class="muted">' + fmtInt(matches.length) + ' lines</span></div>';
+    html += '<pre class="copyblock" id="next-round-copy">' + esc(data.next_round_copy_text || '') + '</pre>';
+    for (let j = 0; j < matches.length; j += 1) {
+      const row = safeObject(matches[j]);
+      const teamA = row.current_team_a || row.projected_team_a || 'TBD';
+      const teamB = row.current_team_b || row.projected_team_b || 'TBD';
+      const score = row.current_score || row.projected_score || '—';
+      const adv = row.current_advancing_team || row.projected_advancing_team || '—';
+      const so = row.current_shootout ? '<span class="pill">shoot-out</span>' : '';
+      const played = row.status === 'played';
+      const bigLabel = played ? 'Actual result' : 'Current recommendation';
+      const bigValue = played ? (row.actual_score || score) : score;
+      html += '<article class="row-card"><div class="row-top"><div>'
+        + '<div class="label">Match ' + fmtInt(row.match_number) + ' · ' + esc(row.round_label || label) + '</div>'
+        + '<div class="row-title">' + esc(teamA) + ' vs ' + esc(teamB) + '</div>'
+        + '<div class="row-meta"><span class="pill">status: ' + esc(nextRoundStatusLabel(row)) + '</span>' + so + '<span class="pill">advances: ' + esc(adv) + '</span></div>'
+        + '</div><div><div class="label">' + bigLabel + '</div><div class="score-big">' + esc(bigValue) + '</div>'
+        + (played && row.points_earned_estimate != null ? '<div class="muted" style="margin-top:.25rem">Points (est.): ' + fmtNum(row.points_earned_estimate) + '</div>' : '')
+        + '</div></div>';
+      html += '<div class="row-copy">' + esc(row.copy_text || '') + '</div>';
+      html += '<details class="audit-details"><summary>Projected matchup vs current recommendation</summary><div class="row-meta">'
+        + '<span class="pill">Projected matchup: ' + esc(row.projected_team_a || 'TBD') + ' ' + esc(row.projected_score || '—') + ' ' + esc(row.projected_team_b || 'TBD') + ' (adv ' + esc(row.projected_advancing_team || '—') + ')</span>'
+        + '<span class="pill">Current recommendation: ' + esc(teamA) + ' ' + esc(score) + ' ' + esc(teamB) + ' (adv ' + esc(adv) + ')</span>'
+        + (row.actual_score ? '<span class="pill">Actual result: ' + esc(row.actual_score) + (row.actual_advancing_team ? ' (adv ' + esc(row.actual_advancing_team) + ')' : '') + '</span>' : '')
+        + '</div></details></article>';
+    }
+    html += '</div>';
+    return html;
+  }
+
+  function renderKnockoutPredictions(knockout) {
+    const data = safeObject(knockout);
+    const matches = safeArray(data.matches);
+    if (!matches.length) {
+      return '<p class="muted">No knockout predictions available yet. They are generated from the projected bracket and refresh as actual results arrive.</p>'
+        + renderNextRound(data);
+    }
+    const rounds = safeArray(data.rounds);
+    const labels = safeObject(data.round_labels);
+    const byRound = safeObject(data.matches_by_round);
+    const groupComplete = !!data.group_stage_complete;
+
+    let html = '<p class="muted"><b>Knockout match predictions</b> — predicted exact score, who advances, and the shoot-out call for every match (rules: correct team x odd, +2 exact score, +2 shoot-out). These are <b>future recommendations</b> entered round by round: enter the previous round\'s actual results and the next round\'s real participants resolve here, so you always see predictions for the teams that are actually through. Your submitted group-stage scores stay locked.</p>';
+    html += '<p class="muted">Teams shown are ' + (groupComplete ? 'the <b>actual</b> qualifiers.' : 'the model\'s <b>projected</b> bracket until real results arrive.') + ' The <b>projected</b> line is your original up-front gamble; the <b>current</b> line is the refreshed recommendation, so you can compare them.</p>';
+
+    // The full next unresolved round, shown prominently at the top.
+    html += renderNextRound(data);
+
+    // "All knockout predictions" copy block.
+    html += '<div class="copybar"><b>All knockout predictions</b>' + copyButton('knockout-copy', 'Copy all') + '<span class="muted">' + fmtInt(matches.length) + ' matches</span></div>';
+    html += '<pre class="copyblock" id="knockout-copy">' + esc(data.copy_text || '') + '</pre>';
+
+    const roundKeys = rounds.length ? rounds : Object.keys(byRound);
+    for (let i = 0; i < roundKeys.length; i += 1) {
+      const roundName = roundKeys[i];
+      const roundRows = safeArray(byRound[roundName]);
+      if (!roundRows.length) {
+        continue;
+      }
+      let roundHtml = '';
+      let roundCopy = '';
+      for (let j = 0; j < roundRows.length; j += 1) {
+        const row = safeObject(roundRows[j]);
+        if (row.copy_text) {
+          roundCopy += (roundCopy ? '\\n' : '') + row.copy_text;
+        }
+        const teamA = row.current_team_a || row.projected_team_a || 'TBD';
+        const teamB = row.current_team_b || row.projected_team_b || 'TBD';
+        const score = row.current_score || row.projected_score || '—';
+        const adv = row.current_advancing_team || row.projected_advancing_team || '—';
+        const soTag = row.current_shootout ? '<span class="pill">shoot-out</span>' : '';
+        const statusPill = '<span class="pill">status: ' + esc(row.status || 'projected') + '</span>';
+        const teamsPill = '<span class="pill">teams: ' + esc(row.teams_source || 'projected') + '</span>';
+        roundHtml += '<article class="row-card"><div class="row-top"><div><div class="label">Match ' + fmtInt(row.match_number) + ' · ' + esc(row.round_label || roundName) + '</div><div class="row-title">' + esc(teamA) + ' vs ' + esc(teamB) + '</div><div class="row-meta">' + statusPill + teamsPill + '<span class="pill">advances: ' + esc(adv) + '</span>' + soTag + '</div></div><div><div class="label">Predicted score</div><div class="score-big">' + esc(score) + '</div></div></div>';
+        // Comparison: projected gamble vs current + actual result when played.
+        roundHtml += '<details class="audit-details"><summary>Compare gambles' + (row.status === 'played' ? ' &amp; result' : '') + '</summary><div class="row-meta">'
+          + '<span class="pill">Projected: ' + esc(row.projected_team_a || 'TBD') + ' ' + esc(row.projected_score || '—') + ' ' + esc(row.projected_team_b || 'TBD') + ' (adv ' + esc(row.projected_advancing_team || '—') + ')</span>'
+          + '<span class="pill">Current: ' + esc(teamA) + ' ' + esc(score) + ' ' + esc(teamB) + ' (adv ' + esc(adv) + ')</span>'
+          + (row.actual_score ? '<span class="pill">Actual result: ' + esc(row.actual_score) + (row.actual_advancing_team ? ' (adv ' + esc(row.actual_advancing_team) + ')' : '') + '</span>' : '<span class="pill">Actual result: pending</span>')
+          + (row.points_earned_estimate == null ? '' : '<span class="pill">Points (est.): ' + fmtNum(row.points_earned_estimate) + '</span>')
+          + '</div></details></article>';
+      }
+      const blockId = 'knockout-copy-' + esc(roundName);
+      let inner = '<div class="copybar"><b>' + esc(labels[roundName] || roundName) + '</b>' + copyButton(blockId, 'Copy round') + '</div>';
+      inner += '<pre class="copyblock" id="' + blockId + '">' + esc(roundCopy) + '</pre>' + roundHtml;
+      html += '<details class="group-summary"' + (roundName === 'R32' ? ' open' : '') + '><summary class="group-summary">' + esc(labels[roundName] || roundName) + ' (' + fmtInt(roundRows.length) + ' matches)</summary>' + inner + '</details>';
+    }
+    return html;
+  }
+
   function renderSubmissionStandings(rows) {
     if (!rows.length) {
-      return '<p class="muted">No group standings predictions available.</p>';
+      return '<p class="muted">No submitted group standings available.</p>';
     }
-    let html = '<p class="muted"><b>Group standings to fill in.</b> Fill in these group standings exactly as shown.</p>';
-    html += '<table><tr><th>G</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th></tr>';
+    let html = '<p class="muted"><b>Group standings to fill in.</b> These are your <b>Submitted prediction</b> of the final group order (rank 1-4), locked/submitted and separate from the live group table.</p>';
+    html += '<table class="aligned standings-table">'
+      + '<colgroup><col class="gcol"><col><col><col><col></colgroup>'
+      + '<tr><th>G</th><th>1st</th><th>2nd</th><th>3rd</th><th>4th</th></tr>';
     for (let i = 0; i < rows.length; i += 1) {
       const row = safeObject(rows[i]);
       html += '<tr><td>' + esc(row.group || '—') + '</td><td>' + esc(row.rank_1 || '—') + '</td><td>' + esc(row.rank_2 || '—') + '</td><td>' + esc(row.rank_3 || '—') + '</td><td>' + esc(row.rank_4 || '—') + '</td></tr>';
@@ -787,7 +1025,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
   function renderSubmissionLast8(rows) {
     if (!rows.length) {
-      return '<p class="muted">No Last-8 picks available.</p>';
+      return '<p class="muted">No submitted Last-8 picks available.</p>';
     }
     const stageOrder = ['quarter_finalist', 'semi_finalist', 'finalist', 'winner'];
     const grouped = {};
@@ -807,7 +1045,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       if (bi === -1) return -1;
       return ai - bi;
     });
-    let html = '<p class="muted"><b>Last-8 / progression picks to fill in.</b> These are unchanged from the prior candidate.</p>';
+    let html = '<p class="muted"><b>Submitted prediction.</b> These Last-8 / progression picks are locked/submitted. Future recommendation output must stay future-only.</p>';
     for (let i = 0; i < keys.length; i += 1) {
       const stageName = keys[i];
       const stageRows = grouped[stageName];
@@ -858,6 +1096,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const submissionStandings = safeArray(data.submission_group_standings);
       const submissionLast8 = safeArray(data.submission_last8_picks);
       const manualReview = safeArray(data.manual_review);
+      const bracketState = safeObject(data.actual_bracket_state);
       const byGroup = safeObject(scoringSummary.total_by_group);
 
       if (metaEl) {
@@ -878,6 +1117,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const submitHtml = renderSubmissionScores(submissionScores, data.submission_score_copy_text || '');
       const standingsHtml = renderSubmissionStandings(submissionStandings);
       const last8Html = renderSubmissionLast8(submissionLast8);
+      const knockoutHtml = renderKnockoutPredictions(data.knockout_predictions);
 
       let instructionsHtml = '<p><b>Score input instructions:</b> Use the GitHub Actions workflow or an issue comment with a <code>/WK-SCORES</code> block.</p>';
       instructionsHtml += '<p class="muted">The dashboard uses the inline payload first and only fetches <code>./mobile_dashboard_data.json</code> when the inline payload is absent.</p>';
@@ -905,27 +1145,35 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       const pvaHtml = renderPredictionVsActual(predictionVsActual);
       const groupsHtml = renderGroups(groups);
       const advancementHtml = renderAdvancement(advancement);
+      const projectedFutureBracketHtml = renderProjectedFutureBracket(bracketState, advancement);
       const remainingHtml = renderRemainingMatches(remainingMatches, data.remaining_matches_total);
       const auditHtml = renderValidationNotes({ tie_break_note: data.tie_break_note, sim_tie_break_note: data.sim_tie_break_note, manual_review: manualReview });
+      const sims = Number.isFinite(Number(summary.n_sims)) ? Number(summary.n_sims).toLocaleString() + ' sims' : null;
+      // Live results: tracking only, shown after the submission sections.
       const liveHtml = [
         buildSubcard('Score input instructions', instructionsHtml),
         buildSubcard('Played matches', playedHtml, fmtInt(summary.matches_played) + '/72'),
         buildSubcard('Points earned / scoring summary', scoringHtml),
-        buildSubcard('Live group tables', groupsHtml),
-        buildSubcard('Advancement probabilities', advancementHtml, Number.isFinite(Number(summary.n_sims)) ? Number(summary.n_sims).toLocaleString() + ' sims' : null),
-        buildSubcard('Remaining matches', remainingHtml, fmtInt(summary.matches_remaining) + ' left'),
-        buildSubcard('Science-only policy notes', auditHtml)
+        buildSubcard('Remaining matches', remainingHtml, fmtInt(summary.matches_remaining) + ' left')
       ].join('');
+      // Audit/validation kept secondary and collapsed (not an action item).
+      const auditCollapsed = '<details class="audit-details"><summary>Audit &amp; validation notes</summary>' + auditHtml + '</details>';
 
       const filesHtml = '<div class="filelinks"><a href="prediction_vs_actual.csv">pva.csv</a> <a href="scoring_summary.csv">score.csv</a> <a href="live_group_tables.csv">tables.csv</a> <a href="mobile_dashboard_data.json">data.json</a></div>';
 
+      const liveGroupTablesHtml = '<p class="muted">Live group table built from actual played results. Your submitted group standings above stay locked.</p>' + groupsHtml;
+      const bracketHtml = '<p class="muted">Advancement combines actual played results with frozen simulations of unplayed matches.</p>' + advancementHtml + projectedFutureBracketHtml;
+
       app.innerHTML = [
         buildSection('overview', 'Overview', 'live', overviewHtml),
-        buildSection('submit-scores', 'Submit Scores', fmtInt(submissionScores.length) + ' matches', submitHtml),
-        buildSection('group-standings', 'Group Standings', 'to fill in', standingsHtml),
-        buildSection('last8', 'Last-8', 'to fill in', last8Html),
-        buildSection('live-results', 'Live Results', null, liveHtml + filesHtml),
-        buildSection('prediction-vs-actual', 'Prediction vs Actual', fmtInt(predictionVsActual.length) + ' scored', pvaHtml)
+        buildSection('submitted-scores', 'Scores to fill in', fmtInt(submissionScores.length) + ' matches', submitHtml),
+        buildSection('group-standings', 'Group standings to fill in', 'submitted', standingsHtml),
+        buildSection('last8', 'Last-8 to fill in', 'submitted', last8Html),
+        buildSection('knockout-predictions', 'Knockout predictions', safeArray(safeObject(data.knockout_predictions).matches).length + ' matches', knockoutHtml),
+        buildSection('live-results', 'Live results', null, liveHtml + filesHtml + auditCollapsed),
+        buildSection('prediction-vs-actual', 'Prediction vs Actual', fmtInt(predictionVsActual.length) + ' scored', pvaHtml),
+        buildSection('live-group-tables', 'Live group tables', null, liveGroupTablesHtml),
+        buildSection('advancement', 'Advancement / bracket projections', sims, bracketHtml)
       ].join('');
     } catch (err) {
       showError('Render failed', err, data);
@@ -945,20 +1193,21 @@ def render_html(payload: dict) -> str:
 
 
 def main() -> None:
-    LIVE_DIR.mkdir(parents=True, exist_ok=True)
-    DOCS_DIR.mkdir(parents=True, exist_ok=True)
-    payload = build_payload()
-    payload_json = _payload_json(payload, indent=2)
-    (LIVE_DIR / "mobile_dashboard_data.json").write_text(payload_json, encoding="utf-8")
-    html = render_html(payload)
-    (LIVE_DIR / "mobile_dashboard.html").write_text(html, encoding="utf-8")
-    shutil.copyfile(LIVE_DIR / "mobile_dashboard.html", DOCS_DIR / "index.html")
-    shutil.copyfile(LIVE_DIR / "mobile_dashboard_data.json", DOCS_DIR / "mobile_dashboard_data.json")
-    print(
-        f"Built mobile dashboard for {payload['active_candidate']['name']}: "
-        f"{payload['summary']['matches_played']}/72 played, "
-        f"{payload['scoring_summary']['total_points']:g} points. Wrote HTML + JSON."
-    )
+    with guard_frozen_submission("build_mobile_dashboard.py"):
+        LIVE_DIR.mkdir(parents=True, exist_ok=True)
+        DOCS_DIR.mkdir(parents=True, exist_ok=True)
+        payload = build_payload()
+        payload_json = _payload_json(payload, indent=2)
+        (LIVE_DIR / "mobile_dashboard_data.json").write_text(payload_json, encoding="utf-8")
+        html = render_html(payload)
+        (LIVE_DIR / "mobile_dashboard.html").write_text(html, encoding="utf-8")
+        shutil.copyfile(LIVE_DIR / "mobile_dashboard.html", DOCS_DIR / "index.html")
+        shutil.copyfile(LIVE_DIR / "mobile_dashboard_data.json", DOCS_DIR / "mobile_dashboard_data.json")
+        print(
+            f"Built mobile dashboard for {payload['active_candidate']['name']}: "
+            f"{payload['summary']['matches_played']}/72 played, "
+            f"{payload['scoring_summary']['total_points']:g} points. Wrote HTML + JSON."
+        )
 
 
 if __name__ == "__main__":

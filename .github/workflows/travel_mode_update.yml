@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
     inputs:
       match_number:
-        description: "Match number (1-72). Leave blank to just refresh outputs."
+        description: "Match number (1-72 group, 73-104 knockout). Leave blank to just refresh outputs."
         required: false
         type: string
       team_a_goals:
@@ -35,6 +35,10 @@ on:
           - void
       notes:
         description: "Optional notes for this match"
+        required: false
+        type: string
+      advanced_team:
+        description: "Knockout only: team that advances if the match is level (shoot-out)"
         required: false
         type: string
 
@@ -77,6 +81,7 @@ jobs:
           if [ -n "${{ inputs.team_a_goals }}" ]; then ARGS="$ARGS --team-a-goals ${{ inputs.team_a_goals }}"; fi
           if [ -n "${{ inputs.team_b_goals }}" ]; then ARGS="$ARGS --team-b-goals ${{ inputs.team_b_goals }}"; fi
           if [ -n "${{ inputs.notes }}" ]; then ARGS="$ARGS --notes \"${{ inputs.notes }}\" --source github_actions"; fi
+          if [ -n "${{ inputs.advanced_team }}" ]; then ARGS="$ARGS --advanced-team \"${{ inputs.advanced_team }}\""; fi
           eval python scripts/update_score_override.py $ARGS
 
       - name: Recompute live tournament state
@@ -87,6 +92,9 @@ jobs:
 
       - name: Score predictions vs actuals
         run: python scripts/score_predictions_vs_actuals.py
+
+      - name: Build knockout predictions
+        run: python scripts/build_knockout_predictions.py
 
       - name: Build mobile dashboard
         run: python scripts/build_mobile_dashboard.py
@@ -102,6 +110,8 @@ jobs:
           cp outputs/live/scoring_summary.csv docs/scoring_summary.csv
           cp outputs/live/played_matches.csv docs/played_matches.csv
           cp outputs/live/remaining_matches.csv docs/remaining_matches.csv
+          cp outputs/live/knockout_predictions.csv docs/knockout_predictions.csv
+          cp outputs/live/knockout_predictions.json docs/knockout_predictions.json
 
       - name: Commit generated live outputs
         run: |

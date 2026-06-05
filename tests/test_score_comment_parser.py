@@ -66,3 +66,44 @@ def test_notes_with_comma_is_preserved():
     )
     rows = parse_comment(body)
     assert rows[0]["notes"] == "big upset, late winner"
+
+
+def test_six_column_knockout_header_parses_advanced_team():
+    body = (
+        "/WK-SCORES\n"
+        "match_number,team_a_goals,team_b_goals,status,notes,advanced_team\n"
+        "73,1,1,played,R32 penalties,Canada\n"
+        "74,2,0,played,R32,\n"
+        "/END-WK-SCORES"
+    )
+    rows = parse_comment(body)
+    assert rows[0] == {
+        "match_number": "73",
+        "team_a_goals": "1",
+        "team_b_goals": "1",
+        "status": "played",
+        "notes": "R32 penalties",
+        "advanced_team": "Canada",
+    }
+    # Decisive knockout row: advanced_team may be blank.
+    assert rows[1]["advanced_team"] == ""
+    assert rows[1]["notes"] == "R32"
+
+
+def test_six_column_notes_with_comma_keeps_advanced_team_last():
+    body = (
+        "/WK-SCORES\n"
+        "match_number,team_a_goals,team_b_goals,status,notes,advanced_team\n"
+        "73,1,1,played,tight game, on pens,Mexico\n"
+        "/END-WK-SCORES"
+    )
+    rows = parse_comment(body)
+    assert rows[0]["notes"] == "tight game, on pens"
+    assert rows[0]["advanced_team"] == "Mexico"
+
+
+def test_five_column_group_comment_still_backward_compatible():
+    # The original 5-column format must keep working unchanged.
+    rows = parse_comment(VALID)
+    assert "advanced_team" not in rows[0]
+    assert len(rows) == 2

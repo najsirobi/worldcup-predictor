@@ -1,11 +1,19 @@
 name: Score comment update
 
-# Update live group-stage scores by posting a GitHub Issue comment from your
-# phone. The comment must contain a /WK-SCORES ... /END-WK-SCORES block, e.g.:
+# Update live scores by posting a GitHub Issue comment from your phone. The
+# comment must contain a /WK-SCORES ... /END-WK-SCORES block, e.g.:
 #
 #   /WK-SCORES
 #   match_number,team_a_goals,team_b_goals,status,notes
 #   1,2,1,played,Mexico v South Africa
+#   /END-WK-SCORES
+#
+# Knockout matches (73-104) use the same 5-column form, or a 6-column form with
+# an optional advanced_team naming the shoot-out winner when a tie is level:
+#
+#   /WK-SCORES
+#   match_number,team_a_goals,team_b_goals,status,notes,advanced_team
+#   73,1,1,played,R32 penalties,Canada
 #   /END-WK-SCORES
 #
 # Guardrails: this workflow NEVER trains models, fetches APIs, or touches raw
@@ -72,6 +80,10 @@ jobs:
         if: success()
         run: python scripts/score_predictions_vs_actuals.py
 
+      - name: Build knockout predictions
+        if: success()
+        run: python scripts/build_knockout_predictions.py
+
       - name: Build mobile dashboard
         if: success()
         run: python scripts/build_mobile_dashboard.py
@@ -88,6 +100,8 @@ jobs:
           cp outputs/live/scoring_summary.csv docs/scoring_summary.csv
           cp outputs/live/played_matches.csv docs/played_matches.csv
           cp outputs/live/remaining_matches.csv docs/remaining_matches.csv
+          cp outputs/live/knockout_predictions.csv docs/knockout_predictions.csv
+          cp outputs/live/knockout_predictions.json docs/knockout_predictions.json
 
       - name: Commit generated live outputs
         if: success()

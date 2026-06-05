@@ -33,6 +33,8 @@ DETAIL_COLUMNS = [
     "group",
     "team_a",
     "team_b",
+    "status",
+    "submitted_score",
     "predicted_score",
     "predicted_team_a_goals",
     "predicted_team_b_goals",
@@ -50,6 +52,7 @@ DETAIL_COLUMNS = [
     "outcome_points",
     "goal_difference_bonus",
     "exact_score_bonus",
+    "points_earned",
     "total_points",
     "max_possible_points_for_match",
     "points_missed",
@@ -238,6 +241,9 @@ def score_predictions_vs_actuals(
                 "group": s["group"],
                 "team_a": s["team_a"],
                 "team_b": s["team_b"],
+                "status": "locked/submitted",
+                "submitted_score": scored["predicted_score"],
+                "points_earned": scored["total_points"],
             }
         )
         rows.append(scored)

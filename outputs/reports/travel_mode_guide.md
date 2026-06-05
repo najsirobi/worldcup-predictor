@@ -37,13 +37,19 @@ Once, before the tournament:
 python scripts/init_scores_override.py
 ```
 
-This creates `data/live/scores_override.csv` with all 72 group matches set to
-`scheduled` and empty goals. It refuses to overwrite a file that already has
-played matches unless you pass `--force`.
+This creates `data/live/scores_override.csv` with all **104** matches set to
+`scheduled` and empty goals: the **72 group matches** (1-72) plus **32 knockout
+placeholders** (73-104, Round of 32 → Final). Knockout rows start with blank
+team names because their participants are only known once the feeding matches
+resolve. It refuses to overwrite a file that already has played matches unless
+you pass `--force`. (Files created before knockout support are migrated
+automatically: the 73-104 rows and the `advanced_team` column are added on load.)
 
 Columns: `match_number, group, date, team_a, team_b, team_a_goals,
-team_b_goals, status, source, updated_at, notes`. Status is one of
-`scheduled | played | postponed | void`.
+team_b_goals, status, source, updated_at, notes, advanced_team`. Status is one of
+`scheduled | played | postponed | void`. `advanced_team` is knockout-only and
+names the side that goes through when a knockout match is level after extra time
+(a shoot-out).
 
 ---
 
@@ -51,11 +57,13 @@ team_b_goals, status, source, updated_at, notes`. Status is one of
 
 1. Open the repo on GitHub → **Actions** tab → **Travel Mode update**.
 2. Tap **Run workflow**.
-3. Fill in `match_number`, `team_a_goals`, `team_b_goals`; leave `status` as
-   `played`. Add `notes` if you like.
+3. Fill in `match_number` (1-72 group, **73-104 knockout**), `team_a_goals`,
+   `team_b_goals`; leave `status` as `played`. Add `notes` if you like. For a
+   **knockout** match that finished level (decided on penalties), also fill in
+   `advanced_team` with the side that went through.
 4. **Run workflow**. After ~1 minute it has updated the score, recomputed
-   everything (tables, simulations, prediction-vs-actual points), rebuilt the
-   dashboard and committed `docs/index.html`.
+   everything (tables, simulations, prediction-vs-actual points, knockout
+   predictions), rebuilt the dashboard and committed `docs/index.html`.
 5. Open your GitHub Pages URL (or reload it) to see the update.
 
 This runs `scripts/update_score_override.py` under the hood.
@@ -103,7 +111,40 @@ python scripts/apply_scores_batch_update.py
 
 Same all-or-nothing validation: one bad row rejects the whole batch. A report is
 written to `outputs/reports/scores_batch_update_report.md`. Changed rows are
-stamped `source=batch_update`.
+stamped `source=batch_update`. Knockout rows may add an optional sixth column
+`advanced_team`.
+
+---
+
+## 4b. Enter knockout match scores (73-104)
+
+Knockout results are entered the **same way** as group scores (single match via
+Actions, issue comment, or batch CSV) — just use a `match_number` in **73-104**:
+
+- **73-88** = Round of 32, **89-96** = Round of 16, **97-100** = Quarter-finals,
+  **101-102** = Semi-finals, **103** = Third-place play-off, **104** = Final.
+- Goals must be **non-negative integers**, exactly as for group matches.
+- You do **not** type the team names — the dashboard resolves each knockout
+  match's participants from the actual results so far (and from the projected
+  bracket until then).
+
+**Level (penalty shoot-out) results — `advanced_team`.** A knockout match that
+is level after extra time is decided on penalties. Enter the full-time score and
+name the side that went through in `advanced_team`, so the next round can be
+filled. In a `/WK-SCORES` issue comment or the batch CSV, use the 6-column form:
+
+```csv
+match_number,team_a_goals,team_b_goals,status,notes,advanced_team
+73,1,1,played,R32 decided on penalties,Canada
+74,2,0,played,R32,
+```
+
+(A decisive knockout score needs no `advanced_team`; the winner is the higher
+score. A **level** knockout score **requires** `advanced_team` and it must be one
+of the two teams.) Via the single-match Actions form, fill the `advanced_team`
+input. Once entered, the played knockout result is **pinned**, its winner feeds
+the next round, and the dashboard's **Knockout predictions** section refreshes
+the recommendations for the now-known matchups.
 
 ---
 
@@ -173,14 +214,18 @@ Raw data: `outputs/live/prediction_vs_actual.csv` / `.json` and
 ## 9. The full local pipeline
 
 ```bash
-python scripts/init_scores_override.py             # one time
-# ... enter scores via any of the three paths ...
-python scripts/update_live_tournament_state.py     # live group tables
+python scripts/init_scores_override.py             # one time (72 group + 32 knockout rows)
+# ... enter scores via any of the three paths (group 1-72 or knockout 73-104) ...
+python scripts/check_frozen_submission_integrity.py # verify frozen candidate unchanged
+python scripts/update_live_tournament_state.py     # live group tables (group matches only)
 python scripts/recalculate_live_simulations.py     # advancement probabilities (20k sims)
 python scripts/score_predictions_vs_actuals.py     # predicted vs actual points
+python scripts/build_knockout_predictions.py       # knockout exact-score predictions by round
 python scripts/build_mobile_dashboard.py           # mobile_dashboard.html + data JSON
+python scripts/check_frozen_submission_integrity.py # verify again after the refresh
 cp outputs/live/mobile_dashboard.html docs/index.html
 cp outputs/live/mobile_dashboard_data.json docs/mobile_dashboard_data.json
+cp outputs/live/knockout_predictions.csv docs/knockout_predictions.csv
 ```
 
 The two GitHub workflows (`travel_mode_update.yml`, `score_comment_update.yml`)

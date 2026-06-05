@@ -1,12 +1,12 @@
 {
-  "generated_at": "2026-06-04T20:10:22Z",
+  "generated_at": "2026-06-05T08:19:10Z",
   "active_candidate": {
-    "name": "final_candidate_v1",
-    "active_candidate_dir": "outputs/final_candidate_v1",
-    "score_predictions_file": "final_group_score_predictions.csv",
-    "standing_predictions_file": "final_group_standing_predictions.csv",
-    "last8_predictions_file": "final_last8_predictions.csv",
-    "submission_pack_file": "final_submission_pack.csv",
+    "name": "final_candidate_v2_auto_science",
+    "active_candidate_dir": "outputs/final_candidate_v2_auto_science",
+    "score_predictions_file": "final_group_score_predictions_auto.csv",
+    "standing_predictions_file": "final_group_standing_predictions_auto.csv",
+    "last8_predictions_file": "final_last8_predictions_auto.csv",
+    "submission_pack_file": "final_submission_pack_auto.csv",
     "config_path": "data/live/active_candidate.yml",
     "config_existed": true
   },

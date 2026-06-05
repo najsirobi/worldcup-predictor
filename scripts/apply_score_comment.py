@@ -20,6 +20,7 @@ from pathlib import Path
 from src.live.batch_update import BatchValidationError, apply_batch
 from src.live.score_comment_parser import CommentParseError, parse_comment
 from src.live.scores_override import OVERRIDE_PATH, load_override, utc_now_iso, write_override
+from src.live.submission_guard import guard_frozen_submission
 
 ROOT = Path(__file__).resolve().parents[1]
 REPORT_PATH = ROOT / "outputs" / "reports" / "score_comment_ingestion_report.md"
@@ -72,22 +73,23 @@ def main() -> None:
     parser.add_argument("--report", type=Path, default=REPORT_PATH)
     args = parser.parse_args()
 
-    body = args.comment_file.read_text(encoding="utf-8") if args.comment_file else sys.stdin.read()
+    with guard_frozen_submission("apply_score_comment.py"):
+        body = args.comment_file.read_text(encoding="utf-8") if args.comment_file else sys.stdin.read()
 
-    try:
-        rows = parse_comment(body)
-    except CommentParseError as exc:
-        _fail([str(exc)], args.report)
+        try:
+            rows = parse_comment(body)
+        except CommentParseError as exc:
+            _fail([str(exc)], args.report)
 
-    frame = load_override(args.file)
-    try:
-        updated, applied = apply_batch(frame, rows, source=SOURCE)
-    except BatchValidationError as exc:
-        _fail(exc.errors, args.report)
+        frame = load_override(args.file)
+        try:
+            updated, applied = apply_batch(frame, rows, source=SOURCE)
+        except BatchValidationError as exc:
+            _fail(exc.errors, args.report)
 
-    write_override(updated, args.file)
-    write_report(applied, [], args.report)
-    print(f"Applied {len(applied)} match(es) from issue comment (source {SOURCE}).")
+        write_override(updated, args.file)
+        write_report(applied, [], args.report)
+        print(f"Applied {len(applied)} match(es) from issue comment (source {SOURCE}).")
 
 
 if __name__ == "__main__":

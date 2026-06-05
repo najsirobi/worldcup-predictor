@@ -1,15 +1,18 @@
-"""Live group-stage Monte Carlo on top of frozen predictions (Travel Mode, Task C).
+"""Live group-stage Monte Carlo on top of frozen submitted predictions.
 
 For each group we simulate ``n_sims`` completions of the group stage:
 
-* **Played** matches are pinned to their actual entered scoreline.
+* **Played** matches are pinned to actual scorelines from
+  ``data/live/scores_override.csv``.
 * **Unplayed** matches are sampled from independent Poisson distributions whose
-  means are read off the published ``final_recommended_score`` for that fixture.
+  means are read from the frozen active candidate's submitted scoreline for that
+  fixture.
 
-This deliberately re-uses the existing baseline scorelines as the fallback
-distribution -- it does NOT retrain anything and does NOT alter the baseline
-predictions. When no matches have been entered, the simulation is effectively a
-Monte Carlo expansion of the frozen final-candidate picks.
+Actual results update live tables and advancement probabilities only. They never
+rewrite submitted group score predictions, and no model is retrained or used to
+regenerate first-round picks after submission. When no matches have been
+entered, the simulation is a Monte Carlo expansion of the frozen submitted
+candidate.
 
 The FIFA 2026 format advances 32 of 48 teams: the top two from each of the 12
 groups plus the 8 best third-placed teams.
@@ -56,7 +59,7 @@ def _parse_score(text: str) -> tuple[float, float]:
 
 
 def build_match_lambdas(predictions: pd.DataFrame) -> dict[int, tuple[float, float]]:
-    """Map match_number -> (lambda_a, lambda_b) from recommended scorelines."""
+    """Map match_number -> (lambda_a, lambda_b) from frozen submitted scorelines."""
     lambdas: dict[int, tuple[float, float]] = {}
     for _, row in predictions.iterrows():
         ga, gb = _parse_score(row["final_recommended_score"])
@@ -70,12 +73,20 @@ def simulate_live(
     n_sims: int = 20000,
     seed: int = 42,
 ) -> pd.DataFrame:
-    """Run the live group-stage Monte Carlo and return a per-team summary frame."""
+    """Run live group simulations without changing submitted predictions.
+
+    Played group matches use actual scores. Unplayed group matches use the
+    frozen candidate scoreline distribution. Advancement probabilities combine
+    both sources.
+    """
     rng = np.random.default_rng(seed)
     lambdas = build_match_lambdas(predictions)
 
+    # Group-stage simulation only: knockout rows (73-104) live in the same
+    # override file but are handled by the knockout prediction builder, never here.
+    active = scores[scores["match_number"].astype(int) <= 72].copy()
     # Exclude void matches entirely; they award no points and never get played.
-    active = scores[scores["status"] != "void"].copy()
+    active = active[active["status"] != "void"].copy()
     groups = sorted(active["group"].unique())
 
     per_group: dict[str, dict] = {}

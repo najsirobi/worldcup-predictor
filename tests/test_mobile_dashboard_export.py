@@ -17,6 +17,7 @@ WORKFLOW_SCRIPTS = [
     "update_live_tournament_state.py",
     "recalculate_live_simulations.py",
     "score_predictions_vs_actuals.py",
+    "build_knockout_predictions.py",
     "build_mobile_dashboard.py",
 ]
 
@@ -45,26 +46,32 @@ def test_render_html_produces_self_contained_page():
     # All required functionality markers are present.
     for marker in [
         "Overview",
-        "Submit Scores",
-        "Scores to fill in",
+        "Submitted Scores",
+        "Submitted prediction",
         "Group Standings",
         "Last-8",
         "Live Results",
         "Prediction vs Actual",
         "Score input instructions",  # 📱 Score input instructions
         "Played",  # 📋 Played
-        "Points",  # 🏅 Points
-        "Live group tables",  # 📊 Live group tables
+        "Actual result",
+        "Points earned",
+        "Live group table",
+        "Projected future bracket",
+        "Future recommendation",
         "Remaining",  # ⏭️ Remaining
     ]:
         assert marker in html, f"missing marker: {marker}"
 
 
-def test_dashboard_presents_single_primary_score_per_match():
+def test_dashboard_presents_locked_submitted_score_per_match():
     payload = build_mobile_dashboard.build_payload()
     html = build_mobile_dashboard.render_html(payload)
-    # The single number to submit is clearly labelled.
-    assert "Score to fill in" in html
+    # The frozen submitted score is clearly labelled.
+    assert "Submitted prediction" in html
+    assert "Actual result" in html
+    assert "Points earned" in html
+    assert "locked/submitted" in html
     # Copy-friendly line format is present verbatim.
     assert "1. Mexico 1-0 South Africa" in html
     # Alternatives are labelled as secondary/audit, not as final picks.
@@ -78,11 +85,68 @@ def test_dashboard_presents_single_primary_score_per_match():
     assert ">safe: " not in html
     assert ">EV: " not in html
     # Copy blocks for all scores and per group are present.
-    assert "All scores to fill in" in html
+    assert "All submitted predictions" in html
     assert "Per-group copy blocks" in html
+    # Banned post-submission wording.
+    assert "updated prediction" not in html.lower()
+    assert "new group-stage pick" not in html.lower()
+    assert "actual results update submitted picks" not in html.lower()
     # No manual-review action text.
     assert "manual review required" not in html.lower()
     assert "manual decision required" not in html.lower()
+
+
+def test_dashboard_fill_in_sections_and_alignment():
+    """Practical submission dashboard: fill-in sections, copy lines, aligned tables."""
+    import pandas as pd
+
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+
+    # Active candidate.
+    assert payload["active_candidate"]["name"] == "final_candidate_v2_auto_science"
+    # Fill-in section headings (practical, not audit-first).
+    assert "Scores to fill in" in html
+    assert "Group standings to fill in" in html
+    assert "Last-8 to fill in" in html
+    # Copy-friendly line format present verbatim.
+    assert "1. Mexico 1-0 South Africa" in html
+    # All 72 fill-only scores are present in the dashboard.
+    fill_only = pd.read_csv(
+        "outputs/final_candidate_v2_auto_science/final_group_score_predictions_fill_only.csv"
+    )
+    assert len(fill_only) == 72
+    for line in fill_only["copy_text"].astype(str):
+        assert line in html, f"missing fill-only line: {line}"
+    # Aligned table classes are used so columns line up on mobile/desktop.
+    assert 'class="aligned"' in html
+    assert 'class="aligned standings-table"' in html
+    # Audit/policy clutter is not a main visible section.
+    assert "Science-only policy notes" not in html
+    assert "manual review required" not in html.lower()
+    assert "manual decision required" not in html.lower()
+    # Strict separation wording from the frozen-guard work is preserved.
+    assert "Submitted prediction" in html
+    assert "Actual result" in html
+    # Round-by-round knockout exact-score predictions are present.
+    assert "Knockout predictions" in html
+    assert "All knockout predictions" in html
+    assert "Round of 32" in html
+    assert "Compare gambles" in html
+    knockout = payload["knockout_predictions"]
+    assert len(knockout["matches"]) == 32
+    # "Next round to predict" shows the full next unresolved round.
+    assert "Next round to predict" in html
+    assert "next match to predict" not in html.lower()
+    assert "Projected matchup" in html
+    assert "Current recommendation" in html
+    assert knockout["next_round"] == "R32"
+    assert len(knockout["next_round_matches"]) == 16  # full round, multiple matches
+    # Copy-friendly next-round lines use the "— adv …" format.
+    assert "— adv" in html
+    assert " — adv " in knockout["next_round_matches"][0]["copy_text"]
+    # JSON payload remains strict-valid JSON.
+    json.loads(build_mobile_dashboard._payload_json(payload))
 
 
 def test_dashboard_includes_prediction_vs_actual_section():
@@ -96,6 +160,11 @@ def test_dashboard_includes_prediction_vs_actual_section():
     assert payload["submission_summary"]["ev_overrides_rejected"] == 27
     assert payload["submission_summary"]["safe_scores_kept"] == 72
     assert len(payload["submission_score_predictions"]) == 72
+    first = payload["submission_score_predictions"][0]
+    assert first["status"] == "locked/submitted"
+    assert first["submitted_score"] == "1-0"
+    assert "actual_score" in first
+    assert "points_earned" in first
     html = build_mobile_dashboard.render_html(payload)
     assert "Prediction vs Actual" in html
 
@@ -127,9 +196,10 @@ def test_build_main_creates_html_and_json():
     assert "scoring_summary" in data
     assert json.loads(docs_json.read_text()) == data
     html = live_html.read_text()
-    assert "Scores to fill in" in html
-    assert "Group standings to fill in" in html
-    assert "Last-8 / progression picks to fill in" in html
+    assert "Submitted prediction" in html
+    assert "Actual result" in html
+    assert "Points earned" in html
+    assert "Projected future bracket" in html
     assert "No matches played yet" in html
     assert "No scoring summary yet" in html
     assert "Loaded keys" in html
@@ -150,6 +220,19 @@ def test_live_modules_do_not_call_training_or_apis():
         source = path.read_text()
         for token in FORBIDDEN_TOKENS:
             assert token not in source, f"{path} contains forbidden token {token!r}"
+
+
+def test_workflows_run_knockout_prediction_build():
+    # Both Travel Mode workflows must build knockout predictions as part of the
+    # refresh, after scoring and before the dashboard build.
+    for wf_name in ("travel_mode_update.yml", "score_comment_update.yml"):
+        text = (Path(".github/workflows") / wf_name).read_text()
+        assert "scripts/build_knockout_predictions.py" in text, wf_name
+        ko = text.index("scripts/build_knockout_predictions.py")
+        dash = text.index("scripts/build_mobile_dashboard.py")
+        assert ko < dash, f"{wf_name}: knockout build must run before the dashboard"
+        # The dashboard's knockout artifacts are published to docs/.
+        assert "docs/knockout_predictions.csv" in text, wf_name
 
 
 def test_workflow_yaml_has_no_training_steps():

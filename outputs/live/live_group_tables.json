@@ -1,18 +1,31 @@
 {
-  "generated_at": "2026-06-04T20:10:21Z",
+  "generated_at": "2026-06-05T08:19:09Z",
   "active_candidate": {
-    "name": "final_candidate_v1",
-    "active_candidate_dir": "outputs/final_candidate_v1",
-    "score_predictions_file": "final_group_score_predictions.csv",
-    "standing_predictions_file": "final_group_standing_predictions.csv",
-    "last8_predictions_file": "final_last8_predictions.csv",
-    "submission_pack_file": "final_submission_pack.csv",
+    "name": "final_candidate_v2_auto_science",
+    "active_candidate_dir": "outputs/final_candidate_v2_auto_science",
+    "score_predictions_file": "final_group_score_predictions_auto.csv",
+    "standing_predictions_file": "final_group_standing_predictions_auto.csv",
+    "last8_predictions_file": "final_last8_predictions_auto.csv",
+    "submission_pack_file": "final_submission_pack_auto.csv",
     "config_path": "data/live/active_candidate.yml",
     "config_existed": true
   },
   "matches_played": 0,
   "matches_remaining": 72,
   "tie_break_note": "Tie-break limitation: live tables are ordered by points, then goal difference, then goals for, then team name (alphabetical) as a deterministic fallback. The full FIFA/FIF8A tie-breakers (head-to-head record, head-to-head goal difference/goals, disciplinary/fair-play points, drawing of lots) are NOT applied here. Final standings may differ when teams are level on points and goal difference.",
+  "semantics": {
+    "submitted_predictions": "Frozen candidate files are read-only after submission; live results do not rewrite or regenerate submitted group score predictions.",
+    "played_group_matches": "Played group matches use actual scores from data/live/scores_override.csv for live tables and prediction-vs-actual scoring.",
+    "unplayed_group_matches": "Unplayed group matches keep using the frozen active candidate's scoreline distribution for simulations.",
+    "group_advancement": "Advancement probabilities combine actual played results with simulated unplayed results.",
+    "knockout_state": "After the group stage is complete, actual group standings and the best third-placed teams feed official Annexe C and the Round-of-32 bracket mapping. Later played knockout matches must pin actual winners and only future matches may be simulated."
+  },
+  "actual_bracket_state": {
+    "status": "pending_group_stage",
+    "qualified_third_groups": [],
+    "round_of_32_matches": [],
+    "note": "Actual bracket assignment is pending until all group-stage matches have final scores."
+  },
   "groups": {
     "A": [
       {

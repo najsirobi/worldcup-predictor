@@ -76,6 +76,7 @@ def normalise_rows(rows: list[dict]) -> tuple[list[dict], list[str]]:
             )
             continue
 
+        advanced_raw = row.get("advanced_team")
         clean.append(
             {
                 "match_number": mn,
@@ -83,6 +84,7 @@ def normalise_rows(rows: list[dict]) -> tuple[list[dict], list[str]]:
                 "team_b_goals": _coerce_goal_cell(row["team_b_goals"]),
                 "status": status,
                 "notes": (str(row["notes"]).strip() if row["notes"] is not None else ""),
+                "advanced_team": (str(advanced_raw).strip() if advanced_raw is not None else ""),
             }
         )
 
@@ -115,6 +117,7 @@ def apply_batch(
                 status=row["status"],
                 notes=row["notes"] or None,
                 source=source,
+                advanced_team=(row.get("advanced_team") or None),
             )
         except ValueError as exc:
             raise BatchValidationError(
