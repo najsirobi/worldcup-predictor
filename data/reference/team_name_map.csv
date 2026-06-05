@@ -436,3 +436,7 @@ fifa_ranking,Wales,Wales,WAL,safe exact match: present in fifa_ranking-2024-06-2
 fifa_ranking,Yemen,Yemen,YEM,safe exact match: present in fifa_ranking-2024-06-20.csv and matches_clean backbone (identity canonical)
 fifa_ranking,Zambia,Zambia,ZAM,safe exact match: present in fifa_ranking-2024-06-20.csv and matches_clean backbone (identity canonical)
 fifa_ranking,Zimbabwe,Zimbabwe,ZIM,safe exact match: present in fifa_ranking-2024-06-20.csv and matches_clean backbone (identity canonical)
+world_cup_history,Korea Republic,South Korea,KOR,explicit alias for joining Kaggle World Cup history group-stage rows to model_matrix team names
+world_cup_history,Korea DPR,North Korea,PRK,explicit alias for joining Kaggle World Cup history group-stage rows to model_matrix team names
+world_cup_history,IR Iran,Iran,IRN,explicit alias for joining Kaggle World Cup history group-stage rows to model_matrix team names
+world_cup_history,Côte d'Ivoire,Ivory Coast,CIV,explicit alias for joining Kaggle World Cup history group-stage rows to model_matrix team names
