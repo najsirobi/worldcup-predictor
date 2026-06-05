@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-05T08:51:04Z",
+  "generated_at": "2026-06-05T13:11:04Z",
   "repo_slug": "",
   "active_candidate": {
     "name": "final_candidate_v2_auto_science",
@@ -30,6 +30,10 @@
     "qualified_third_groups": [],
     "round_of_32_matches": [],
     "note": "Actual bracket assignment is pending until all group-stage matches have final scores."
+  },
+  "incentive_diagnostics": {
+    "teams": [],
+    "matches": []
   },
   "played_matches": [],
   "remaining_matches": [

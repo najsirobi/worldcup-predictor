@@ -43,6 +43,8 @@ def test_render_html_produces_self_contained_page():
     # Key components are present.
     assert 'id="app"' in html
     assert "function render" in html
+    assert 'data-theme="light"' in html
+    assert "Light / Dark" in html
     # All required functionality markers are present.
     for marker in [
         "Overview",
@@ -158,9 +160,9 @@ def test_dashboard_is_server_side_prerendered_without_js():
     assert "Loading" not in html
     # #app is server-rendered, not an empty shell filled only by JS.
     assert "<main id=\"app\"><!--APP_PLACEHOLDER-->" not in html
-    assert "<main id=\"app\"><section" in html
+    assert "<main id=\"app\"><details" in html
 
-    # Every key section exists as a real <section> element (not JS-only).
+    # Every key section exists as a real collapsible <details> element (not JS-only).
     for section_id in [
         "overview",
         "submitted-scores",
@@ -172,7 +174,7 @@ def test_dashboard_is_server_side_prerendered_without_js():
         "live-group-tables",
         "advancement",
     ]:
-        assert f'<section id="{section_id}"' in html, section_id
+        assert f'<details class="dashboard-section" id="{section_id}"' in html, section_id
 
     # The static body (before the inline JSON payload) carries the real content,
     # so the strings exist directly in the HTML and not only inside the payload.
@@ -190,6 +192,53 @@ def test_dashboard_is_server_side_prerendered_without_js():
     # JS remains as progressive enhancement with non-destructive error handling.
     assert "Loaded keys" in html  # error banner is appended, never blanks #app
     assert "insertAdjacentHTML" in html
+
+
+def test_dashboard_collapsible_sections_and_theme_contract():
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+
+    assert 'data-theme="light"' in html
+    assert 'data-theme-choice="light"' in html
+    assert 'data-theme-choice="dark"' in html
+    assert "localStorage" in html
+    assert "travelModeTheme" in html
+    assert "--background:" in html
+    assert "--card-background:" in html
+    assert "--text:" in html
+    assert "--muted-text:" in html
+    assert "--border:" in html
+    assert "--accent:" in html
+    assert "--success:" in html
+    assert "--warning:" in html
+    assert "--danger:" in html
+
+    for section_id in [
+        "overview",
+        "submitted-scores",
+        "group-standings",
+        "last8",
+        "knockout-predictions",
+        "live-results",
+        "prediction-vs-actual",
+        "live-group-tables",
+        "advancement",
+    ]:
+        assert f'<details class="dashboard-section" id="{section_id}"' in html
+        assert f'<details class="dashboard-section" id="{section_id}"' in html.split('<script id="payload"', 1)[0]
+
+    for section_id in ["overview", "submitted-scores", "knockout-predictions"]:
+        assert f'<details class="dashboard-section" id="{section_id}" open>' in html
+
+    for section_id in [
+        "group-standings",
+        "last8",
+        "live-results",
+        "prediction-vs-actual",
+        "live-group-tables",
+        "advancement",
+    ]:
+        assert f'<details class="dashboard-section" id="{section_id}">' in html
 
 
 def test_dashboard_includes_prediction_vs_actual_section():
@@ -239,6 +288,7 @@ def test_build_main_creates_html_and_json():
     assert "scoring_summary" in data
     assert json.loads(docs_json.read_text()) == data
     html = live_html.read_text()
+    docs_html_text = docs_html.read_text()
     assert "Submitted prediction" in html
     assert "Actual result" in html
     assert "Points earned" in html
@@ -249,6 +299,12 @@ def test_build_main_creates_html_and_json():
     assert "manual decision required" not in html.lower()
     assert "manual review required" not in html.lower()
     assert "try {" in html
+    assert "Loading" not in docs_html_text
+    assert "Light / Dark" in docs_html_text
+    assert 'data-theme="light"' in docs_html_text
+    assert '<details class="dashboard-section" id="overview" open>' in docs_html_text
+    assert '<details class="dashboard-section" id="group-standings">' in docs_html_text
+    assert "1. Mexico 1-0 South Africa" in docs_html_text
 
 
 def test_workflow_scripts_do_not_call_training_or_apis():

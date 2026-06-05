@@ -319,6 +319,7 @@ def build_payload() -> dict:
         "sim_tie_break_note": sim.get("tie_break_note", ""),
         "semantics": live_tables.get("semantics", sim.get("semantics", {})),
         "actual_bracket_state": live_tables.get("actual_bracket_state", {}),
+        "incentive_diagnostics": live_tables.get("incentive_diagnostics", {"teams": [], "matches": []}),
         "played_matches": played,
         "remaining_matches": remaining[:24],
         "remaining_matches_total": len(remaining),
@@ -338,98 +339,171 @@ def build_payload() -> dict:
     }
 
 
+SECTION_DEFAULT_OPEN = {
+    "overview": True,
+    "submitted-scores": True,
+    "group-standings": False,
+    "last8": False,
+    "knockout-predictions": True,
+    "live-results": False,
+    "prediction-vs-actual": False,
+    "live-group-tables": False,
+    "incentives": False,
+    "advancement": False,
+}
+
+
 HTML_TEMPLATE = """<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>WC2026 Travel Mode</title>
 <style>
-  :root { color-scheme: light dark; }
+  :root {
+    color-scheme: light;
+    --background: #f7f4ee;
+    --card-background: #ffffff;
+    --card-bg: #ffffff;
+    --subcard-bg: #f0ebe3;
+    --text: #17202f;
+    --muted-text: #667085;
+    --border: #d8d0c5;
+    --accent: #0f7796;
+    --success: #178a49;
+    --warning: #b66a05;
+    --danger: #c33f32;
+    --shadow: 0 12px 35px rgba(31, 41, 55, .08);
+  }
+  html[data-theme="dark"] {
+    color-scheme: dark;
+    --background: #0f1116;
+    --card-background: #161a23;
+    --card-bg: #161a23;
+    --subcard-bg: #1b212c;
+    --text: #e7e9ee;
+    --muted-text: #9aa3b2;
+    --border: #2a2f3a;
+    --accent: #7dd3fc;
+    --success: #4ade80;
+    --warning: #fbbf24;
+    --danger: #f87171;
+    --shadow: none;
+  }
   * { box-sizing: border-box; }
-  body { font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0 0 3rem; background: #0f1116; color: #e7e9ee; line-height: 1.4; font-size: 16px; }
-  header { position: sticky; top: 0; background: #161a23; padding: .8rem 1rem; border-bottom: 1px solid #2a2f3a; z-index: 5; }
-  header h1 { margin: 0; font-size: 1.15rem; }
-  header .meta { font-size: .78rem; color: #9aa3b2; margin-top: .15rem; }
-  header .cand { font-size: .78rem; color: #7dd3fc; margin-top: .15rem; }
-  nav.tabs { position: sticky; top: 3.9rem; z-index: 4; display:flex; gap:.4rem; overflow-x:auto; padding:.55rem .8rem; background:#11151d; border-bottom:1px solid #2a2f3a; }
-  nav.tabs a { white-space:nowrap; text-decoration:none; padding:.35rem .65rem; border-radius:999px; background:#1b212c; color:#cfd6e4; font-size:.78rem; border:1px solid #2a2f3a; }
-  nav.tabs a:hover { background:#222836; }
+  body { font-family: -apple-system, system-ui, Segoe UI, Roboto, sans-serif; margin: 0; padding: 0 0 3rem; background: var(--background); color: var(--text); line-height: 1.4; font-size: 16px; }
+  header { position: sticky; top: 0; background: var(--card-bg); padding: .8rem 1rem; border-bottom: 1px solid var(--border); z-index: 5; box-shadow: var(--shadow); }
+  .header-top { display:flex; justify-content:space-between; align-items:flex-start; gap:.8rem; }
+  header h1 { margin: 0; font-size: 1.15rem; color: var(--text); }
+  header .meta { font-size: .78rem; color: var(--muted-text); margin-top: .15rem; }
+  header .cand { font-size: .78rem; color: var(--accent); margin-top: .15rem; }
+  .theme-toggle { display:flex; align-items:center; gap:.25rem; border:1px solid var(--border); background:var(--subcard-bg); padding:.18rem; border-radius:999px; white-space:nowrap; }
+  .theme-toggle span { color:var(--muted-text); font-size:.72rem; padding:0 .25rem; }
+  .theme-toggle button { border:0; border-radius:999px; padding:.28rem .52rem; background:transparent; color:var(--muted-text); font-weight:700; font-size:.74rem; cursor:pointer; }
+  html[data-theme="light"] .theme-toggle [data-theme-choice="light"],
+  html[data-theme="dark"] .theme-toggle [data-theme-choice="dark"] { background:var(--accent); color:var(--card-bg); }
+  nav.tabs { position: sticky; top: 4.6rem; z-index: 4; display:flex; gap:.4rem; overflow-x:auto; padding:.55rem .8rem; background:var(--background); border-bottom:1px solid var(--border); }
+  nav.tabs a { white-space:nowrap; text-decoration:none; padding:.35rem .65rem; border-radius:999px; background:var(--card-bg); color:var(--text); font-size:.78rem; border:1px solid var(--border); }
+  nav.tabs a:hover { border-color:var(--accent); color:var(--accent); }
   main { padding: 0 .8rem; max-width: 720px; margin: 0 auto; }
-  section { margin-top: 1.1rem; background: #161a23; border: 1px solid #2a2f3a; border-radius: 12px; padding: .85rem; }
-  section > h2 { margin: 0 0 .55rem; font-size: 1rem; color: #cfd6e4; display: flex; align-items: center; gap: .4rem; }
-  .subcard { background:#1b212c; border:1px solid #2a2f3a; border-radius:10px; padding:.75rem; margin:.6rem 0; }
-  .subcard h3 { margin:.1rem 0 .45rem; font-size:.92rem; color:#dbe3f0; display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
-  .pill { display:inline-block; font-size:.7rem; padding:.1rem .45rem; border-radius:999px; background:#222836; color:#9aa3b2; }
-  table { width: 100%; border-collapse: collapse; font-size: .82rem; }
-  th, td { text-align: right; padding: .28rem .3rem; border-bottom: 1px solid #232836; }
+  .dashboard-section { margin-top: 1.1rem; background: var(--card-bg); border: 1px solid var(--border); border-radius: 14px; box-shadow: var(--shadow); overflow:hidden; }
+  .dashboard-section > summary { list-style:none; cursor:pointer; color:var(--text); padding:.85rem; display:flex; justify-content:space-between; align-items:center; gap:.65rem; }
+  .dashboard-section > summary::-webkit-details-marker { display:none; }
+  .dashboard-section > summary::after { content:"+"; display:grid; place-items:center; min-width:1.55rem; height:1.55rem; border-radius:999px; border:1px solid var(--border); color:var(--accent); font-weight:900; }
+  .dashboard-section[open] > summary::after { content:"−"; }
+  .section-title { margin:0; font-size:1rem; color:var(--text); display:flex; align-items:center; gap:.4rem; flex-wrap:wrap; }
+  .section-body { padding:0 .85rem .85rem; overflow-x:auto; }
+  .subcard { background:var(--subcard-bg); border:1px solid var(--border); border-radius:10px; padding:.75rem; margin:.6rem 0; overflow-x:auto; }
+  .subcard h3 { margin:.1rem 0 .45rem; font-size:.92rem; color:var(--text); display:flex; align-items:center; justify-content:space-between; gap:.5rem; }
+  .pill { display:inline-block; font-size:.7rem; padding:.1rem .45rem; border-radius:999px; background:var(--subcard-bg); color:var(--muted-text); border:1px solid var(--border); }
+  table { width: 100%; min-width: 520px; border-collapse: collapse; font-size: .82rem; }
+  th, td { text-align: right; padding: .34rem .35rem; border-bottom: 1px solid var(--border); vertical-align:top; }
   th:first-child, td:first-child { text-align: left; }
-  th { color: #8b93a4; font-weight: 600; }
+  th { color: var(--muted-text); font-weight: 700; }
   /* Aligned tables: fixed layout so headers line up with cells on mobile. */
   table.aligned { width: 100%; table-layout: fixed; border-collapse: collapse; }
-  table.aligned th, table.aligned td { padding: .3rem .25rem; border-bottom: 1px solid #232836; overflow: hidden; }
-  table.aligned th { color: #8b93a4; font-weight: 600; }
+  table.aligned th, table.aligned td { padding: .34rem .28rem; border-bottom: 1px solid var(--border); overflow: hidden; }
+  table.aligned th { color: var(--muted-text); font-weight: 700; }
   table.aligned .num { text-align: right; font-variant-numeric: tabular-nums; }
   table.aligned .ctr { text-align: center; font-variant-numeric: tabular-nums; }
-  table.aligned .team { text-align: left; white-space: normal; word-break: break-word; }
-  table.aligned .rank { display: inline-block; min-width: 1.2rem; color: #8b93a4; font-variant-numeric: tabular-nums; }
+  table.aligned .team { text-align: left; white-space: normal; overflow-wrap:anywhere; word-break: normal; }
+  table.aligned .rank { display: inline-block; min-width: 1.2rem; color: var(--muted-text); font-variant-numeric: tabular-nums; }
   table.aligned col.numcol { width: 1.9rem; }
-  table.aligned.standings-table th, table.aligned.standings-table td { text-align: left; white-space: normal; word-break: break-word; }
+  table.aligned.standings-table th, table.aligned.standings-table td { text-align: left; white-space: normal; overflow-wrap:anywhere; word-break: normal; }
   table.aligned.standings-table col.gcol { width: 1.8rem; }
-  .grp { font-weight: 700; color: #aab3c5; margin: .6rem 0 .2rem; font-size: .9rem; }
-  .adv { color: #4ade80; }
-  .out { color: #f87171; }
-  .bar { height: 6px; border-radius: 4px; background:#2a3142; overflow:hidden; margin-top:2px; }
-  .bar > i { display:block; height:100%; background:#4ade80; }
-  .match { display:flex; justify-content:space-between; padding:.3rem 0; border-bottom:1px solid #232836; font-size:.85rem; }
+  .grp { font-weight: 700; color: var(--text); margin: .6rem 0 .2rem; font-size: .9rem; }
+  .adv { color: var(--success); }
+  .out { color: var(--danger); }
+  .bar { height: 6px; border-radius: 4px; background:var(--subcard-bg); overflow:hidden; margin-top:2px; border:1px solid var(--border); }
+  .bar > i { display:block; height:100%; background:var(--success); }
+  .match { display:flex; justify-content:space-between; padding:.3rem 0; border-bottom:1px solid var(--border); font-size:.85rem; gap:.75rem; }
   .match .sc { font-weight:700; }
-  .error { background:#5a1f1f; border: 1px solid #8b3f3f; color:#ff9999; padding:1rem; border-radius:8px; margin:1rem 0; }
-  .error h3 { color:#ffb3b3; margin-top:0; }
-  .error pre { background:#3a1515; color:#ffcccc; max-height:300px; overflow-y:auto; font-size:.7rem; }
-  .warn { background:#3a2a13; border-color:#5a431f; }
-  .warn h2 { color:#fbbf24; }
-  .muted { color:#9aa3b2; font-size:.8rem; }
-  code { background:#222836; padding:.05rem .3rem; border-radius:4px; font-size:.8rem; }
-  pre { background:#222836; padding:.6rem; border-radius:8px; overflow:auto; font-size:.75rem; }
-  a { color:#7dd3fc; }
+  .error { background:color-mix(in srgb, var(--danger) 16%, var(--card-bg)); border: 1px solid var(--danger); color:var(--text); padding:1rem; border-radius:8px; margin:1rem 0; }
+  .error h3 { color:var(--danger); margin-top:0; }
+  .error pre { background:var(--subcard-bg); color:var(--text); max-height:300px; overflow-y:auto; font-size:.7rem; }
+  .warn { background:color-mix(in srgb, var(--warning) 16%, var(--card-bg)); border-color:var(--warning); }
+  .warn h2 { color:var(--warning); }
+  .muted { color:var(--muted-text); font-size:.8rem; }
+  code { background:var(--subcard-bg); padding:.05rem .3rem; border-radius:4px; font-size:.8rem; }
+  pre { background:var(--subcard-bg); padding:.6rem; border-radius:8px; overflow:auto; font-size:.75rem; }
+  a { color:var(--accent); }
   details { margin-top:.4rem; }
-  summary { cursor:pointer; color:#cfd6e4; }
+  summary { cursor:pointer; color:var(--text); }
   .filelinks a { display:inline-block; margin:.15rem .4rem .15rem 0; font-size:.8rem; }
   ol { padding-left:1.2rem; } ol li { margin:.25rem 0; }
-  .bignum { font-size:1.8rem; font-weight:800; color:#4ade80; }
+  .bignum { font-size:1.8rem; font-weight:800; color:var(--success); }
   .stats { display:flex; flex-wrap:wrap; gap:.6rem; margin-top:.4rem; }
-  .stat { flex:1 1 30%; background:#1b212c; border-radius:8px; padding:.5rem; text-align:center; }
-  .stat b { display:block; font-size:1.2rem; color:#e7e9ee; }
-  .stat span { font-size:.72rem; color:#9aa3b2; }
+  .stat { flex:1 1 30%; background:var(--subcard-bg); border-radius:8px; padding:.5rem; text-align:center; }
+  .stat b { display:block; font-size:1.2rem; color:var(--text); }
+  .stat span { font-size:.72rem; color:var(--muted-text); }
   .summary-grid { display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:.55rem; }
-  .summary-card { background:#1b212c; border:1px solid #2a2f3a; border-radius:10px; padding:.7rem; }
+  .summary-card { background:var(--subcard-bg); border:1px solid var(--border); border-radius:10px; padding:.7rem; }
   .summary-card b { display:block; font-size:1rem; margin-bottom:.15rem; }
-  .summary-card span { color:#9aa3b2; font-size:.74rem; }
+  .summary-card span { color:var(--muted-text); font-size:.74rem; }
   .policy-list { margin:.6rem 0 0; padding-left:1.2rem; }
   .policy-list li { margin:.25rem 0; }
   .copybar { display:flex; align-items:center; justify-content:space-between; gap:.5rem; margin:.5rem 0 .65rem; flex-wrap:wrap; }
-  .copybar button { background:#7dd3fc; color:#082032; border:0; border-radius:999px; padding:.4rem .75rem; font-weight:700; cursor:pointer; }
-  .copyblock { white-space:pre-wrap; word-break:break-word; background:#11151d; border:1px solid #2a2f3a; border-radius:10px; padding:.7rem; font-size:.78rem; }
+  .copybar button { background:var(--accent); color:var(--card-bg); border:0; border-radius:999px; padding:.4rem .75rem; font-weight:700; cursor:pointer; }
+  .copyblock { white-space:pre-wrap; overflow-wrap:anywhere; word-break:normal; background:var(--subcard-bg); border:1px solid var(--border); border-radius:10px; padding:.7rem; font-size:.78rem; }
   .group-summary { cursor:pointer; }
-  .row-card { background:#11151d; border:1px solid #2a2f3a; border-radius:10px; padding:.7rem; margin:.55rem 0; }
+  .row-card { background:var(--subcard-bg); border:1px solid var(--border); border-radius:10px; padding:.7rem; margin:.55rem 0; }
   .row-top { display:flex; justify-content:space-between; gap:.6rem; align-items:flex-start; }
-  .row-title { font-weight:800; font-size:.95rem; }
-  .score-big { font-size:1.8rem; font-weight:900; color:#4ade80; letter-spacing:-0.02em; }
+  .row-title { font-weight:800; font-size:.95rem; overflow-wrap:anywhere; }
+  .score-big { font-size:1.8rem; font-weight:900; color:var(--success); letter-spacing:-0.02em; }
   .row-meta { display:flex; flex-wrap:wrap; gap:.35rem; margin-top:.5rem; }
-  .row-meta .pill { background:#1f2937; }
-  .row-copy { margin-top:.55rem; font-size:.78rem; color:#9aa3b2; }
-  .label { color:#8b93a4; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; }
+  .row-meta .pill { background:var(--card-bg); }
+  .row-copy { margin-top:.55rem; font-size:.78rem; color:var(--muted-text); overflow-wrap:anywhere; }
+  .label { color:var(--muted-text); font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; }
   .row-top > div:last-child { text-align:right; }
-  .audit-details { margin-top:.5rem; border-top:1px solid #232836; padding-top:.4rem; }
-  .audit-details > summary { color:#8b93a4; font-size:.78rem; }
-  .copybar b { font-size:.85rem; color:#dbe3f0; }
+  .audit-details { margin-top:.5rem; border-top:1px solid var(--border); padding-top:.4rem; }
+  .audit-details > summary { color:var(--muted-text); font-size:.78rem; }
+  .copybar b { font-size:.85rem; color:var(--text); }
+  @media (max-width: 560px) {
+    header { padding:.7rem .8rem; }
+    .header-top { flex-direction:column; align-items:stretch; gap:.55rem; }
+    .theme-toggle { align-self:flex-start; }
+    nav.tabs { top:6.8rem; }
+    main { padding:0 .6rem; }
+    .summary-grid { grid-template-columns:1fr; }
+    .row-top { flex-direction:column; }
+    .row-top > div:last-child { text-align:left; }
+  }
 </style>
 </head>
 <body>
 <header>
-  <h1>🏆 WC2026 Travel Mode</h1>
-  <div class="meta" id="meta"><!--META_PLACEHOLDER--></div>
-  <div class="cand" id="cand"><!--CAND_PLACEHOLDER--></div>
+  <div class="header-top">
+    <div>
+      <h1>🏆 WC2026 Travel Mode</h1>
+      <div class="meta" id="meta"><!--META_PLACEHOLDER--></div>
+      <div class="cand" id="cand"><!--CAND_PLACEHOLDER--></div>
+    </div>
+    <div class="theme-toggle" aria-label="Light / Dark theme">
+      <span>Light / Dark</span>
+      <button type="button" data-theme-choice="light" aria-pressed="true">Light</button>
+      <button type="button" data-theme-choice="dark" aria-pressed="false">Dark</button>
+    </div>
+  </div>
 </header>
 <nav class="tabs" id="tabs">
   <a href="#overview">Overview</a>
@@ -440,6 +514,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <a href="#live-results">Live Results</a>
   <a href="#prediction-vs-actual">Prediction vs Actual</a>
   <a href="#live-group-tables">Live group tables</a>
+  <a href="#incentives">Incentives</a>
   <a href="#advancement">Advancement</a>
 </nav>
 <main id="app"><!--APP_PLACEHOLDER--></main>
@@ -485,8 +560,22 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return Number.isFinite(n) ? Math.max(0, Math.min(100, Math.round(n * 100))) : 0;
   }
 
+  const DEFAULT_OPEN_SECTIONS = {
+    overview: true,
+    'submitted-scores': true,
+    'group-standings': false,
+    last8: false,
+    'knockout-predictions': true,
+    'live-results': false,
+    'prediction-vs-actual': false,
+    'live-group-tables': false,
+    incentives: false,
+    advancement: false
+  };
+
   function buildSection(id, title, pill, body) {
-    return '<section id="' + id + '"><h2>' + title + (pill ? '<span class="pill">' + pill + '</span>' : '') + '</h2>' + body + '</section>';
+    const open = DEFAULT_OPEN_SECTIONS[id] ? ' open' : '';
+    return '<details class="dashboard-section" id="' + id + '"' + open + '><summary><h2 class="section-title">' + title + (pill ? '<span class="pill">' + pill + '</span>' : '') + '</h2></summary><div class="section-body">' + body + '</div></details>';
   }
 
   function buildSubcard(title, body, rightMeta) {
@@ -573,6 +662,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
       sim_tie_break_note: typeof data.sim_tie_break_note === 'string' ? data.sim_tie_break_note : '',
       semantics: safeObject(data.semantics),
       actual_bracket_state: safeObject(data.actual_bracket_state),
+      incentive_diagnostics: safeObject(data.incentive_diagnostics),
       played_matches: safeArray(data.played_matches),
       remaining_matches: remainingMatches,
       remaining_matches_total: Number.isFinite(Number(data.remaining_matches_total)) ? Number(data.remaining_matches_total) : remainingMatches.length,
@@ -1079,6 +1169,38 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
   }
 
+  function applyTheme(theme) {
+    const normalized = theme === 'dark' ? 'dark' : 'light';
+    document.documentElement.setAttribute('data-theme', normalized);
+    const buttons = document.querySelectorAll('[data-theme-choice]');
+    for (let i = 0; i < buttons.length; i += 1) {
+      const active = buttons[i].getAttribute('data-theme-choice') === normalized;
+      buttons[i].setAttribute('aria-pressed', active ? 'true' : 'false');
+    }
+    return normalized;
+  }
+
+  function setupThemeToggle() {
+    let saved = 'light';
+    try {
+      saved = localStorage.getItem('travelModeTheme') || 'light';
+    } catch (err) {
+      saved = 'light';
+    }
+    applyTheme(saved);
+    const buttons = document.querySelectorAll('[data-theme-choice]');
+    for (let i = 0; i < buttons.length; i += 1) {
+      buttons[i].addEventListener('click', function() {
+        const next = applyTheme(this.getAttribute('data-theme-choice'));
+        try {
+          localStorage.setItem('travelModeTheme', next);
+        } catch (err) {
+          // Preference persistence is optional; the light CSS default still works.
+        }
+      });
+    }
+  }
+
   function hydrate(data) {
     try {
       const summary = safeObject(data.summary);
@@ -1091,6 +1213,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         candEl.textContent = 'Active candidate: ' + (activeCandidate.name || '—') + ' (' + (activeCandidate.active_candidate_dir || '—') + ')';
       }
       setupTabs();
+      setupThemeToggle();
     } catch (err) {
       showError('Enhancement failed', err, data);
     }
@@ -1186,6 +1309,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
 
       const pvaHtml = renderPredictionVsActual(predictionVsActual);
       const groupsHtml = renderGroups(groups);
+      const incentivesHtml = '<p class="muted">Final group-match incentive diagnostics are live context only. They do not change submitted predictions.</p>';
       const advancementHtml = renderAdvancement(advancement);
       const projectedFutureBracketHtml = renderProjectedFutureBracket(bracketState, advancement);
       const remainingHtml = renderRemainingMatches(remainingMatches, data.remaining_matches_total);
@@ -1215,6 +1339,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
         buildSection('live-results', 'Live results', null, liveHtml + filesHtml + auditCollapsed),
         buildSection('prediction-vs-actual', 'Prediction vs Actual', fmtInt(predictionVsActual.length) + ' scored', pvaHtml),
         buildSection('live-group-tables', 'Live group tables', null, liveGroupTablesHtml),
+        buildSection('incentives', 'Final group incentives', null, incentivesHtml),
         buildSection('advancement', 'Advancement / bracket projections', sims, bracketHtml)
       ].join('');
     } catch (err) {
@@ -1292,7 +1417,12 @@ def _arr(value) -> list:
 
 def _section(section_id: str, title: str, pill, body: str) -> str:
     pill_html = f'<span class="pill">{_esc(pill)}</span>' if pill else ""
-    return f'<section id="{section_id}"><h2>{_esc(title)}{pill_html}</h2>{body}</section>'
+    open_attr = " open" if SECTION_DEFAULT_OPEN.get(section_id, False) else ""
+    return (
+        f'<details class="dashboard-section" id="{section_id}"{open_attr}>'
+        f'<summary><h2 class="section-title">{_esc(title)}{pill_html}</h2></summary>'
+        f'<div class="section-body">{body}</div></details>'
+    )
 
 
 def _subcard(title: str, body: str, right=None) -> str:
@@ -1763,6 +1893,47 @@ def _render_live_group_tables(data: dict) -> str:
     return intro + body
 
 
+def _render_incentives(data: dict) -> str:
+    diagnostics = _obj(data.get("incentive_diagnostics"))
+    matches = _arr(diagnostics.get("matches"))
+    teams = _arr(diagnostics.get("teams"))
+    intro = (
+        '<p class="muted">Final group-match incentive diagnostics are live context only. '
+        "They label possible rotation, must-win, draw-likely-enough and opponent-qualified "
+        "situations after actual prior group results are known. Submitted predictions stay locked.</p>"
+    )
+    if not matches and not teams:
+        return intro + '<p class="muted">No final group-match incentive notes yet. These usually appear after matchday 2.</p>'
+    html = intro
+    if matches:
+        html += (
+            '<table class="aligned">'
+            '<colgroup><col class="numcol"><col class="numcol"><col><col><col></colgroup>'
+            '<tr><th class="num">#</th><th class="num">G</th><th class="team">Match</th><th>Team A notes</th><th>Team B notes</th></tr>'
+        )
+        for row in matches:
+            row = _obj(row)
+            a_notes = "; ".join(_arr(row.get("team_a_notes"))) or "—"
+            b_notes = "; ".join(_arr(row.get("team_b_notes"))) or "—"
+            html += (
+                f'<tr><td class="num">{_fi(row.get("match_number"))}</td><td class="num">{_esc(row.get("group") or "—")}</td>'
+                f'<td class="team">{_esc(row.get("team_a") or "—")} v {_esc(row.get("team_b") or "—")}</td>'
+                f'<td>{_esc(a_notes)}</td><td>{_esc(b_notes)}</td></tr>'
+            )
+        html += "</table>"
+    if teams:
+        html += '<details class="audit-details"><summary>Team-level incentive notes</summary>'
+        for row in teams:
+            row = _obj(row)
+            notes = "; ".join(_arr(row.get("notes"))) or "—"
+            html += (
+                f'<div class="match"><span>#{_fi(row.get("match_number"))} {_esc(row.get("team") or "—")}'
+                f' vs {_esc(row.get("opponent") or "—")}</span><span class="muted">{_esc(notes)}</span></div>'
+            )
+        html += "</details>"
+    return html
+
+
 def _render_advancement(data: dict) -> str:
     rows = _arr(data.get("advancement"))
     intro = (
@@ -1813,6 +1984,7 @@ def render_app_html(data: dict) -> str:
             _section("live-results", "Live results", None, _render_live_results(data)),
             _section("prediction-vs-actual", "Prediction vs Actual", f"{_fi(len(_arr(data.get('prediction_vs_actual'))))} scored", _render_pva(data)),
             _section("live-group-tables", "Live group tables", None, _render_live_group_tables(data)),
+            _section("incentives", "Final group incentives", None, _render_incentives(data)),
             _section("advancement", "Advancement / bracket projections", None, _render_advancement(data)),
         ]
     )
