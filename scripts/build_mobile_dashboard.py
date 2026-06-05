@@ -140,8 +140,10 @@ def _submission_score_rows(scores: pd.DataFrame, date_map: dict[int, str]) -> tu
                 "final_recommended_score": final_score,
                 "predicted_team_a_goals": team_a_goals,
                 "predicted_team_b_goals": team_b_goals,
+                "score_to_fill_in": final_score,
                 "safe_score": row.get("safe_score"),
                 "ev_score": row.get("ev_score"),
+                "auto_consensus_score": row.get("auto_consensus_score"),
                 "auto_policy_decision": row.get("auto_policy_decision"),
                 "reason": row.get("reason"),
                 "manual_review_flag_original": bool(row.get("manual_review_flag_original")),
@@ -333,6 +335,10 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   .row-meta .pill { background:#1f2937; }
   .row-copy { margin-top:.55rem; font-size:.78rem; color:#9aa3b2; }
   .label { color:#8b93a4; font-size:.72rem; text-transform:uppercase; letter-spacing:.04em; }
+  .row-top > div:last-child { text-align:right; }
+  .audit-details { margin-top:.5rem; border-top:1px solid #232836; padding-top:.4rem; }
+  .audit-details > summary { color:#8b93a4; font-size:.78rem; }
+  .copybar b { font-size:.85rem; color:#dbe3f0; }
 </style>
 </head>
 <body>
@@ -684,6 +690,15 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     return html;
   }
 
+  function copyLine(row) {
+    const score = row.score_to_fill_in || row.final_recommended_score || '—';
+    return fmtInt(row.match_number) + '. ' + (row.team_a || '—') + ' ' + score + ' ' + (row.team_b || '—');
+  }
+
+  function copyButton(targetId, label) {
+    return '<button type="button" onclick="navigator.clipboard.writeText(document.getElementById(&quot;' + targetId + '&quot;).innerText)">' + esc(label) + '</button>';
+  }
+
   function renderSubmissionScores(rows, copyText) {
     if (!rows.length) {
       return '<p class="muted">No score predictions available.</p>';
@@ -699,27 +714,58 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
     const groupKeys = Object.keys(byGroup).sort();
     const total = rows.length;
-    let html = '<p class="muted"><b>Scores to fill in.</b> Fill in these 72 picks. The score line shown in green is the recommended submission; the safe score is kept when EV is rejected by policy.</p>';
-    html += '<div class="copybar"><button type="button" onclick="navigator.clipboard.writeText(document.getElementById(&quot;scores-copy&quot;).innerText)">Copy all scores</button><span class="muted">' + fmtInt(total) + ' lines</span></div>';
+
+    let html = '<p class="muted"><b>Scores to fill in.</b> There is exactly <b>one</b> score to submit per match — the <b>Score to fill in</b> shown in green. Safe / EV / consensus values are alternatives kept for audit only; you do not submit those.</p>';
+
+    // "All scores to fill in" copy block.
+    html += '<div class="copybar"><b>All scores to fill in</b>' + copyButton('scores-copy', 'Copy all scores') + '<span class="muted">' + fmtInt(total) + ' lines</span></div>';
     html += '<pre class="copyblock" id="scores-copy">' + esc(copyText) + '</pre>';
+
+    // Per-group copy blocks (collapsed by default).
+    let perGroupCopy = '';
     for (let i = 0; i < groupKeys.length; i += 1) {
       const groupName = groupKeys[i];
       const groupRows = byGroup[groupName];
-      let groupHtml = '<div class="copybar"><span class="muted">Copy-friendly line format: <code>1. Mexico 1-0 South Africa</code></span></div>';
+      const blockId = 'scores-copy-group-' + esc(groupName);
+      let lines = '';
+      for (let j = 0; j < groupRows.length; j += 1) {
+        lines += (j ? '\\n' : '') + copyLine(safeObject(groupRows[j]));
+      }
+      perGroupCopy += '<div class="copybar"><b>Group ' + esc(groupName) + '</b>' + copyButton(blockId, 'Copy group ' + esc(groupName)) + '</div>';
+      perGroupCopy += '<pre class="copyblock" id="' + blockId + '">' + esc(lines) + '</pre>';
+    }
+    html += '<details class="group-summary"><summary class="group-summary">Per-group copy blocks</summary>' + perGroupCopy + '</details>';
+
+    // Per-match cards: one prominent score, alternatives behind "Why?".
+    for (let i = 0; i < groupKeys.length; i += 1) {
+      const groupName = groupKeys[i];
+      const groupRows = byGroup[groupName];
+      let groupHtml = '';
       for (let j = 0; j < groupRows.length; j += 1) {
         const row = safeObject(groupRows[j]);
-        const score = row.final_recommended_score || '—';
+        const score = row.score_to_fill_in || row.final_recommended_score || '—';
         const policy = String(row.auto_policy_decision || '');
-        let policyLabel = 'science-only policy';
+        let policyExplain = 'Selected by the science-only policy.';
         if (policy === 'ev_override_accepted') {
-          policyLabel = 'EV accepted by policy';
+          policyExplain = 'EV alternative accepted: its expected-points uplift cleared the strict override threshold.';
         } else if (String(row.safe_score || '') === String(row.ev_score || '')) {
-          policyLabel = 'all scientific sources agree';
+          policyExplain = 'All scientific sources agreed on this score.';
         } else {
-          policyLabel = 'EV rejected by policy';
+          policyExplain = 'Safe alternative kept: the EV alternative did not clear the strict override threshold.';
         }
-        const originalManual = row.manual_review_flag_original ? 'yes' : 'no';
-        groupHtml += '<article class="row-card"><div class="row-top"><div><div class="label">Match ' + fmtInt(row.match_number) + (row.date ? ' · ' + esc(row.date) : '') + '</div><div class="row-title">' + esc(row.team_a || '—') + ' vs ' + esc(row.team_b || '—') + '</div></div><div class="score-big">' + esc(score) + '</div></div><div class="row-meta"><span class="pill">predicted A: ' + fmtInt(row.predicted_team_a_goals) + '</span><span class="pill">predicted B: ' + fmtInt(row.predicted_team_b_goals) + '</span><span class="pill">safe: ' + esc(row.safe_score || '—') + '</span><span class="pill">EV: ' + esc(row.ev_score || '—') + '</span><span class="pill">policy: ' + esc(row.auto_policy_decision || '—') + '</span><span class="pill">' + esc(policyLabel) + '</span><span class="pill">original manual flag: ' + esc(originalManual) + '</span></div><div class="row-copy">' + esc(fmtInt(row.match_number) + '. ' + row.team_a + ' ' + score + ' ' + row.team_b) + '<br><span class="muted">reason: ' + esc(row.reason || '—') + '</span></div></article>';
+        // Primary line: match number, team A, score, team B.
+        groupHtml += '<article class="row-card"><div class="row-top"><div><div class="label">Match ' + fmtInt(row.match_number) + (row.date ? ' · ' + esc(row.date) : '') + '</div><div class="row-title">' + esc(row.team_a || '—') + ' vs ' + esc(row.team_b || '—') + '</div></div><div><div class="label">Score to fill in</div><div class="score-big">' + esc(score) + '</div></div></div>';
+        groupHtml += '<div class="row-copy">' + esc(copyLine(row)) + '</div>';
+        // Secondary, collapsed audit details.
+        groupHtml += '<details class="audit-details"><summary>Why? / Audit details</summary><div class="row-meta">'
+          + '<span class="pill">Safe alternative: ' + esc(row.safe_score || '—') + '</span>'
+          + '<span class="pill">EV alternative: ' + esc(row.ev_score || '—') + '</span>'
+          + '<span class="pill">Consensus/modal score: ' + esc(row.auto_consensus_score || '—') + '</span>'
+          + '<span class="pill">Policy decision: ' + esc(row.auto_policy_decision || '—') + '</span>'
+          + '</div>'
+          + '<p class="muted" style="margin:.45rem 0 0">' + esc(policyExplain) + '</p>'
+          + '<p class="muted" style="margin:.25rem 0 0">Reason: ' + esc(row.reason || '—') + '</p>'
+          + '</details></article>';
       }
       html += '<details class="group-summary"><summary class="group-summary">Group ' + esc(groupName) + ' (' + fmtInt(groupRows.length) + ' matches)</summary>' + groupHtml + '</details>';
     }

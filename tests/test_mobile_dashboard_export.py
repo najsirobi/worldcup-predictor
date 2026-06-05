@@ -60,6 +60,31 @@ def test_render_html_produces_self_contained_page():
         assert marker in html, f"missing marker: {marker}"
 
 
+def test_dashboard_presents_single_primary_score_per_match():
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+    # The single number to submit is clearly labelled.
+    assert "Score to fill in" in html
+    # Copy-friendly line format is present verbatim.
+    assert "1. Mexico 1-0 South Africa" in html
+    # Alternatives are labelled as secondary/audit, not as final picks.
+    assert "Safe alternative" in html
+    assert "EV alternative" in html
+    assert "Consensus/modal score" in html
+    # Audit alternatives live behind a collapsible "Why? / Audit details" block.
+    assert "Why? / Audit details" in html
+    assert 'class="audit-details"' in html
+    # The bare "safe:" / "EV:" inline pills (old equal-pick presentation) are gone.
+    assert ">safe: " not in html
+    assert ">EV: " not in html
+    # Copy blocks for all scores and per group are present.
+    assert "All scores to fill in" in html
+    assert "Per-group copy blocks" in html
+    # No manual-review action text.
+    assert "manual review required" not in html.lower()
+    assert "manual decision required" not in html.lower()
+
+
 def test_dashboard_includes_prediction_vs_actual_section():
     payload = build_mobile_dashboard.build_payload()
     assert "prediction_vs_actual" in payload

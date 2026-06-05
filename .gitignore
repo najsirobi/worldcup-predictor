@@ -15,6 +15,7 @@ outputs/*
 outputs/reports/*
 !outputs/reports/travel_mode_guide.md
 !outputs/reports/github_issue_score_update_guide.md
+!outputs/reports/score_selection_policy_dashboard_note.md
 
 # Environment
 .env

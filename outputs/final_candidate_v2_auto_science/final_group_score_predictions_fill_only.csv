@@ -1,0 +1,73 @@
+match_number,group,team_a,team_b,score_to_fill_in,copy_text
+1,A,Mexico,South Africa,1-0,1. Mexico 1-0 South Africa
+2,A,Korea Republic,Czechia,1-0,2. Korea Republic 1-0 Czechia
+3,B,Canada,Bosnia and Herzegovina,1-0,3. Canada 1-0 Bosnia and Herzegovina
+4,D,USA,Paraguay,0-1,4. USA 0-1 Paraguay
+5,C,Brazil,Morocco,1-0,5. Brazil 1-0 Morocco
+6,D,Australia,Türkiye,0-1,6. Australia 0-1 Türkiye
+7,C,Haiti,Scotland,0-1,7. Haiti 0-1 Scotland
+8,B,Qatar,Switzerland,0-2,8. Qatar 0-2 Switzerland
+9,E,Germany,Curaçao,2-0,9. Germany 2-0 Curaçao
+10,E,Côte d'Ivoire,Ecuador,0-1,10. Côte d'Ivoire 0-1 Ecuador
+11,F,Netherlands,Japan,1-0,11. Netherlands 1-0 Japan
+12,F,Sweden,Tunisia,0-1,12. Sweden 0-1 Tunisia
+13,H,Spain,Cabo Verde,3-0,13. Spain 3-0 Cabo Verde
+14,H,Saudi Arabia,Uruguay,0-1,14. Saudi Arabia 0-1 Uruguay
+15,G,Belgium,Egypt,2-0,15. Belgium 2-0 Egypt
+16,G,IR Iran,New Zealand,1-0,16. IR Iran 1-0 New Zealand
+17,I,France,Senegal,1-0,17. France 1-0 Senegal
+18,I,Iraq,Norway,0-2,18. Iraq 0-2 Norway
+19,J,Argentina,Algeria,2-0,19. Argentina 2-0 Algeria
+20,J,Austria,Jordan,1-0,20. Austria 1-0 Jordan
+21,L,England,Croatia,1-0,21. England 1-0 Croatia
+22,L,Ghana,Panama,0-1,22. Ghana 0-1 Panama
+23,K,Portugal,Congo DR,1-0,23. Portugal 1-0 Congo DR
+24,K,Uzbekistan,Colombia,0-1,24. Uzbekistan 0-1 Colombia
+25,A,Mexico,Korea Republic,1-0,25. Mexico 1-0 Korea Republic
+26,B,Canada,Qatar,2-0,26. Canada 2-0 Qatar
+27,B,Switzerland,Bosnia and Herzegovina,2-0,27. Switzerland 2-0 Bosnia and Herzegovina
+28,A,Czechia,South Africa,1-0,28. Czechia 1-0 South Africa
+29,C,Brazil,Haiti,2-0,29. Brazil 2-0 Haiti
+30,C,Scotland,Morocco,0-1,30. Scotland 0-1 Morocco
+31,D,USA,Australia,0-1,31. USA 0-1 Australia
+32,D,Türkiye,Paraguay,1-0,32. Türkiye 1-0 Paraguay
+33,E,Germany,Côte d'Ivoire,1-0,33. Germany 1-0 Côte d'Ivoire
+34,E,Ecuador,Curaçao,2-0,34. Ecuador 2-0 Curaçao
+35,F,Netherlands,Sweden,2-0,35. Netherlands 2-0 Sweden
+36,F,Tunisia,Japan,0-1,36. Tunisia 0-1 Japan
+37,H,Spain,Saudi Arabia,3-0,37. Spain 3-0 Saudi Arabia
+38,H,Uruguay,Cabo Verde,1-0,38. Uruguay 1-0 Cabo Verde
+39,G,Belgium,IR Iran,1-0,39. Belgium 1-0 IR Iran
+40,G,New Zealand,Egypt,0-1,40. New Zealand 0-1 Egypt
+41,I,France,Iraq,2-0,41. France 2-0 Iraq
+42,I,Norway,Senegal,1-0,42. Norway 1-0 Senegal
+43,J,Argentina,Austria,1-0,43. Argentina 1-0 Austria
+44,J,Jordan,Algeria,0-1,44. Jordan 0-1 Algeria
+45,L,England,Ghana,2-0,45. England 2-0 Ghana
+46,L,Panama,Croatia,0-1,46. Panama 0-1 Croatia
+47,K,Portugal,Uzbekistan,1-0,47. Portugal 1-0 Uzbekistan
+48,K,Colombia,Congo DR,1-0,48. Colombia 1-0 Congo DR
+49,C,Scotland,Brazil,0-1,49. Scotland 0-1 Brazil
+50,C,Morocco,Haiti,1-0,50. Morocco 1-0 Haiti
+51,B,Switzerland,Canada,1-0,51. Switzerland 1-0 Canada
+52,B,Bosnia and Herzegovina,Qatar,1-0,52. Bosnia and Herzegovina 1-0 Qatar
+53,A,Czechia,Mexico,0-1,53. Czechia 0-1 Mexico
+54,A,South Africa,Korea Republic,0-1,54. South Africa 0-1 Korea Republic
+55,E,Ecuador,Germany,0-1,55. Ecuador 0-1 Germany
+56,E,Curaçao,Côte d'Ivoire,0-1,56. Curaçao 0-1 Côte d'Ivoire
+57,F,Tunisia,Netherlands,0-2,57. Tunisia 0-2 Netherlands
+58,F,Japan,Sweden,1-0,58. Japan 1-0 Sweden
+59,D,Türkiye,USA,1-0,59. Türkiye 1-0 USA
+60,D,Paraguay,Australia,1-0,60. Paraguay 1-0 Australia
+61,I,Norway,France,0-1,61. Norway 0-1 France
+62,I,Senegal,Iraq,1-0,62. Senegal 1-0 Iraq
+63,G,New Zealand,Belgium,0-2,63. New Zealand 0-2 Belgium
+64,G,Egypt,IR Iran,0-1,64. Egypt 0-1 IR Iran
+65,H,Uruguay,Spain,0-2,65. Uruguay 0-2 Spain
+66,H,Cabo Verde,Saudi Arabia,1-0,66. Cabo Verde 1-0 Saudi Arabia
+67,L,Panama,England,0-2,67. Panama 0-2 England
+68,L,Croatia,Ghana,2-0,68. Croatia 2-0 Ghana
+69,J,Jordan,Argentina,0-2,69. Jordan 0-2 Argentina
+70,J,Algeria,Austria,0-1,70. Algeria 0-1 Austria
+71,K,Colombia,Portugal,0-1,71. Colombia 0-1 Portugal
+72,K,Congo DR,Uzbekistan,0-1,72. Congo DR 0-1 Uzbekistan
