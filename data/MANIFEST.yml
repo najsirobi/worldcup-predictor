@@ -229,7 +229,33 @@ reference_data:
     target_path: "data/reference/wc2026_match_venues_enriched.csv"
     current_only: true
 
+  wc2022_human_upside_overlay:
+    source_type: "analyst_seed_reference"
+    source_url: "user_supplied_full_pipe_delimited_overlay_source"
+    role: "WC2022 human upside/current-state/chemistry/key-absence overlay validation seed"
+    target_path: "data/reference/wc2022_human_upside_overlay.csv"
+    source_cutoff: "2022-11-19 23:59 UTC"
+    source_script: "scripts/build_wc2022_human_overlay.py"
+    caution:
+      - "validation/backtest only"
+      - "source file must contain the full player/rationale pipe table; compact-scorecard fallback is disabled"
+      - "do not use actual WC2022 results during overlay construction"
+      - "do not apply to WC2026 predictions automatically"
+
 derived_data:
+  wc2022_overlay_backtest_input:
+    source_type: "script_generated_interim"
+    source_script: "scripts/build_wc2022_human_overlay.py"
+    role: "WC2022 group-stage Phase 4.5-style baseline predictions joined to actual results for downstream overlay evaluation"
+    source_inputs:
+      - "data/processed/model_matrix_baseline.parquet"
+      - "data/reference/wc2022_human_upside_overlay.csv"
+    target_path: "data/interim/wc2022_overlay_backtest_input.parquet"
+    source_cutoff: "baseline train<=2018-12-31; overlay cutoff 2022-11-19 23:59 UTC"
+    caution:
+      - "actual scores are included only for evaluation stage"
+      - "do not mutate baseline or WC2026 prediction files"
+
   wc2026_travel_sequences:
     source_type: "script_generated_interim"
     source_script: "scripts/build_wc2026_travel_sequences.py"

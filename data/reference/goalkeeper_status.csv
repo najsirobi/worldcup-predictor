@@ -1,0 +1,13 @@
+team,goalkeeper,expected_rank,availability_status,caps_or_experience_note,club_2026,source_date,source_url,crisis_flag,crisis_reason,needs_review
+Germany,Manuel Neuer,GK1,available,126 caps; experienced WC GK,Bayern Munich (GER),,,false,,false
+Germany,Oliver Baumann,GK2,available,10 caps,TSG Hoffenheim (GER),,,false,,true
+Germany,Alexander Nubel,GK3,available,2 caps,VfB Stuttgart (GER),,,false,,true
+Argentina,Emiliano Martinez,GK1,available,36 caps; WC2022 Golden Glove,Aston Villa (ENG),,,false,,false
+Argentina,Geronimo Rulli,GK2,available,20 caps,Marseille (FRA),,,false,,true
+England,Jordan Pickford,GK1,available,80+ caps; first choice since 2018,Everton (ENG),,,false,,false
+England,Dean Henderson,GK2,available,2 caps,Crystal Palace (ENG),,,false,,true
+Portugal,Diogo Costa,GK1,available,30+ caps; established #1,FC Porto (POR),,,false,,false
+Egypt,Mohamed El-Shenawy,GK1,available,65+ caps; experienced WC GK,Al-Ahly (EGY),,,false,,false
+Morocco,Yassine Bounou,GK1,available,55+ caps; WC2022 hero,Al-Hilal (KSA),,,false,,false
+Croatia,Dominik Livakovic,GK1,available,65+ caps; WC2022 penalty hero,Fenerbahce (TUR),,,false,,false
+IR Iran,Alireza Beiranvand,GK1,available,75+ caps; experienced WC GK,Persepolis (IRN),,,false,,false

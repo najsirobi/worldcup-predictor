@@ -1,0 +1,9 @@
+team,player,position,expected_xi_status,role_tier,role_importance_0_5,evidence_source,source_date,source_url,notes,needs_review
+Germany,Manuel Neuer,GK,expected_starter,starter_core,4,,,,Confirmed #1 GK; no challenger for opener slot.,false
+Germany,Florian Wirtz,MF,expected_starter,star_carry,5,,,,Designated star/carry player per overlay.,false
+Germany,Aleksandar Pavlovic,MF,likely_starter,starter_core,3,,,,Biggest talent per overlay; starter likely in midfield.,false
+Germany,Lennart Karl,CB,unavailable,rotation,3,,,,Ruled out (left-thigh tear); replaced by Ouedraogo.,false
+Germany,Assan Ouedraogo,MF,likely_starter,rotation,2,,,,Called up as Karl replacement; exact role TBC.,true
+Argentina,Lionel Messi,FW,expected_starter,star_carry,5,,,,In squad; left hamstring risk under active monitoring. Treat as expected starter unless availability update fires.,true
+Argentina,Rodrigo De Paul,MF,expected_starter,starter_core,3,,,,Consistent senior starter; no known fitness issue.,false
+Argentina,Nico Paz,MF,likely_starter,starter_core,3,,,,Identified biggest talent; fighting for starter slot.,true

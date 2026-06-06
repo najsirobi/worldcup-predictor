@@ -27,6 +27,91 @@ DOCS_DIR = ROOT / "docs"
 REPO_SLUG = os.environ.get("TRAVEL_MODE_REPO", "")
 V1_DIR = ROOT / "outputs" / "final_candidate_v1"
 
+# Human Upside analyst overlay (advisory only — never used in the submission).
+HUMAN_UPSIDE_OVERLAY_CSV = ROOT / "data" / "reference" / "wc2026_human_upside_overlay.csv"
+HUMAN_UPSIDE_MATCH_CSV = ROOT / "outputs" / "predictions" / "human_upside_match_overlay.csv"
+HUMAN_UPSIDE_SUGGESTIONS_CSV = ROOT / "outputs" / "predictions" / "human_upside_score_review_suggestions_strict.csv"
+HUMAN_UPSIDE_EXTREME_SHORTLIST_CSV = ROOT / "outputs" / "predictions" / "human_upside_extreme_mismatch_review_shortlist.csv"
+HUMAN_UPSIDE_EXTREME_AUDIT_CSV = ROOT / "outputs" / "predictions" / "human_upside_extreme_mismatch_review_audit.csv"
+HUMAN_UPSIDE_KNOCKOUT_CSV = ROOT / "outputs" / "predictions" / "human_upside_knockout_overlay_strict.csv"
+HUMAN_UPSIDE_KNOCKOUT_BROAD_CSV = ROOT / "outputs" / "predictions" / "human_upside_knockout_overlay.csv"
+HUMAN_UPSIDE_KNOCKOUT_EXTREME_CSV = ROOT / "outputs" / "predictions" / "human_upside_knockout_extreme_mismatch_review.csv"
+HUMAN_UPSIDE_LABEL = "Context only — not used in final prediction."
+HUMAN_UPSIDE_REVIEW_LABEL = "Objective residual review — not applied."
+
+# Deterministic objective-residual adjusted candidate (v3). The base model
+# (final_candidate_v2_auto_science) stays the baseline/reference. When the v3
+# promotion gate passes, its scores become the "score to fill in".
+OBJECTIVE_RESIDUAL_DIR = ROOT / "outputs" / "final_candidate_v3_objective_residual"
+OBJECTIVE_RESIDUAL_MANIFEST = OBJECTIVE_RESIDUAL_DIR / "FROZEN_MANIFEST.json"
+OBJECTIVE_RESIDUAL_ADJUSTMENTS = OBJECTIVE_RESIDUAL_DIR / "objective_residual_adjustments.csv"
+OBJECTIVE_RESIDUAL_FILL = OBJECTIVE_RESIDUAL_DIR / "final_group_score_predictions_fill_only.csv"
+BASE_MODEL_LABEL = "Base model: v2_auto_science"
+ADJUSTED_CANDIDATE_LABEL = "Adjusted candidate: final_candidate_v3_objective_residual"
+# Deliberately avoids the phrase "manual approval" — this layer is fully deterministic.
+NO_MANUAL_LABEL = "No manual sign-off or subjective override used."
+
+
+def _load_objective_residual() -> dict:
+    """Load the deterministic objective-residual adjusted candidate (v3).
+
+    Returns the promotion status, per-match adjustments, and an override map keyed by
+    match number. The override map is only populated when the promotion gate passes;
+    otherwise v2 stays the active score-to-fill-in source.
+    """
+    payload = {
+        "available": False,
+        "promotion_gate_passed": False,
+        "promotion_warning": False,
+        "base_model": "final_candidate_v2_auto_science",
+        "adjusted_candidate": "final_candidate_v3_objective_residual",
+        "rule": None,
+        "n_adjusted_scores": 0,
+        "base_model_byte_identical": None,
+        "adjustments": [],
+        "override_map": {},
+        "base_model_label": BASE_MODEL_LABEL,
+        "adjusted_candidate_label": ADJUSTED_CANDIDATE_LABEL,
+        "no_manual_label": NO_MANUAL_LABEL,
+        "rule_applied": False,
+    }
+    if not OBJECTIVE_RESIDUAL_MANIFEST.exists() or not OBJECTIVE_RESIDUAL_ADJUSTMENTS.exists():
+        return payload
+
+    manifest = _read_json(OBJECTIVE_RESIDUAL_MANIFEST)
+    payload["available"] = True
+    payload["promotion_gate_passed"] = bool(manifest.get("promotion_gate_passed"))
+    payload["promotion_warning"] = bool(manifest.get("promotion_warning"))
+    payload["rule"] = manifest.get("rule")
+    payload["n_adjusted_scores"] = int(manifest.get("n_adjusted_scores") or 0)
+    payload["base_model_byte_identical"] = manifest.get("base_model_byte_identical")
+    payload["rule_applied"] = bool(manifest.get("promotion_gate_passed")) and (
+        int(manifest.get("n_adjusted_scores") or 0) > 0
+    )
+
+    adj = pd.read_csv(OBJECTIVE_RESIDUAL_ADJUSTMENTS)
+    changed = adj[adj["changed"].astype(bool)]
+    payload["adjustments"] = changed.where(pd.notna(changed), None).to_dict(orient="records")
+
+    if payload["promotion_gate_passed"] and OBJECTIVE_RESIDUAL_FILL.exists():
+        fill = pd.read_csv(OBJECTIVE_RESIDUAL_FILL)
+        fill_map = {int(r["match_number"]): r for _, r in fill.iterrows()}
+        for rec in payload["adjustments"]:
+            mn = int(rec["match_number"])
+            f = fill_map.get(mn)
+            if f is None:
+                continue
+            payload["override_map"][mn] = {
+                "adjusted_score": str(f["score_to_fill_in"]),
+                "copy_text": str(f["copy_text"]),
+                "v2_score": str(rec["v2_score"]),
+                "rule_triggered": str(rec["rule_triggered"]),
+                "why_objective": str(rec["reason"]),
+                "change_type": str(rec["change_type"]),
+                "overlay_diff": rec.get("overlay_diff"),
+            }
+    return payload
+
 
 def _json_safe(value):
     """Recursively convert values into strict-JSON-safe primitives."""
@@ -126,13 +211,20 @@ def _submission_score_rows(
     date_map: dict[int, str],
     fill_map: dict[int, dict],
     prediction_vs_actual: list[dict],
+    objective_override_map: dict[int, dict] | None = None,
 ) -> tuple[list[dict], str]:
     """Build per-match frozen submission rows with live actual overlays.
 
     Submitted scores and copy-friendly lines come from the clean fill-only export
     when present. Actual scores and points are overlaid from live
     prediction-vs-actual scoring without changing the submitted score.
+
+    When ``objective_override_map`` is provided (the deterministic v3 objective-residual
+    candidate passed its promotion gate), the score-to-fill-in for the adjusted matches
+    is taken from that candidate. The base v2 score is preserved per row for
+    transparency. The frozen v2 files themselves are never modified.
     """
+    objective_override_map = objective_override_map or {}
     actual_by_match = {
         int(row["match_number"]): row
         for row in prediction_vs_actual
@@ -146,9 +238,21 @@ def _submission_score_rows(
         group = fill.get("group") or row.get("group") or ""
         team_a = fill.get("team_a") or row.get("team_a") or ""
         team_b = fill.get("team_b") or row.get("team_b") or ""
-        # Authoritative score + copy line come from the fill-only export.
-        score = fill.get("score_to_fill_in") or row.get("final_recommended_score") or ""
+        # Authoritative score + copy line come from the fill-only export (v2 base).
+        base_v2_score = fill.get("score_to_fill_in") or row.get("final_recommended_score") or ""
+        score = base_v2_score
         copy_text = fill.get("copy_text") or f"{match_number}. {team_a} {score} {team_b}"
+        # Deterministic objective-residual override (v3) when promotion gate passes.
+        override = objective_override_map.get(match_number)
+        objective_applied = bool(override)
+        objective_rule = None
+        objective_why = None
+        if override:
+            score = override["adjusted_score"]
+            copy_text = override["copy_text"]
+            base_v2_score = override["v2_score"]
+            objective_rule = override["rule_triggered"]
+            objective_why = override["why_objective"]
         team_a_goals, team_b_goals = _score_parts(score)
         date = date_map.get(match_number) if match_number is not None else None
         actual = actual_by_match.get(match_number or -1, {})
@@ -176,6 +280,10 @@ def _submission_score_rows(
                 "reason": row.get("reason"),
                 "manual_review_flag_original": bool(row.get("manual_review_flag_original")),
                 "manual_review_resolved_auto": bool(row.get("manual_review_resolved_auto")),
+                "base_v2_score": base_v2_score,
+                "objective_residual_applied": objective_applied,
+                "objective_rule_triggered": objective_rule,
+                "objective_why": objective_why,
             }
         )
         copy_lines.append(copy_text)
@@ -224,6 +332,86 @@ def _load_knockout_predictions() -> dict:
         return _read_json(LIVE_DIR / "knockout_predictions.json")
 
 
+def _load_human_upside_overlay() -> dict:
+    """Load the advisory Human Upside overlay artifacts (graceful if absent)."""
+
+    payload = {
+        "label": HUMAN_UPSIDE_LABEL,
+        "available": False,
+        "teams": [],
+        "flagged_matches": [],
+        "score_suggestions": [],
+        "score_suggestions_shortlist": [],
+        "score_suggestions_audit": [],
+        "extreme_mismatch_audit": [],
+        "score_suggestions_too_broad": False,
+        "knockout": [],
+        "knockout_broad_audit": [],
+        "knockout_shortlist": [],
+        "knockout_too_broad": False,
+        "n_needs_review": 0,
+    }
+    if not HUMAN_UPSIDE_OVERLAY_CSV.exists():
+        return payload
+
+    overlay = pd.read_csv(HUMAN_UPSIDE_OVERLAY_CSV)
+    keep = [
+        "team", "group", "star_player", "biggest_talent",
+        "final_adjusted_human_overlay_score", "upside_category",
+        "chemistry_adjustment", "chemistry_rationale",
+        "key_absent_player", "key_absence_reason", "key_absence_residual_penalty",
+        "key_absence_already_reflected_score_0_5", "key_absence_rationale",
+        "key_absence_needs_review", "analyst_note", "needs_review",
+    ]
+    overlay = overlay[[c for c in keep if c in overlay.columns]].copy()
+    overlay = overlay.sort_values("final_adjusted_human_overlay_score", ascending=False)
+    payload["teams"] = overlay.where(pd.notna(overlay), None).to_dict(orient="records")
+    payload["available"] = True
+    if "needs_review" in overlay.columns:
+        payload["n_needs_review"] = int(overlay["needs_review"].astype(bool).sum())
+
+    if HUMAN_UPSIDE_MATCH_CSV.exists():
+        match = pd.read_csv(HUMAN_UPSIDE_MATCH_CSV)
+        flagged = match[match["review_flag"].astype(bool)] if "review_flag" in match.columns else match.iloc[0:0]
+        cols = [
+            "match_number", "group", "team_a", "team_b", "v2_score",
+            "final_human_overlay_diff", "team_a_category", "team_b_category",
+            "team_a_chemistry_adjustment", "team_b_chemistry_adjustment",
+            "key_absent_player", "key_absence_reason", "key_absence_residual_penalty",
+            "key_absence_already_reflected_score_0_5", "key_absence_rationale",
+            "overlay_note", "chemistry_review_note",
+        ]
+        flagged = flagged[[c for c in cols if c in flagged.columns]]
+        payload["flagged_matches"] = flagged.where(pd.notna(flagged), None).to_dict(orient="records")
+
+    if HUMAN_UPSIDE_EXTREME_SHORTLIST_CSV.exists():
+        sl = pd.read_csv(HUMAN_UPSIDE_EXTREME_SHORTLIST_CSV)
+        payload["score_suggestions"] = sl.where(pd.notna(sl), None).to_dict(orient="records")
+        payload["score_suggestions_shortlist"] = payload["score_suggestions"]
+
+    if HUMAN_UPSIDE_EXTREME_AUDIT_CSV.exists():
+        audit = pd.read_csv(HUMAN_UPSIDE_EXTREME_AUDIT_CSV)
+        payload["extreme_mismatch_audit"] = audit.where(pd.notna(audit), None).to_dict(orient="records")
+
+    if HUMAN_UPSIDE_SUGGESTIONS_CSV.exists():
+        broad = pd.read_csv(HUMAN_UPSIDE_SUGGESTIONS_CSV)
+        payload["score_suggestions_audit"] = broad.where(pd.notna(broad), None).to_dict(orient="records")
+        payload["score_suggestions_too_broad"] = len(broad) > 0
+
+    if HUMAN_UPSIDE_KNOCKOUT_EXTREME_CSV.exists():
+        ko = pd.read_csv(HUMAN_UPSIDE_KNOCKOUT_EXTREME_CSV)
+        payload["knockout"] = ko.where(pd.notna(ko), None).to_dict(orient="records")
+        flagged = ko[ko["knockout_review_flag"].astype(bool)] if "knockout_review_flag" in ko.columns else ko.iloc[0:0]
+        payload["knockout_shortlist"] = flagged.where(pd.notna(flagged), None).to_dict(orient="records")
+        payload["knockout_too_broad"] = False
+
+    if HUMAN_UPSIDE_KNOCKOUT_BROAD_CSV.exists():
+        broad = pd.read_csv(HUMAN_UPSIDE_KNOCKOUT_BROAD_CSV)
+        payload["knockout_broad_audit"] = broad.where(pd.notna(broad), None).to_dict(orient="records")
+
+    return payload
+
+
 def build_payload() -> dict:
     candidate_obj = load_active_candidate()
     candidate = candidate_obj.as_dict()
@@ -244,12 +432,14 @@ def build_payload() -> dict:
     standings = standings_df.to_dict(orient="records")
     last8 = last8_df.to_dict(orient="records")
     fill_map = _load_fill_map(candidate_obj.candidate_dir)
+    objective_residual = _load_objective_residual()
     prediction_vs_actual_matches = pva.get("matches", [])
     submission_scores, submission_copy_text = _submission_score_rows(
         scores,
         date_map,
         fill_map,
         prediction_vs_actual_matches,
+        {int(k): v for k, v in objective_residual["override_map"].items()},
     )
     review = _review_rows(scores)
 
@@ -336,6 +526,8 @@ def build_payload() -> dict:
         "last8_picks": last8,
         "knockout_predictions": knockout,
         "manual_review": review,
+        "human_upside_overlay": _load_human_upside_overlay(),
+        "objective_residual": objective_residual,
     }
 
 
@@ -350,6 +542,7 @@ SECTION_DEFAULT_OPEN = {
     "live-group-tables": False,
     "incentives": False,
     "advancement": False,
+    "human-upside-overlay": False,
 }
 
 
@@ -516,6 +709,7 @@ HTML_TEMPLATE = """<!DOCTYPE html>
   <a href="#live-group-tables">Live group tables</a>
   <a href="#incentives">Incentives</a>
   <a href="#advancement">Advancement</a>
+  <a href="#human-upside-overlay">Human upside (analyst)</a>
 </nav>
 <main id="app"><!--APP_PLACEHOLDER--></main>
 <script id="payload" type="application/json"><!--PAYLOAD_JSON_PLACEHOLDER--></script>
@@ -855,9 +1049,9 @@ HTML_TEMPLATE = """<!DOCTYPE html>
     }
     const manualReview = safeArray(data.manual_review);
     if (manualReview.length) {
-      notes.push('<li>Original manual-review flags are shown below for audit only.</li>');
+      notes.push('<li>Original v2 audit flags are shown below for audit only.</li>');
     } else {
-      notes.push('<li>No original manual-review flags were present.</li>');
+      notes.push('<li>No original v2 audit flags were present.</li>');
     }
     let html = '<ul>';
     for (let i = 0; i < notes.length; i += 1) {
@@ -1491,7 +1685,48 @@ def _render_submission_scores(data: dict) -> str:
         by_group.setdefault(_obj(row).get("group") or "?", []).append(_obj(row))
     group_keys = sorted(by_group)
 
+    objective = _obj(data.get("objective_residual"))
+    rule_applied = bool(objective.get("rule_applied"))
+    n_adjusted = int(objective.get("n_adjusted_scores") or 0)
+    rule_name = objective.get("rule") or "R1_only_diff_5_0"
     html = (
+        '<div class="copybar" style="display:block">'
+        f'<p style="margin:0"><b>{_esc(BASE_MODEL_LABEL)}</b></p>'
+        f'<p style="margin:.15rem 0 0"><b>Post-model objective residual rule applied: '
+        f'{"yes" if rule_applied else "no"}</b>'
+        + (f' ({_esc(rule_name)}, {_fi(n_adjusted)} adjusted scores)' if rule_applied else "")
+        + "</p>"
+        f'<p style="margin:.15rem 0 0">{_esc(ADJUSTED_CANDIDATE_LABEL)}</p>'
+        f'<p class="muted" style="margin:.15rem 0 0">{_esc(NO_MANUAL_LABEL)} These adjusted '
+        "scores are deterministic outputs, not optional suggestions.</p>"
+        "</div>"
+    )
+    if rule_applied and objective.get("override_map") is not None:
+        adj_rows = ""
+        for row in rows:
+            r = _obj(row)
+            if not r.get("objective_residual_applied"):
+                continue
+            adj_rows += (
+                '<article class="row-card"><div class="row-top"><div>'
+                f'<div class="label">Match {_fi(r.get("match_number"))}</div>'
+                f'<div class="row-title">{_esc(r.get("team_a") or "—")} vs {_esc(r.get("team_b") or "—")}</div>'
+                '</div><div>'
+                f'<div class="muted">v2 score: <b>{_esc(r.get("base_v2_score") or "—")}</b></div>'
+                f'<div class="score-big">{_esc(r.get("submitted_score") or "—")}</div>'
+                f'<div class="muted">Rule triggered: {_esc(r.get("objective_rule_triggered") or "—")}</div>'
+                "</div></div>"
+                f'<p class="muted" style="margin:.35rem 0 0">Why objective: {_esc(r.get("objective_why") or "—")}</p>'
+                "</article>"
+            )
+        html += (
+            '<details class="audit-details" open><summary>Objective residual adjustments '
+            f'({_fi(n_adjusted)})</summary>'
+            '<p class="muted">Deterministic, max one-goal changes from '
+            f'{_esc(rule_name)} (WC2022-validated). v2 is preserved as baseline/reference.</p>'
+            f'{adj_rows}</details>'
+        )
+    html += (
         '<p class="muted"><b>All 72 group-stage scores to fill in</b>, grouped A-L. '
         "One score per match — the big green number. These are your <b>Submitted prediction</b> "
         "(locked/submitted); copy the whole list or one group at a time below.</p>"
@@ -1695,6 +1930,10 @@ def _render_knockout(data: dict) -> str:
     labels = _obj(k.get("round_labels"))
     by_round = _obj(k.get("matches_by_round"))
     rounds = _arr(k.get("rounds")) or list(by_round)
+    overlay = _obj(data.get("human_upside_overlay"))
+    ko_overlay = {
+        _obj(r).get("match_number"): _obj(r) for r in _arr(overlay.get("knockout"))
+    }
 
     html = (
         '<p class="muted"><b>Knockout match predictions</b> — predicted exact score, who advances, '
@@ -1729,6 +1968,32 @@ def _render_knockout(data: dict) -> str:
             score = row.get("current_score") or row.get("projected_score") or "—"
             adv = row.get("current_advancing_team") or row.get("projected_advancing_team") or "—"
             so = '<span class="pill">shoot-out</span>' if row.get("current_shootout") else ""
+            ov = ko_overlay.get(row.get("match_number"))
+            overlay_block = ""
+            if ov and ov.get("final_human_overlay_diff") is not None:
+                flag_pill = '<span class="pill">objective residual review</span>' if ov.get("knockout_review_flag") else ""
+                so_review = ov.get("review_only_suggested_score")
+                adv_note = ov.get("review_only_advancing_team_note") or ov.get("knockout_overlay_note") or ""
+                if isinstance(so_review, float) and math.isnan(so_review):
+                    so_review = None
+                if isinstance(adv_note, float) and math.isnan(adv_note):
+                    adv_note = ""
+                overlay_block = (
+                    '<details class="audit-details"><summary>Human overlay context / objective residual review</summary>'
+                    '<div class="row-meta">'
+                    f'<span class="pill muted">{_esc(HUMAN_UPSIDE_LABEL)}</span>{flag_pill}</div>'
+                    '<div class="row-meta">'
+                    f'<span class="pill">{_esc(team_a)}: {_fnum(ov.get("team_a_final_adjusted_human_overlay_score"))} '
+                    f'({_esc(ov.get("team_a_category") or "—")}, chem {_fnum(ov.get("team_a_chemistry_adjustment"))})</span>'
+                    f'<span class="pill">{_esc(team_b)}: {_fnum(ov.get("team_b_final_adjusted_human_overlay_score"))} '
+                    f'({_esc(ov.get("team_b_category") or "—")}, chem {_fnum(ov.get("team_b_chemistry_adjustment"))})</span>'
+                    f'<span class="pill">diff {_fnum(ov.get("final_human_overlay_diff"))}</span></div>'
+                    '<div class="row-meta">'
+                    f'<span class="pill">stars: {_esc(ov.get("team_a_star_player") or "—")} / {_esc(ov.get("team_b_star_player") or "—")}</span>'
+                    f'<span class="pill">talents: {_esc(ov.get("team_a_biggest_talent") or "—")} / {_esc(ov.get("team_b_biggest_talent") or "—")}</span></div>'
+                    + (f'<p class="muted">Objective residual candidate score: <b>{_esc(so_review)}</b> — {_esc(adv_note)}</p>' if so_review else (f'<p class="muted">{_esc(adv_note)}</p>' if adv_note else ""))
+                    + "</details>"
+                )
             inner += (
                 '<article class="row-card"><div class="row-top"><div>'
                 f'<div class="label">Match {_fi(row.get("match_number"))} · {_esc(row.get("round_label") or round_label)}</div>'
@@ -1738,6 +2003,7 @@ def _render_knockout(data: dict) -> str:
                 f'<span class="pill">advances: {_esc(adv)}</span>{so}</div>'
                 f'</div><div><div class="label">Predicted score</div><div class="score-big">{_esc(score)}</div></div></div>'
                 f'<div class="row-copy">{_esc(row.get("copy_text") or "")}</div>'
+                + overlay_block +
                 '<details class="audit-details"><summary>Compare gambles</summary><div class="row-meta">'
                 f'<span class="pill">Projected: {_esc(row.get("projected_team_a") or "TBD")} {_esc(row.get("projected_score") or "—")} {_esc(row.get("projected_team_b") or "TBD")} (adv {_esc(row.get("projected_advancing_team") or "—")})</span>'
                 f'<span class="pill">Current: {_esc(team_a)} {_esc(score)} {_esc(team_b)} (adv {_esc(adv)})</span>'
@@ -1893,6 +2159,221 @@ def _render_live_group_tables(data: dict) -> str:
     return intro + body
 
 
+def _render_human_upside(data: dict) -> str:
+    overlay = _obj(data.get("human_upside_overlay"))
+    label = overlay.get("label") or HUMAN_UPSIDE_LABEL
+    banner = (
+        f'<p class="muted"><b>{_esc(label)}</b></p>'
+        '<p class="muted">A limited analyst overlay for human/tournament variance the statistical '
+        "model does not capture — elite-player ceilings, young-talent breakouts, current player "
+        "state/role/availability, star/talent chemistry and team-core cohesion. Recent match "
+        "results are treated as form, not chemistry. It does not change the submitted scores.</p>"
+    )
+    if not overlay.get("available"):
+        return banner + '<p class="muted">Overlay artifacts not built yet. Run <code>scripts/build_human_upside_overlay.py</code>.</p>'
+
+    teams = _arr(overlay.get("teams"))
+    html = banner
+    html += f'<p class="muted">{_fi(len(teams))} teams · {_fi(overlay.get("n_needs_review"))} flagged needs-review.</p>'
+
+    # Per-team overlay table.
+    html += (
+        '<table class="aligned"><colgroup><col class="team"><col><col>'
+        '<col class="numcol"><col><col class="numcol"><col class="numcol"></colgroup>'
+        '<tr><th class="team">Team</th><th>Star player</th><th>Biggest talent</th>'
+        '<th class="num">Overlay</th><th>Category</th><th class="num">Chem</th>'
+        '<th class="num">Abs</th></tr>'
+    )
+    for row in teams:
+        row = _obj(row)
+        chem = row.get("chemistry_adjustment")
+        chem_str = f"{float(chem):+g}" if isinstance(chem, (int, float)) else "—"
+        absence_residual = row.get("key_absence_residual_penalty")
+        absence_str = f"{float(absence_residual):+g}" if isinstance(absence_residual, (int, float)) else "—"
+        review = " ⚠️" if row.get("needs_review") else ""
+        html += (
+            f'<tr><td class="team">{_esc(row.get("team") or "—")}{review}</td>'
+            f'<td>{_esc(row.get("star_player") or "—")}</td>'
+            f'<td>{_esc(row.get("biggest_talent") or "—")}</td>'
+            f'<td class="num">{_fnum(row.get("final_adjusted_human_overlay_score"))}</td>'
+            f'<td>{_esc(row.get("upside_category") or "—")}</td>'
+            f'<td class="num">{_esc(chem_str)}</td>'
+            f'<td class="num">{_esc(absence_str)}</td></tr>'
+        )
+        rationale = row.get("chemistry_rationale") or ""
+        note = row.get("analyst_note") or ""
+        absent_player = row.get("key_absent_player") or ""
+        absence_reason = row.get("key_absence_reason") or ""
+        absence_reflected = row.get("key_absence_already_reflected_score_0_5")
+        absence_rationale = row.get("key_absence_rationale") or ""
+        absence_review = " · needs review" if row.get("key_absence_needs_review") else ""
+        absence_bits = ""
+        if absent_player:
+            absence_bits = (
+                f'<br><b>Key absence:</b> {_esc(absent_player)}'
+                f' ({_esc(absence_reason or "—")}; residual {_esc(absence_str)}; '
+                f'already reflected {_fi(absence_reflected)}/5{_esc(absence_review)}). '
+                f'{_esc(absence_rationale)}'
+            )
+        if rationale or note or absence_bits:
+            html += (
+                '<tr><td></td><td colspan="6" class="muted">'
+                f'<b>Chemistry:</b> {_esc(rationale)}<br><b>Analyst:</b> {_esc(note)}'
+                f'{absence_bits}</td></tr>'
+            )
+    html += "</table>"
+
+    # Broad match-level review flags are audit-only under the final 2026 policy.
+    flagged = _arr(overlay.get("flagged_matches"))
+    if flagged:
+        flag_table = (
+            '<table class="aligned"><colgroup><col class="numcol"><col class="numcol"><col>'
+            '<col class="numcol"><col class="numcol"><col></colgroup>'
+            '<tr><th class="num">#</th><th class="num">G</th><th class="team">Match</th>'
+            '<th class="num">v2</th><th class="num">Diff</th><th>Why flagged</th></tr>'
+        )
+        for row in flagged:
+            row = _obj(row)
+            flag_table += (
+                f'<tr><td class="num">{_fi(row.get("match_number"))}</td>'
+                f'<td class="num">{_esc(row.get("group") or "—")}</td>'
+                f'<td class="team">{_esc(row.get("team_a") or "—")} v {_esc(row.get("team_b") or "—")}</td>'
+                f'<td class="num">{_esc(row.get("v2_score") or "—")}</td>'
+                f'<td class="num">{_fnum(row.get("final_human_overlay_diff"))}</td>'
+                f'<td>{_esc(row.get("overlay_note") or "—")}</td></tr>'
+            )
+        flag_table += "</table>"
+        html += (
+            '<details class="audit-details"><summary>Broad match-level overlay flags (audit-only)</summary>'
+            '<p class="muted">Broad WC2026 human-overlay flags are hidden by default after the WC2022 backtest; '
+            'they are context only, not recommendations.</p>'
+            + flag_table + "</details>"
+        )
+
+    # Final policy: only the extreme-mismatch shortlist is a visible review surface.
+    sugg = _arr(overlay.get("score_suggestions"))
+    broad_audit = _arr(overlay.get("score_suggestions_audit"))
+    extreme_audit = _arr(overlay.get("extreme_mismatch_audit"))
+    html += f'<h3 style="margin-top:1rem">Extreme mismatch review shortlist ({_fi(len(sugg))})</h3>'
+    html += (
+        f'<p class="muted"><b>{_esc(HUMAN_UPSIDE_REVIEW_LABEL)}</b> The v2 score stays primary. '
+        "Rows appear only when elite/positive vs fragile/low-upside, overlay diff, score-shape, "
+        "and attack/fragility gates all pass.</p>"
+    )
+
+    def _sugg_table(rows: list) -> str:
+        out = (
+            '<table class="aligned"><colgroup><col class="numcol"><col><col class="numcol">'
+            '<col class="numcol"><col><col></colgroup>'
+            '<tr><th class="num">#</th><th class="team">Match</th><th class="num">v2</th>'
+            '<th class="num">Objective candidate</th><th>Advantaged</th><th>Reason</th></tr>'
+        )
+        for row in rows:
+            row = _obj(row)
+            out += (
+                f'<tr><td class="num">{_fi(row.get("match_number"))}</td>'
+                f'<td class="team">{_esc(row.get("team_a") or "—")} v {_esc(row.get("team_b") or "—")}</td>'
+                f'<td class="num">{_esc(row.get("v2_score") or "—")}</td>'
+                f'<td class="num">{_esc(row.get("suggested_review_score") or "—")}</td>'
+                f'<td>{_esc(row.get("advantaged_team") or row.get("changed_team") or "—")}</td>'
+                f'<td>{_esc(row.get("reason") or row.get("why_this_is_review_only") or "—")} '
+                f'<span class="muted">{_esc(row.get("why_this_is_review_only") or HUMAN_UPSIDE_REVIEW_LABEL)}</span></td></tr>'
+            )
+        return out + "</table>"
+
+    if not sugg:
+        html += '<p class="muted">No group match met the final extreme-mismatch review policy.</p>'
+    else:
+        html += _sugg_table(sugg)
+    if len(extreme_audit) > len(sugg):
+        html += (
+            '<details class="audit-details"><summary>Extreme mismatch audit rows beyond primary shortlist</summary>'
+            + _sugg_table([_obj(x) for x in extreme_audit if _obj(x).get("review_scope") == "audit_only"])
+            + "</details>"
+        )
+    if broad_audit:
+        html += (
+            '<details class="audit-details"><summary>Broad human-overlay suggestions (audit-only, hidden by default)</summary>'
+            '<p class="muted">The WC2022 full-table backtest found broad suggestions harmful/noisy. '
+            'These rows are retained only for audit context and are not usable recommendations.</p>'
+            + _sugg_table(broad_audit) + "</details>"
+        )
+
+    # Knockout human-overlay review (next round first, then collapsed full list).
+    html += _render_knockout_human_overlay(overlay, label)
+    return html
+
+
+def _render_knockout_human_overlay(overlay: dict, label: str) -> str:
+    ko = _arr(overlay.get("knockout"))
+    shortlist = _arr(overlay.get("knockout_shortlist"))
+    broad_audit = _arr(overlay.get("knockout_broad_audit"))
+    html = '<h3 style="margin-top:1.1rem" id="knockout-human-overlay-review">Knockout human-overlay review (strict)</h3>'
+    html += (
+        f'<p class="muted"><b>{_esc(HUMAN_UPSIDE_REVIEW_LABEL)}</b> Strict current/next-round knockout '
+        "review flags only. The base knockout prediction, advancing team, and shootout call are never "
+        "changed automatically; future projected rounds are collapsed/audit-only.</p>"
+    )
+    if not ko:
+        return html + '<p class="muted">No knockout overlay available yet.</p>'
+
+    flagged = [r for r in (_obj(x) for x in ko) if r.get("knockout_review_flag")]
+    # Next round first: lowest round (R32 before R16 ...) by match_number ordering.
+    flagged.sort(key=lambda r: (r.get("match_number") or 0))
+
+    def _ko_table(rows: list) -> str:
+        out = (
+            '<table class="aligned"><colgroup><col class="numcol"><col><col class="team">'
+            '<col class="numcol"><col><col class="numcol"><col class="numcol"><col></colgroup>'
+            '<tr><th class="num">#</th><th>Round</th><th class="team">Match</th>'
+            '<th class="num">Base</th><th>Adv</th><th class="num">Diff</th><th class="num">#crit</th><th>Objective note</th></tr>'
+        )
+        for r in rows:
+            r = _obj(r)
+            note = r.get("review_only_advancing_team_note") or r.get("knockout_overlay_note") or "—"
+            sugg = r.get("review_only_suggested_score")
+            sugg_txt = f' (objective candidate note {_esc(sugg)})' if sugg else ""
+            out += (
+                f'<tr><td class="num">{_fi(r.get("match_number"))}</td>'
+                f'<td>{_esc(r.get("round") or "—")}</td>'
+                f'<td class="team">{_esc(r.get("team_a") or "—")} v {_esc(r.get("team_b") or "—")}</td>'
+                f'<td class="num">{_esc(r.get("base_predicted_score") or "—")}</td>'
+                f'<td>{_esc(r.get("base_advancing_team") or "—")}</td>'
+                f'<td class="num">{_fnum(r.get("final_human_overlay_diff"))}</td>'
+                f'<td class="num">{_fi(r.get("strict_qualifying_criteria_count"))}</td>'
+                f'<td>{_esc(note)}{sugg_txt}</td></tr>'
+            )
+        return out + "</table>"
+
+    if shortlist:
+        html += f'<h4>Current/next-round strict flags ({_fi(len(shortlist))})</h4>' + _ko_table(shortlist)
+
+    if flagged:
+        next_round = flagged[0].get("round")
+        next_rows = [r for r in flagged if r.get("round") == next_round]
+        later_rows = [r for r in flagged if r.get("round") != next_round]
+        if not shortlist:
+            html += f'<h4>Next round to review ({_esc(next_round)})</h4>' + _ko_table(next_rows)
+        if later_rows:
+            html += (
+                '<details class="audit-details"><summary>Later projected rounds (review flags)</summary>'
+                + _ko_table(later_rows) + "</details>"
+            )
+    else:
+        html += '<p class="muted">No knockout review flags.</p>'
+
+    html += (
+        '<details class="audit-details"><summary>Full strict knockout overlay (all matches, audit)</summary>'
+        + _ko_table([_obj(x) for x in ko]) + "</details>"
+    )
+    if broad_audit:
+        html += (
+            '<details class="audit-details"><summary>Broad knockout overlay from first pass (audit-only)</summary>'
+            + _ko_table([_obj(x) for x in broad_audit]) + "</details>"
+        )
+    return html
+
+
 def _render_incentives(data: dict) -> str:
     diagnostics = _obj(data.get("incentive_diagnostics"))
     matches = _arr(diagnostics.get("matches"))
@@ -1986,6 +2467,12 @@ def render_app_html(data: dict) -> str:
             _section("live-group-tables", "Live group tables", None, _render_live_group_tables(data)),
             _section("incentives", "Final group incentives", None, _render_incentives(data)),
             _section("advancement", "Advancement / bracket projections", None, _render_advancement(data)),
+            _section(
+                "human-upside-overlay",
+                "Human upside / star-player & chemistry overlay",
+                "analyst overlay",
+                _render_human_upside(data),
+            ),
         ]
     )
 

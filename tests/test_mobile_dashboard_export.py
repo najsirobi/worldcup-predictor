@@ -111,12 +111,23 @@ def test_dashboard_fill_in_sections_and_alignment():
     assert "Scores to fill in" in html
     assert "Group standings to fill in" in html
     assert "Last-8 to fill in" in html
-    # Copy-friendly line format present verbatim.
+    # Copy-friendly line format present verbatim (unadjusted match).
     assert "1. Mexico 1-0 South Africa" in html
-    # All 72 fill-only scores are present in the dashboard.
-    fill_only = pd.read_csv(
-        "outputs/final_candidate_v2_auto_science/final_group_score_predictions_fill_only.csv"
-    )
+    # The active score-to-fill-in source is the v3 objective-residual candidate when its
+    # promotion gate passes, otherwise the v2 baseline. v2 stays the *active candidate*
+    # (baseline/reference) but the displayed fill-in scores follow the promoted candidate.
+    objective = payload["objective_residual"]
+    if objective["promotion_gate_passed"]:
+        fill_path = (
+            "outputs/final_candidate_v3_objective_residual/"
+            "final_group_score_predictions_fill_only.csv"
+        )
+    else:
+        fill_path = (
+            "outputs/final_candidate_v2_auto_science/"
+            "final_group_score_predictions_fill_only.csv"
+        )
+    fill_only = pd.read_csv(fill_path)
     assert len(fill_only) == 72
     for line in fill_only["copy_text"].astype(str):
         assert line in html, f"missing fill-only line: {line}"
@@ -305,6 +316,83 @@ def test_build_main_creates_html_and_json():
     assert '<details class="dashboard-section" id="overview" open>' in docs_html_text
     assert '<details class="dashboard-section" id="group-standings">' in docs_html_text
     assert "1. Mexico 1-0 South Africa" in docs_html_text
+
+
+def test_dashboard_shows_knockout_human_overlay_review():
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+    # The dedicated knockout overlay subsection is present.
+    assert "Knockout human-overlay review" in html
+    # The human-upside analyst section exists and is collapsed by default.
+    assert '<details class="dashboard-section" id="human-upside-overlay">' in html
+    assert (
+        build_mobile_dashboard.SECTION_DEFAULT_OPEN.get("human-upside-overlay") is False
+    )
+
+
+def test_dashboard_labels_human_overlay_not_used_in_final():
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+    assert "Context only — not used in final prediction." in html
+    assert "Objective residual review" in html
+    assert "manually approved" not in html.lower()
+    assert "manual approval" not in html.lower()
+    assert "Broad human-overlay suggestions (audit-only, hidden by default)" in html
+
+
+def test_human_overlay_does_not_modify_frozen_candidate():
+    import hashlib
+    from src.overlay.human_upside_overlay import V2_SCORES_PATH
+
+    before = hashlib.sha256(V2_SCORES_PATH.read_bytes()).hexdigest()
+    build_mobile_dashboard.build_payload()
+    build_mobile_dashboard.render_html(build_mobile_dashboard.build_payload())
+    assert hashlib.sha256(V2_SCORES_PATH.read_bytes()).hexdigest() == before
+
+
+def test_dashboard_uses_objective_residual_score_when_promoted():
+    """When v3 promotion passes, the score-to-fill-in is the adjusted score (Part D)."""
+    payload = build_mobile_dashboard.build_payload()
+    objective = payload["objective_residual"]
+    if not objective["promotion_gate_passed"]:
+        return  # gate failed -> v2 stays active; covered by other tests
+    rows = {r["match_number"]: r for r in payload["submission_score_predictions"]}
+    adjusted = {int(a["match_number"]): a for a in objective["adjustments"]}
+    assert adjusted, "promotion passed but no adjusted matches recorded"
+    for mn, adj in adjusted.items():
+        row = rows[mn]
+        assert row["objective_residual_applied"] is True
+        assert row["submitted_score"] == adj["objective_residual_score"]
+        assert row["base_v2_score"] == adj["v2_score"]
+        assert row["objective_rule_triggered"] == "R1_only_diff_5_0"
+    # Unadjusted matches keep their v2 score and are not flagged.
+    for mn, row in rows.items():
+        if mn not in adjusted:
+            assert row["objective_residual_applied"] is False
+            assert row["submitted_score"] == row["base_v2_score"]
+
+
+def test_dashboard_labels_base_and_objective_residual_candidate():
+    """Dashboard labels the v2 baseline and the objective-residual candidate (Part D)."""
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+    # Active candidate stays v2 (baseline/reference).
+    assert payload["active_candidate"]["name"] == "final_candidate_v2_auto_science"
+    assert "Base model: v2_auto_science" in html
+    assert "Adjusted candidate: final_candidate_v3_objective_residual" in html
+    assert "Post-model objective residual rule applied:" in html
+    # The v2 candidate files are never mutated by the dashboard build.
+    assert payload["objective_residual"]["base_model_byte_identical"] is True
+
+
+def test_dashboard_does_not_use_manual_approval_language():
+    """Part D / Part F: no 'manual approval' framing anywhere in the dashboard."""
+    payload = build_mobile_dashboard.build_payload()
+    html = build_mobile_dashboard.render_html(payload)
+    assert "manual approval" not in html.lower()
+    assert "manually approved" not in html.lower()
+    # The deterministic-only statement is present instead.
+    assert "No manual sign-off or subjective override used." in html
 
 
 def test_workflow_scripts_do_not_call_training_or_apis():

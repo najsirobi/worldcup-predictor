@@ -1,0 +1,3 @@
+match_date,team,opponent,friendly_match_id_if_known,distortion_type,affected_players,estimated_strength_distortion,should_downweight_for_form,source_date,source_url,notes,needs_review
+2026-05-26,Argentina,Ecuador,,star_absent_precaution,Lionel Messi,medium,true,2026-05-30,,Messi absent/limited minutes due to precautionary hamstring management. If used for form update tag as lineup_distorted before ingestion.,true
+2026-05-28,Germany,Japan,,star_absent_precaution,Lennart Karl,low,true,2026-05-28,,Karl did not travel due to thigh injury confirmed. Low distortion overall as Karl is rotation tier not carry player.,false
