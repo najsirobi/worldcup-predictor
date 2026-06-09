@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "candidate_dir": "outputs/final_candidate_v4_recent_rollforward",
+  "candidate_name": "final_candidate_v4_recent_rollforward",
+  "base_model": "outputs/final_candidate_v2_auto_science",
+  "base_v3": "outputs/final_candidate_v3_objective_residual",
+  "rule": "R1_only_diff_5_0",
+  "deterministic": true,
+  "broad_human_overlay_used": false,
+  "manual_approval_used": false,
+  "subjective_override_used": false,
+  "source_provenance_complete": false,
+  "source_conflicts": 0,
+  "needs_review_rows_used": 0,
+  "rolling_forward_update": true,
+  "new_matches_appended": 35,
+  "new_match_date_range": "2026-06-03 to 2026-06-08",
+  "elo_ratings_frozen_at": "2025-12-13",
+  "fifa_rankings_frozen_at": "2024-06-20",
+  "v2_byte_identical": true,
+  "v3_byte_identical": true,
+  "n_r1_adjusted_scores": 4,
+  "n_score_changes_vs_v3": 2,
+  "promotion_gate_passed": true,
+  "promotion_warning": false,
+  "is_recommended_score_fill_candidate": true,
+  "lineup_distortion_caveat": "Argentina/Messi (LA002, active_monitoring) June 6 match included at full weight in rolling form. Distortion documented in outputs/predictions/recent_international_lineup_distortion_audit.csv but custom weighting not implemented (would alter model architecture).",
+  "generated_at": "2026-06-09T17:19:31.851724+00:00",
+  "files": [
+    {
+      "path": "outputs/final_candidate_v4_recent_rollforward/final_group_score_predictions_auto.csv",
+      "sha256": "e022958e8dc6a57b0ba559d77aaa43a2996a9a7be0c7f5e9d90a7f9fe3baa445",
+      "size_bytes": 9375
+    },
+    {
+      "path": "outputs/final_candidate_v4_recent_rollforward/final_group_score_predictions_fill_only.csv",
+      "sha256": "e31a916a79d06f7eb48e66b697ae24683f5724b4825fb898e206e463b93b7cc6",
+      "size_bytes": 3816
+    },
+    {
+      "path": "outputs/final_candidate_v4_recent_rollforward/recent_rollforward_adjustments.csv",
+      "sha256": "4503b9e1b38275faec677e2b4c1dce9ea5b500d72320fd772b3dee4de94fb26a",
+      "size_bytes": 17047
+    },
+    {
+      "path": "outputs/final_candidate_v4_recent_rollforward/recent_rollforward_candidate_report.md",
+      "sha256": "fee84a1cc4f2211ee4e61834efaaec7f0cb152737d074dc82f91b1514edb15da",
+      "size_bytes": 1650
+    }
+  ]
+}

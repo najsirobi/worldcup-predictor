@@ -1,0 +1,2 @@
+raw_name,canonical_proposed,source,country_code,needs_review,notes
+DR Congo,DR Congo,recent_post_cutoff_2026,COD,False,DR Congo is already used as canonical name in matches_clean backbone (220 home + 302 away appearances). It is absent from team_name_map.csv only because it was never mapped from an external alias — the Kaggle source uses DR Congo directly. Safe to add as identity mapping if desired.

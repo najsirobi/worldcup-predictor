@@ -106,27 +106,19 @@ def test_dashboard_fill_in_sections_and_alignment():
     html = build_mobile_dashboard.render_html(payload)
 
     # Active candidate.
-    assert payload["active_candidate"]["name"] == "final_candidate_v2_auto_science"
+    assert payload["active_candidate"]["name"] == "final_candidate_v4_recent_rollforward"
     # Fill-in section headings (practical, not audit-first).
     assert "Scores to fill in" in html
     assert "Group standings to fill in" in html
     assert "Last-8 to fill in" in html
     # Copy-friendly line format present verbatim (unadjusted match).
     assert "1. Mexico 1-0 South Africa" in html
-    # The active score-to-fill-in source is the v3 objective-residual candidate when its
-    # promotion gate passes, otherwise the v2 baseline. v2 stays the *active candidate*
-    # (baseline/reference) but the displayed fill-in scores follow the promoted candidate.
-    objective = payload["objective_residual"]
-    if objective["promotion_gate_passed"]:
-        fill_path = (
-            "outputs/final_candidate_v3_objective_residual/"
-            "final_group_score_predictions_fill_only.csv"
-        )
-    else:
-        fill_path = (
-            "outputs/final_candidate_v2_auto_science/"
-            "final_group_score_predictions_fill_only.csv"
-        )
+    # The active score-to-fill-in source is the active candidate's fill-only file.
+    # v4 is now active (rolling-forward with June 3-8 form update, R1 rule applied).
+    fill_path = (
+        "outputs/final_candidate_v4_recent_rollforward/"
+        "final_group_score_predictions_fill_only.csv"
+    )
     fill_only = pd.read_csv(fill_path)
     assert len(fill_only) == 72
     for line in fill_only["copy_text"].astype(str):
@@ -260,8 +252,8 @@ def test_dashboard_includes_prediction_vs_actual_section():
     assert "submission_summary" in payload
     assert payload["submission_summary"]["manual_review_rows_auto_resolved"] == 21
     assert payload["submission_summary"]["ev_overrides_accepted"] == 0
-    assert payload["submission_summary"]["ev_overrides_rejected"] == 27
-    assert payload["submission_summary"]["safe_scores_kept"] == 72
+    assert payload["submission_summary"]["ev_overrides_rejected"] == 26
+    assert payload["submission_summary"]["safe_scores_kept"] == 68
     assert len(payload["submission_score_predictions"]) == 72
     first = payload["submission_score_predictions"][0]
     assert first["status"] == "locked/submitted"
@@ -274,10 +266,10 @@ def test_dashboard_includes_prediction_vs_actual_section():
 
 def test_dashboard_displays_active_candidate_name():
     payload = build_mobile_dashboard.build_payload()
-    assert payload["active_candidate"]["name"] == "final_candidate_v2_auto_science"
+    assert payload["active_candidate"]["name"] == "final_candidate_v4_recent_rollforward"
     html = build_mobile_dashboard.render_html(payload)
     # The candidate name is embedded (in the payload JSON and rendered into the header).
-    assert "final_candidate_v2_auto_science" in html
+    assert "final_candidate_v4_recent_rollforward" in html
     assert "Active candidate" in html
 
 
@@ -376,8 +368,8 @@ def test_dashboard_labels_base_and_objective_residual_candidate():
     """Dashboard labels the v2 baseline and the objective-residual candidate (Part D)."""
     payload = build_mobile_dashboard.build_payload()
     html = build_mobile_dashboard.render_html(payload)
-    # Active candidate stays v2 (baseline/reference).
-    assert payload["active_candidate"]["name"] == "final_candidate_v2_auto_science"
+    # Active candidate is now v4 (rolling-forward with June 3-8 form update).
+    assert payload["active_candidate"]["name"] == "final_candidate_v4_recent_rollforward"
     assert "Base model: v2_auto_science" in html
     assert "Adjusted candidate: final_candidate_v3_objective_residual" in html
     assert "Post-model objective residual rule applied:" in html

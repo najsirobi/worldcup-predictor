@@ -9,6 +9,8 @@ outputs/*
 !outputs/final_candidate_v1/**
 !outputs/final_candidate_v2_auto_science/
 !outputs/final_candidate_v2_auto_science/**
+!outputs/final_candidate_v4_recent_rollforward/
+!outputs/final_candidate_v4_recent_rollforward/**
 !outputs/live/
 !outputs/live/**
 !outputs/reports/

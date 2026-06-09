@@ -10,7 +10,7 @@ from src.live.active_candidate import load_active_candidate
 
 FILL_ONLY_NAME = "final_group_score_predictions_fill_only.csv"
 FILL_ONLY_PATHS = [
-    Path("outputs/final_candidate_v2_auto_science") / FILL_ONLY_NAME,
+    Path("outputs/final_candidate_v4_recent_rollforward") / FILL_ONLY_NAME,
     Path("outputs/predictions") / FILL_ONLY_NAME,
 ]
 EXPECTED_COLUMNS = [

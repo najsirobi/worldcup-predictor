@@ -7,8 +7,8 @@
 #
 # The frozen candidate folders themselves are never modified by Travel Mode.
 #
-# Currently active: final_candidate_v2_auto_science (science-only submission).
-active_candidate_dir: outputs/final_candidate_v2_auto_science
+# Currently active: final_candidate_v4_recent_rollforward (rolling-forward with June 3-8 form update).
+active_candidate_dir: outputs/final_candidate_v4_recent_rollforward
 score_predictions_file: final_group_score_predictions_auto.csv
 standing_predictions_file: final_group_standing_predictions_auto.csv
 last8_predictions_file: final_last8_predictions_auto.csv

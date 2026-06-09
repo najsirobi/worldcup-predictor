@@ -1,0 +1,13 @@
+group,rank_1,rank_2,rank_3,rank_4,confidence_if_available,notes
+A,Mexico,Korea Republic,Czechia,South Africa,not_available,none
+B,Switzerland,Canada,Bosnia and Herzegovina,Qatar,not_available,none
+C,Brazil,Morocco,Scotland,Haiti,not_available,none
+D,Türkiye,Paraguay,Australia,USA,not_available,none
+E,Germany,Ecuador,Côte d'Ivoire,Curaçao,not_available,none
+F,Netherlands,Japan,Tunisia,Sweden,not_available,none
+G,Belgium,Egypt,IR Iran,New Zealand,not_available,deterministic_fallback_alphabetical_after_points_gd_gf_ga: Egypt/IR Iran
+H,Spain,Uruguay,Cabo Verde,Saudi Arabia,not_available,none
+I,France,Norway,Senegal,Iraq,not_available,none
+J,Argentina,Austria,Algeria,Jordan,not_available,none
+K,Portugal,Colombia,Uzbekistan,Congo DR,not_available,none
+L,England,Croatia,Panama,Ghana,not_available,none
