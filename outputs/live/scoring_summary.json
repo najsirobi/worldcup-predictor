@@ -1,8 +1,8 @@
 {
-  "generated_at": "2026-06-05T08:19:10Z",
+  "generated_at": "2026-06-27T23:57:54Z",
   "active_candidate": {
-    "name": "final_candidate_v2_auto_science",
-    "active_candidate_dir": "outputs/final_candidate_v2_auto_science",
+    "name": "final_candidate_v4_recent_rollforward",
+    "active_candidate_dir": "outputs/final_candidate_v4_recent_rollforward",
     "score_predictions_file": "final_group_score_predictions_auto.csv",
     "standing_predictions_file": "final_group_standing_predictions_auto.csv",
     "last8_predictions_file": "final_last8_predictions_auto.csv",
@@ -10,13 +10,122 @@
     "config_path": "data/live/active_candidate.yml",
     "config_existed": true
   },
-  "played_matches": 0,
-  "exact_scores_correct": 0,
-  "goal_differences_correct": 0,
-  "outcomes_correct": 0,
-  "total_points": 0.0,
-  "possible_points_for_played_matches": 0.0,
-  "points_missed": 0.0,
-  "average_points_per_played_match": 0.0,
-  "total_by_group": {}
+  "played_matches": 66,
+  "exact_scores_correct": 9,
+  "goal_differences_correct": 17,
+  "outcomes_correct": 41,
+  "total_points": 568.06,
+  "possible_points_for_played_matches": 1424.34,
+  "points_missed": 856.28,
+  "average_points_per_played_match": 8.607,
+  "total_by_group": {
+    "A": {
+      "played_matches": 6,
+      "total_points": 58.9,
+      "possible_points": 127.26,
+      "points_missed": 68.36,
+      "outcomes_correct": 4,
+      "goal_differences_correct": 2,
+      "exact_scores_correct": 1
+    },
+    "B": {
+      "played_matches": 6,
+      "total_points": 58.82,
+      "possible_points": 134.4,
+      "points_missed": 75.58,
+      "outcomes_correct": 4,
+      "goal_differences_correct": 1,
+      "exact_scores_correct": 0
+    },
+    "C": {
+      "played_matches": 6,
+      "total_points": 69.08,
+      "possible_points": 105.84,
+      "points_missed": 36.76,
+      "outcomes_correct": 5,
+      "goal_differences_correct": 4,
+      "exact_scores_correct": 3
+    },
+    "D": {
+      "played_matches": 6,
+      "total_points": 20.24,
+      "possible_points": 141.3,
+      "points_missed": 121.06,
+      "outcomes_correct": 1,
+      "goal_differences_correct": 1,
+      "exact_scores_correct": 0
+    },
+    "E": {
+      "played_matches": 6,
+      "total_points": 43.26,
+      "possible_points": 117.54,
+      "points_missed": 74.28,
+      "outcomes_correct": 4,
+      "goal_differences_correct": 0,
+      "exact_scores_correct": 0
+    },
+    "F": {
+      "played_matches": 6,
+      "total_points": 44.08,
+      "possible_points": 132.36,
+      "points_missed": 88.28,
+      "outcomes_correct": 3,
+      "goal_differences_correct": 2,
+      "exact_scores_correct": 1
+    },
+    "G": {
+      "played_matches": 6,
+      "total_points": 48.74,
+      "possible_points": 150.06,
+      "points_missed": 101.32,
+      "outcomes_correct": 3,
+      "goal_differences_correct": 1,
+      "exact_scores_correct": 1
+    },
+    "H": {
+      "played_matches": 6,
+      "total_points": 21.0,
+      "possible_points": 161.1,
+      "points_missed": 140.1,
+      "outcomes_correct": 2,
+      "goal_differences_correct": 0,
+      "exact_scores_correct": 0
+    },
+    "I": {
+      "played_matches": 6,
+      "total_points": 82.34,
+      "possible_points": 107.34,
+      "points_missed": 25.0,
+      "outcomes_correct": 6,
+      "goal_differences_correct": 1,
+      "exact_scores_correct": 1
+    },
+    "J": {
+      "played_matches": 4,
+      "total_points": 49.72,
+      "possible_points": 65.72,
+      "points_missed": 16.0,
+      "outcomes_correct": 4,
+      "goal_differences_correct": 2,
+      "exact_scores_correct": 0
+    },
+    "K": {
+      "played_matches": 4,
+      "total_points": 38.96,
+      "possible_points": 80.36,
+      "points_missed": 41.4,
+      "outcomes_correct": 3,
+      "goal_differences_correct": 1,
+      "exact_scores_correct": 1
+    },
+    "L": {
+      "played_matches": 4,
+      "total_points": 32.92,
+      "possible_points": 101.06,
+      "points_missed": 68.14,
+      "outcomes_correct": 2,
+      "goal_differences_correct": 2,
+      "exact_scores_correct": 1
+    }
+  }
 }

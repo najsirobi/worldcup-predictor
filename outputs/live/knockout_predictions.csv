@@ -1,33 +1,33 @@
 match_number,round,round_label,projected_team_a,projected_team_b,projected_score,projected_advancing_team,projected_shootout,current_team_a,current_team_b,current_score,current_advancing_team,current_shootout,teams_source,actual_score,actual_advancing_team,actual_shootout,points_earned_estimate,status,copy_text
-73,R32,Round of 32,Korea Republic,Canada,1-1,Canada,True,Korea Republic,Canada,1-1,Canada,True,projected,,,,,projected,73. Korea Republic 1-1 Canada — adv Canada after shoot-out
+73,R32,Round of 32,Korea Republic,Canada,1-1,Korea Republic,True,Korea Republic,Canada,1-1,Korea Republic,True,projected,,,,,projected,73. Korea Republic 1-1 Canada — adv Korea Republic after shoot-out
 74,R32,Round of 32,Germany,Scotland,1-0,Germany,False,Germany,Scotland,1-0,Germany,False,projected,,,,,projected,74. Germany 1-0 Scotland — adv Germany
 75,R32,Round of 32,Netherlands,Morocco,1-1,Netherlands,True,Netherlands,Morocco,1-1,Netherlands,True,projected,,,,,projected,75. Netherlands 1-1 Morocco — adv Netherlands after shoot-out
 76,R32,Round of 32,Brazil,Japan,1-1,Brazil,True,Brazil,Japan,1-1,Brazil,True,projected,,,,,projected,76. Brazil 1-1 Japan — adv Brazil after shoot-out
 77,R32,Round of 32,France,Tunisia,1-0,France,False,France,Tunisia,1-0,France,False,projected,,,,,projected,77. France 1-0 Tunisia — adv France
 78,R32,Round of 32,Ecuador,Norway,1-1,Ecuador,True,Ecuador,Norway,1-1,Ecuador,True,projected,,,,,projected,78. Ecuador 1-1 Norway — adv Ecuador after shoot-out
-79,R32,Round of 32,Mexico,Côte d'Ivoire,1-1,Mexico,True,Mexico,Côte d'Ivoire,1-1,Mexico,True,projected,,,,,projected,79. Mexico 1-1 Côte d'Ivoire — adv Mexico after shoot-out
-80,R32,Round of 32,England,Senegal,1-0,England,False,England,Senegal,1-0,England,False,projected,,,,,projected,80. England 1-0 Senegal — adv England
-81,R32,Round of 32,Türkiye,Bosnia and Herzegovina,1-1,Türkiye,True,Türkiye,Bosnia and Herzegovina,1-1,Türkiye,True,projected,,,,,projected,81. Türkiye 1-1 Bosnia and Herzegovina — adv Türkiye after shoot-out
-82,R32,Round of 32,Belgium,Algeria,1-0,Belgium,False,Belgium,Algeria,1-0,Belgium,False,projected,,,,,projected,82. Belgium 1-0 Algeria — adv Belgium
-83,R32,Round of 32,Colombia,Croatia,1-1,Croatia,True,Colombia,Croatia,1-1,Croatia,True,projected,,,,,projected,83. Colombia 1-1 Croatia — adv Croatia after shoot-out
-84,R32,Round of 32,Spain,Austria,1-0,Spain,False,Spain,Austria,1-0,Spain,False,projected,,,,,projected,84. Spain 1-0 Austria — adv Spain
-85,R32,Round of 32,Switzerland,Egypt,1-0,Switzerland,False,Switzerland,Egypt,1-0,Switzerland,False,projected,,,,,projected,85. Switzerland 1-0 Egypt — adv Switzerland
-86,R32,Round of 32,Argentina,Uruguay,1-0,Argentina,False,Argentina,Uruguay,1-0,Argentina,False,projected,,,,,projected,86. Argentina 1-0 Uruguay — adv Argentina
-87,R32,Round of 32,Portugal,Panama,1-0,Portugal,False,Portugal,Panama,1-0,Portugal,False,projected,,,,,projected,87. Portugal 1-0 Panama — adv Portugal
-88,R32,Round of 32,Paraguay,IR Iran,1-1,IR Iran,True,Paraguay,IR Iran,1-1,IR Iran,True,projected,,,,,projected,88. Paraguay 1-1 IR Iran — adv IR Iran after shoot-out
-89,R16,Round of 16,Germany,France,1-1,France,True,Germany,France,1-1,France,True,projected,,,,,projected,89. Germany 1-1 France — adv France after shoot-out
-90,R16,Round of 16,Canada,Netherlands,1-1,Netherlands,True,Canada,Netherlands,1-1,Netherlands,True,projected,,,,,projected,90. Canada 1-1 Netherlands — adv Netherlands after shoot-out
+79,R32,Round of 32,Mexico,Cabo Verde,1-0,Mexico,False,Mexico,Cabo Verde,1-0,Mexico,False,projected,,,,,projected,79. Mexico 1-0 Cabo Verde — adv Mexico
+80,R32,Round of 32,England,Côte d'Ivoire,1-0,England,False,England,Côte d'Ivoire,1-0,England,False,projected,,,,,projected,80. England 1-0 Côte d'Ivoire — adv England
+81,R32,Round of 32,Türkiye,Bosnia and Herzegovina,1-0,Türkiye,False,Türkiye,Bosnia and Herzegovina,1-0,Türkiye,False,projected,,,,,projected,81. Türkiye 1-0 Bosnia and Herzegovina — adv Türkiye
+82,R32,Round of 32,Belgium,Czechia,1-0,Belgium,False,Belgium,Czechia,1-0,Belgium,False,projected,,,,,projected,82. Belgium 1-0 Czechia — adv Belgium
+83,R32,Round of 32,Colombia,Croatia,1-1,Colombia,True,Colombia,Croatia,1-1,Colombia,True,projected,,,,,projected,83. Colombia 1-1 Croatia — adv Colombia after shoot-out
+84,R32,Round of 32,Spain,Austria,1-1,Spain,True,Spain,Austria,1-1,Spain,True,projected,,,,,projected,84. Spain 1-1 Austria — adv Spain after shoot-out
+85,R32,Round of 32,Switzerland,IR Iran,1-0,Switzerland,False,Switzerland,IR Iran,1-0,Switzerland,False,projected,,,,,projected,85. Switzerland 1-0 IR Iran — adv Switzerland
+86,R32,Round of 32,Argentina,Uruguay,1-1,Argentina,True,Argentina,Uruguay,1-1,Argentina,True,projected,,,,,projected,86. Argentina 1-1 Uruguay — adv Argentina after shoot-out
+87,R32,Round of 32,Portugal,Australia,1-0,Portugal,False,Portugal,Australia,1-0,Portugal,False,projected,,,,,projected,87. Portugal 1-0 Australia — adv Portugal
+88,R32,Round of 32,Paraguay,Egypt,1-1,Paraguay,True,Paraguay,Egypt,1-1,Paraguay,True,projected,,,,,projected,88. Paraguay 1-1 Egypt — adv Paraguay after shoot-out
+89,R16,Round of 16,Germany,France,1-1,Germany,True,Germany,France,1-1,Germany,True,projected,,,,,projected,89. Germany 1-1 France — adv Germany after shoot-out
+90,R16,Round of 16,Korea Republic,Netherlands,1-1,Netherlands,True,Korea Republic,Netherlands,1-1,Netherlands,True,projected,,,,,projected,90. Korea Republic 1-1 Netherlands — adv Netherlands after shoot-out
 91,R16,Round of 16,Brazil,Ecuador,1-1,Brazil,True,Brazil,Ecuador,1-1,Brazil,True,projected,,,,,projected,91. Brazil 1-1 Ecuador — adv Brazil after shoot-out
-92,R16,Round of 16,Mexico,England,1-1,England,True,Mexico,England,1-1,England,True,projected,,,,,projected,92. Mexico 1-1 England — adv England after shoot-out
-93,R16,Round of 16,Croatia,Spain,0-1,Spain,False,Croatia,Spain,0-1,Spain,False,projected,,,,,projected,93. Croatia 0-1 Spain — adv Spain
-94,R16,Round of 16,Türkiye,Belgium,1-1,Belgium,True,Türkiye,Belgium,1-1,Belgium,True,projected,,,,,projected,94. Türkiye 1-1 Belgium — adv Belgium after shoot-out
-95,R16,Round of 16,Argentina,IR Iran,1-0,Argentina,False,Argentina,IR Iran,1-0,Argentina,False,projected,,,,,projected,95. Argentina 1-0 IR Iran — adv Argentina
+92,R16,Round of 16,Mexico,England,1-1,Mexico,True,Mexico,England,1-1,Mexico,True,projected,,,,,projected,92. Mexico 1-1 England — adv Mexico after shoot-out
+93,R16,Round of 16,Colombia,Spain,1-1,Spain,True,Colombia,Spain,1-1,Spain,True,projected,,,,,projected,93. Colombia 1-1 Spain — adv Spain after shoot-out
+94,R16,Round of 16,Türkiye,Belgium,1-1,Türkiye,True,Türkiye,Belgium,1-1,Türkiye,True,projected,,,,,projected,94. Türkiye 1-1 Belgium — adv Türkiye after shoot-out
+95,R16,Round of 16,Argentina,Paraguay,1-1,Argentina,True,Argentina,Paraguay,1-1,Argentina,True,projected,,,,,projected,95. Argentina 1-1 Paraguay — adv Argentina after shoot-out
 96,R16,Round of 16,Switzerland,Portugal,1-1,Switzerland,True,Switzerland,Portugal,1-1,Switzerland,True,projected,,,,,projected,96. Switzerland 1-1 Portugal — adv Switzerland after shoot-out
-97,QF,Quarter-finals,France,Netherlands,1-1,Netherlands,True,France,Netherlands,1-1,Netherlands,True,projected,,,,,projected,97. France 1-1 Netherlands — adv Netherlands after shoot-out
-98,QF,Quarter-finals,Spain,Belgium,1-1,Spain,True,Spain,Belgium,1-1,Spain,True,projected,,,,,projected,98. Spain 1-1 Belgium — adv Spain after shoot-out
-99,QF,Quarter-finals,Brazil,England,1-1,England,True,Brazil,England,1-1,England,True,projected,,,,,projected,99. Brazil 1-1 England — adv England after shoot-out
+97,QF,Quarter-finals,Germany,Netherlands,1-1,Germany,True,Germany,Netherlands,1-1,Germany,True,projected,,,,,projected,97. Germany 1-1 Netherlands — adv Germany after shoot-out
+98,QF,Quarter-finals,Spain,Türkiye,1-1,Spain,True,Spain,Türkiye,1-1,Spain,True,projected,,,,,projected,98. Spain 1-1 Türkiye — adv Spain after shoot-out
+99,QF,Quarter-finals,Brazil,Mexico,1-1,Brazil,True,Brazil,Mexico,1-1,Brazil,True,projected,,,,,projected,99. Brazil 1-1 Mexico — adv Brazil after shoot-out
 100,QF,Quarter-finals,Argentina,Switzerland,1-1,Argentina,True,Argentina,Switzerland,1-1,Argentina,True,projected,,,,,projected,100. Argentina 1-1 Switzerland — adv Argentina after shoot-out
-101,SF,Semi-finals,Netherlands,Spain,1-1,Spain,True,Netherlands,Spain,1-1,Spain,True,projected,,,,,projected,101. Netherlands 1-1 Spain — adv Spain after shoot-out
-102,SF,Semi-finals,England,Argentina,1-1,Argentina,True,England,Argentina,1-1,Argentina,True,projected,,,,,projected,102. England 1-1 Argentina — adv Argentina after shoot-out
-103,Third-place,Third-place play-off,Netherlands,England,1-1,England,True,Netherlands,England,1-1,England,True,projected,,,,,projected,103. Netherlands 1-1 England — adv England after shoot-out
-104,Final,Final,Spain,Argentina,1-1,Spain,True,Spain,Argentina,1-1,Spain,True,projected,,,,,projected,104. Spain 1-1 Argentina — adv Spain after shoot-out
+101,SF,Semi-finals,Germany,Spain,1-1,Germany,True,Germany,Spain,1-1,Germany,True,projected,,,,,projected,101. Germany 1-1 Spain — adv Germany after shoot-out
+102,SF,Semi-finals,Brazil,Argentina,1-1,Brazil,True,Brazil,Argentina,1-1,Brazil,True,projected,,,,,projected,102. Brazil 1-1 Argentina — adv Brazil after shoot-out
+103,Third-place,Third-place play-off,Spain,Argentina,1-1,Spain,True,Spain,Argentina,1-1,Spain,True,projected,,,,,projected,103. Spain 1-1 Argentina — adv Spain after shoot-out
+104,Final,Final,Germany,Brazil,1-1,Germany,True,Germany,Brazil,1-1,Germany,True,projected,,,,,projected,104. Germany 1-1 Brazil — adv Germany after shoot-out
