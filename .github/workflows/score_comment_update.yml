@@ -58,6 +58,14 @@ jobs:
             python scripts/init_scores_override.py
           fi
 
+      - name: Prepare prediction view fallback
+        run: |
+          mkdir -p outputs/predictions
+          if [ ! -f outputs/predictions/group_submission_view.csv ]; then
+            cp outputs/final_candidate_v4_recent_rollforward/final_group_score_predictions_fill_only.csv outputs/predictions/group_submission_view.csv
+          fi
+          ls -lh outputs/predictions/group_submission_view.csv 
+
       - name: Save comment body to a temp file
         env:
           COMMENT_BODY: ${{ github.event.comment.body }}
