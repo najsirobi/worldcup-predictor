@@ -116,7 +116,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add data/live/scores_override.csv outputs/live docs outputs/reports/live_tournament_state_report.md outputs/reports/live_group_stage_simulation_report.md outputs/reports/prediction_vs_actual_report.md outputs/reports/score_comment_ingestion_report.md
+          git add data/live/scores_override.csv outputs/live docs
           if git diff --cached --quiet; then
             echo "No changes to commit."
           else
